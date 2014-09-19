@@ -17,11 +17,9 @@ public class Rename {
 		m_processCount = n;
 		m_splitters = new Splitter[m_range][m_range];
 
-		int counter = 0;
-
 		for (int x = 0; x < m_range; x++) {
 			for (int y = 0; y < m_range; y++) {
-				m_splitters[x][y] = new Splitter(counter++);
+				m_splitters[x][y] = new Splitter();
 			}
 		}
 	}

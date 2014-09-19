@@ -1,9 +1,6 @@
 package lamport;
 
 class Splitter {
-
-	// global id
-	public int m_id;
 	
 	// private id
 	private volatile long m_pid;
@@ -15,9 +12,8 @@ class Splitter {
 		RIGHT, DOWN, STOP
 	}
 	
-	public Splitter(int id){
+	public Splitter(){
 		m_stopped = false;
-		m_id = id;
 		m_pid = -1;
 	}
 	
@@ -38,7 +34,6 @@ class Splitter {
 	}
 	
 	public void release(){
-		m_id = -1;
 		m_stopped = false;
 	}
 }
