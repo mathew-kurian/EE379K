@@ -6,7 +6,7 @@ class Splitter {
 	public int m_id;
 	
 	// private id
-	private volatile int m_pid;
+	private volatile long m_pid;
 	
 	// stopped a thread
 	private volatile boolean m_stopped;
@@ -15,13 +15,13 @@ class Splitter {
 		RIGHT, DOWN, STOP
 	}
 	
-	public Splitter(){
+	public Splitter(int id){
 		m_stopped = false;
-		m_id = -1;
-		m_id = -1;
+		m_id = id;
+		m_pid = -1;
 	}
 	
-	public Direction createName(int pid){
+	public Direction getDirection(long pid){
 		
 		m_pid = pid;
 		
@@ -37,7 +37,7 @@ class Splitter {
 		}
 	}
 	
-	public void releaseName(){
+	public void release(){
 		m_id = -1;
 		m_stopped = false;
 	}
