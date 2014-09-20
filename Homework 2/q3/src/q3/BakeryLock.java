@@ -26,10 +26,8 @@ public class BakeryLock implements MyLock {
 		for (Integer k : label) {
 			while ((k != myId) && (flag[k]) && ((label[k]) < label[myId])
 					|| ((label[k] == label[myId]) && k < myId)) {
-			}
-			;
-		}
-		;
+			};
+		};
 	}
 
 	@Override
