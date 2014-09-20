@@ -1,7 +1,5 @@
 package lamport;
 
-import java.util.concurrent.ConcurrentHashMap;
-
 import lamport.Splitter.Direction;
 
 public class Rename {
@@ -54,10 +52,10 @@ public class Rename {
 			if (splitter == null) {
 				return null;
 			}
-						
+
 			Direction direction = splitter.getDirection(Thread.currentThread()
 					.getId());
-						
+
 			switch (direction) {
 			case DOWN: {
 				down++;
@@ -70,7 +68,7 @@ public class Rename {
 			case STOP: {
 				id = getId(down, right, m_range);
 				search = false;
-				
+
 				break;
 			}
 			}
@@ -78,29 +76,30 @@ public class Rename {
 
 		return new Result(down, right, id);
 	}
-	public static int getId(int down, int right, int range){
-		
+
+	public static int getId(int down, int right, int range) {
+
 		// return range + right - (down * (down - 1) / 2);
-		
-//		if (down < right | down == right) {
-//			right++;
-//			// Arithmetic series
-//			return (right + down) * (right + 1 + down) / 2 - down;
-//		} else {
-//			// Arithmetic series
-//			return (down + right) * (down + right + 1) / 2 + right;
-//		}
-		
+
+		// if (down < right | down == right) {
+		// right++;
+		// // Arithmetic series
+		// return (right + down) * (right + 1 + down) / 2 - down;
+		// } else {
+		// // Arithmetic series
+		// return (down + right) * (down + right + 1) / 2 + right;
+		// }
+
 		int y = down * (down + 1) / 2 + 1;
 		int x = 0;
-		
-		if(right > 0){
+
+		if (right > 0) {
 			int dx = down + 1;
 			int ex = dx + right;
 			int sx = dx * (dx + 1) / 2;
 			x = ex * (ex + 1) / 2 - sx;
 		}
-		
+
 		return x + y;
 	}
 

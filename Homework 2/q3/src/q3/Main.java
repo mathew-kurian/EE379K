@@ -7,24 +7,22 @@ public class Main {
 		long executeTimeMS = 0;
 		int numThread = 6;
 		int numTotalInc = 1200000;
-		
+
 		/*
-		 * ---- TESTING ----
-		 * ---- REMOVE BEFORE SUBMISSION ----
+		 * ---- TESTING ---- ---- REMOVE BEFORE SUBMISSION ----
 		 * 
-		 * 0: type of algorithm - "fast/bakery/synchronized/reentrant"
-		 * 1: # of threads
-		 * 2: # of increments
+		 * 0: type of algorithm - "fast/bakery/synchronized/reentrant" 1: # of
+		 * threads 2: # of increments
 		 * 
 		 * ---- start ----
 		 */
-		
-		args = new String [] { "fast", "10", "1200000"  };
 
-		/* 
+		args = new String[] { "fast", "10", "1200000" };
+
+		/*
 		 * ---- end ----
 		 */
-		
+
 		if (args.length < 3) {
 			System.err.println("Provide 3 arguments");
 			System.err.println("\t(1) <algorithm>: fast/bakery/synchronized/"
@@ -37,7 +35,7 @@ public class Main {
 
 		numThread = Integer.parseInt(args[1]);
 		numTotalInc = Integer.parseInt(args[2]);
-		
+
 		if (args[0].equals("fast")) {
 			lock = new FastMutexLock(numThread);
 			counter = new LockCounter(lock);
@@ -58,33 +56,35 @@ public class Main {
 		// Each thread executes numTotalInc/numThread increments
 		// Please calculate the total execute time in millisecond and store the
 		// result in executeTimeMS
-		
+
 		// Create Threads
-		Thread [] threads = new Thread[numThread];
-		
-		for(int i = 0; i < threads.length; i++){
-			threads[i] = new CountedThread(createRunnable(counter, numTotalInc), i);
+		Thread[] threads = new Thread[numThread];
+
+		for (int i = 0; i < threads.length; i++) {
+			threads[i] = new CountedThread(
+					createRunnable(counter, numTotalInc), i);
 		}
-		
+
 		// Start time
 		executeTimeMS = System.nanoTime();
 
 		// Start Threads
-		for(Thread thread : threads){
+		for (Thread thread : threads) {
 			thread.start();
 		}
-		
+
 		// End time
 		executeTimeMS = System.nanoTime() - executeTimeMS;
-		
+
 		System.out.println(executeTimeMS);
 	}
-	
-	public static Runnable createRunnable(final Counter counter, final int increments){
-		return new Runnable(){
+
+	public static Runnable createRunnable(final Counter counter,
+			final int increments) {
+		return new Runnable() {
 			@Override
 			public void run() {
-				while(counter.getCount() <= increments){
+				while (counter.getCount() <= increments) {
 					counter.increment();
 				}
 			}
