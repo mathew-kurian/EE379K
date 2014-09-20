@@ -4,11 +4,9 @@ package q3;
 // Use synchronized to protect count
 public class SynchronizedCounter extends Counter {
 	
-	private Object mutex = new Object();
-	
 	@Override
 	public void increment() {
-		synchronized(mutex){
+		synchronized(this){
 			count++; 
 		}
 	}

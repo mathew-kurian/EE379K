@@ -7,7 +7,24 @@ public class Main {
 		long executeTimeMS = 0;
 		int numThread = 6;
 		int numTotalInc = 1200000;
+		
+		/*
+		 * ---- TESTING ----
+		 * ---- REMOVE BEFORE SUBMISSION ----
+		 * 
+		 * 0: type of algorithm - "fast/bakery/synchronized/reentrant"
+		 * 1: # of threads
+		 * 2: # of increments
+		 * 
+		 * ---- start ----
+		 */
+		
+		args = new String [] { "fast", "10", "1200000"  };
 
+		/* 
+		 * ---- end ----
+		 */
+		
 		if (args.length < 3) {
 			System.err.println("Provide 3 arguments");
 			System.err.println("\t(1) <algorithm>: fast/bakery/synchronized/"
