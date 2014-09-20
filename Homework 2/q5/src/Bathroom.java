@@ -18,14 +18,11 @@ public class Bathroom extends JFrame {
 	private JLabel m_femaleSignal;
 	private JLabel m_femaleCount;
 
-	private volatile int m_male = 0;
-	private volatile int m_female = 0;
-
 	public Bathroom() {
 		m_maleSignal = new JLabel("MALE", JLabel.CENTER);
-		m_maleCount = new JLabel(Integer.toString(m_male), JLabel.CENTER);
+		m_maleCount = new JLabel(Integer.toString(0), JLabel.CENTER);
 		m_femaleSignal = new JLabel("FEMALE", JLabel.CENTER);
-		m_femaleCount = new JLabel(Integer.toString(m_female), JLabel.CENTER);
+		m_femaleCount = new JLabel(Integer.toString(0), JLabel.CENTER);
 	}
 
 	public void createAndShowGUI() {
@@ -90,27 +87,28 @@ public class Bathroom extends JFrame {
 		setVisible(true);
 	}
 
-	public void onEnter(GenderThread.Gender gender) {
-		if (gender == GenderThread.Gender.MALE) {
+	public void onEnter(GenderThread.Gender gender, int count) {
+		if (gender == GenderThread.Gender.MALE) {			
 			m_maleSignal.setBackground(new Color(0xA88000));
-			m_maleCount.setText(Integer.toString(++m_male));
-		} else {
-			m_femaleSignal.setBackground(new Color(0xA88000));
-			m_femaleCount.setText(Integer.toString(++m_female));
+			m_maleCount.setText(Integer.toString(count));			
+		} else {			
+			m_femaleSignal.setBackground(new Color(0xA88000));			
+			m_femaleCount.setText(Integer.toString(count));
 		}
 	}
 
-	public void onLeave(GenderThread.Gender gender) {
-		if (gender == GenderThread.Gender.MALE) {
-			if (--m_male == 0) {
+	public void onLeave(GenderThread.Gender gender, int count) {
+		if (gender == GenderThread.Gender.MALE) {			
+			if (count == 0) {
 				m_maleSignal.setBackground(new Color(0x555555));
-			}
-			m_maleCount.setText(Integer.toString(m_male));
-		} else {
-			if (--m_female == 0) {
+			}			
+			m_maleCount.setText(Integer.toString(count));
+			
+		} else {			
+			if (count == 0) {
 				m_femaleSignal.setBackground(new Color(0x555555));
-			}
-			m_femaleCount.setText(Integer.toString(m_female));
+			}				
+			m_femaleCount.setText(Integer.toString(count));
 		}
 
 	}

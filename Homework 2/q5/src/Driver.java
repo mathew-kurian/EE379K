@@ -1,27 +1,35 @@
 import javax.swing.SwingUtilities;
 
 import q5.BathroomLockProtocol;
-import q5.Protocol;
 
 public class Driver {
 
 	public static void main(String[] args) {
-		test(BathroomLockProtocol.class, 5);
+		test(new BathroomLockProtocol(), 5);
 	}
 
-	public static <T extends Protocol> void test(final Class<T> t,
+	public static GenderThread createGenderThread(final BathroomLockProtocol protocol,
+			GenderThread.Gender gender, final Bathroom bathroom) {
+		return new GenderThread(protocol, gender) {
+			@Override
+			public void onEnter(Gender gender) {
+				bathroom.onEnter(gender, gender == Gender.MALE ? protocol.m_male : protocol.m_female);
+
+			}
+
+			@Override
+			public void onLeave(Gender gender) {
+				bathroom.onLeave(gender, gender == Gender.MALE ? protocol.m_male : protocol.m_female);
+			}
+		};
+	}
+
+	public static void test(final BathroomLockProtocol protocol,
 			final int numThreads) {
+		
 		SwingUtilities.invokeLater(new Runnable() {
 			@Override
 			public void run() {
-
-				Protocol protocol = null;
-
-				try {
-					protocol = t.newInstance();
-				} catch (InstantiationException | IllegalAccessException e) {
-					e.printStackTrace();
-				}
 				
 				// Show UI
 				Bathroom bathroom = new Bathroom();				
@@ -35,26 +43,8 @@ public class Driver {
 									: GenderThread.Gender.FEMALE, bathroom)
 							.start();
 				}
-
 			}
-
 		});
-	}
-
-	public static GenderThread createGenderThread(Protocol protocol,
-			GenderThread.Gender gender, final Bathroom bathroom) {
-		return new GenderThread(protocol, gender) {
-			@Override
-			public void onEnter(Gender gender) {
-				bathroom.onEnter(gender);
-
-			}
-
-			@Override
-			public void onLeave(Gender gender) {
-				bathroom.onLeave(gender);
-			}
-		};
 	}
 
 }
