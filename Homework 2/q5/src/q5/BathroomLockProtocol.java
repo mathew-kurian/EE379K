@@ -40,7 +40,7 @@ public class BathroomLockProtocol implements Protocol {
 			m_male--;
 
 			if (m_male == 0) {
-				m_femaleWait.signalAll();
+				m_femaleWait.signal();
 			}
 
 		} finally {
@@ -73,7 +73,7 @@ public class BathroomLockProtocol implements Protocol {
 			m_female--;
 
 			if (m_female == 0) {
-				m_maleWait.signalAll();
+				m_maleWait.signal();
 			}
 		} finally {
 			m_lock.unlock();
