@@ -7,14 +7,12 @@ import lamport.Splitter.Direction;
 public class Rename {
 
 	private int m_range = 0;
-	private int m_processCount = 0;
 
 	private Splitter[][] m_splitters;
 	private HashMap<Integer, Splitter> m_splitterMap = new HashMap<Integer, Splitter>();
 
-	public Rename(int m, int n) {
+	public Rename(int m) {
 		m_range = m;
-		m_processCount = n;
 		m_splitters = new Splitter[m_range][m_range];
 
 		for (int x = 0; x < m_range; x++) {
@@ -31,6 +29,10 @@ public class Rename {
 
 		while (search) {
 
+			if(right >= m_range || down >= m_range){
+				return -1;
+			}
+			
 			Splitter splitter = m_splitters[right][down];
 			Direction direction = splitter.getDirection(Thread.currentThread()
 					.getId());
@@ -46,7 +48,7 @@ public class Rename {
 			}
 			case STOP: {
 				search = false;
-				id = (m_processCount * down + right - (down * (down - 1) / 2));
+				id = (down + right - (down * (down - 1) / 2));
 				m_splitterMap.put(id, splitter);
 				break;
 			}
@@ -58,8 +60,7 @@ public class Rename {
 
 	public void releaseId(int id) {
 		if (m_splitterMap.containsKey(id)) {
-			m_splitterMap.get(id).release();
-			m_splitterMap.remove(id);
+			m_splitterMap.remove(id).release();
 		}
 	}
 }

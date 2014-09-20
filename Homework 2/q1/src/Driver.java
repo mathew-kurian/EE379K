@@ -4,24 +4,15 @@ import lamport.Rename;
 public class Driver {
 
 	/**
-	 * @param args
+	 * Issues: Not calling "DOWN"
 	 */
 	public static void main(String[] args) {
 		
-		Rename rename = new Rename(5, 10);
+		Rename rename = new Rename(5);
 		
-		System.out.println(rename.reserveId());
-		System.out.println(rename.reserveId());
-		System.out.println(rename.reserveId());
-		System.out.println(rename.reserveId());
-		System.out.println(rename.reserveId());
-		
-		rename.releaseId(2);
-		rename.releaseId(4);
-		
-		System.out.println(rename.reserveId());
-		System.out.println(rename.reserveId());
-
+		for(int i = 0; i < 10; i++){
+			new AutoReleaseThread(rename).start();
+		}
 	}
 
 }
