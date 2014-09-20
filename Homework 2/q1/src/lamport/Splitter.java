@@ -28,7 +28,6 @@ class Splitter {
 			if(pid == m_pid){
 				return Direction.STOP;
 			} else {
-				System.out.println("HERER");
 				return Direction.DOWN;
 			}
 		}
