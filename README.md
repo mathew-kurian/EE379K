@@ -9,4 +9,4 @@ EE379K Multicore
 - [ ] **Question 2:** Not started
 - [X] **Question 3:** Missing Bakery; Other that don't see any issues
 - [X] **Question 4:** Done. Double check if we need to use ExecutorService (threadpool) or just via. plain old Threads
-- [ ] **Question 5:** Not started
+- [X] **Question 5:** Race detection bug. How to fix?
