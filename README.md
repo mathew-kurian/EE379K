@@ -8,5 +8,5 @@ EE379K Multicore
 - [X] **Question 1:** Some grids just fail to be reused after multiple invocations.
 - [ ] **Question 2:** Not started
 - [X] **Question 3:** Missing Bakery; Other that don't see any issues
-- [ ] **Question 4:** Not started; Will be starting on this next
+- [X] **Question 4:** Double check if we need to use ExecutorService (threadpool) or just via. plain old Threads
 - [ ] **Question 5:** Not started
