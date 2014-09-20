@@ -1,6 +1,6 @@
 package lamport;
 
-import java.util.HashMap;
+import java.util.concurrent.ConcurrentHashMap;
 
 import lamport.Splitter.Direction;
 
@@ -9,7 +9,7 @@ public class Rename {
 	private int m_range = 0;
 
 	private Splitter[][] m_splitters;
-	private HashMap<Integer, Splitter> m_splitterMap = new HashMap<Integer, Splitter>();
+	private ConcurrentHashMap<Integer, Splitter> m_splitterMap = new ConcurrentHashMap<Integer, Splitter>();
 
 	public class Result {
 		public int m_down;
@@ -55,7 +55,7 @@ public class Rename {
 			if (splitter == null) {
 				return null;
 			}
-
+			
 			Direction direction = splitter.getDirection(Thread.currentThread()
 					.getId());
 
@@ -76,6 +76,8 @@ public class Rename {
 				} else {
 					id = (down + right) * (down + right + 1) / 2 + right;
 				}
+				
+				// id = m_range + right - (down * (down - 1) / 2);
 				
 				m_splitterMap.put(id, splitter);
 				search = false;

@@ -35,5 +35,6 @@ class Splitter {
 	
 	public void release(){
 		m_stopped = false;
+		m_pid = -1;
 	}
 }
