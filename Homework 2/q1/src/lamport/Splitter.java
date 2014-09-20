@@ -6,7 +6,7 @@ class Splitter {
 	private volatile long m_pid;
 	
 	// stopped a thread
-	private volatile boolean m_stopped;
+	public volatile boolean m_stopped;
 
 	enum Direction {
 		RIGHT, DOWN, STOP

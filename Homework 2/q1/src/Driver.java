@@ -17,23 +17,23 @@ public class Driver {
 			@Override
 			public void run() {
 				grid.createAndShowGui();
+				
+				for(int i = 0; i < 10; i++){
+					new AutoReleaseThread(rename, i){
+						@Override
+						public void onReserve(Result result) {
+							grid.dirtyGrid(result.m_down, result.m_right);
+							
+						}
+						@Override
+						public void onRelease(Result result) {
+							grid.cleanGrid(result.m_down, result.m_right);
+							
+						}
+					}.start();
+				}
 			}
 		});
-		
-		for(int i = 0; i < 10; i++){
-			new AutoReleaseThread(rename, i){
-				@Override
-				public void onReserve(Result result) {
-					grid.dirtyGrid(result.m_down, result.m_right);
-					
-				}
-				@Override
-				public void onRelease(Result result) {
-					grid.cleanGrid(result.m_down, result.m_right);
-					
-				}
-			}.start();
-		}
 		
 	}
 

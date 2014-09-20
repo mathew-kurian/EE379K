@@ -9,7 +9,6 @@ public class Rename {
 	private int m_range = 0;
 
 	private Splitter[][] m_splitters;
-	private ConcurrentHashMap<Integer, Splitter> m_splitterMap = new ConcurrentHashMap<Integer, Splitter>();
 
 	public class Result {
 		public int m_down;
@@ -47,7 +46,7 @@ public class Rename {
 			Splitter splitter = null;
 
 			try {
-				splitter = m_splitters[right][down];
+				splitter = m_splitters[down][right];
 			} catch (Exception e) {
 				return null;
 			}
@@ -55,10 +54,10 @@ public class Rename {
 			if (splitter == null) {
 				return null;
 			}
-			
+						
 			Direction direction = splitter.getDirection(Thread.currentThread()
 					.getId());
-
+						
 			switch (direction) {
 			case DOWN: {
 				down++;
@@ -69,17 +68,7 @@ public class Rename {
 				break;
 			}
 			case STOP: {
-				// Arithmetic series
-				if (down < right | down == right) {
-					int _right = right + 1;
-					id = (_right + down) * (_right + 1 + down) / 2 - down;
-				} else {
-					id = (down + right) * (down + right + 1) / 2 + right;
-				}
-				
-				// id = m_range + right - (down * (down - 1) / 2);
-				
-				m_splitterMap.put(id, splitter);
+				id = getId(down, right, m_range);
 				search = false;
 				
 				break;
@@ -89,10 +78,33 @@ public class Rename {
 
 		return new Result(down, right, id);
 	}
-
-	public void releaseId(int id) {
-		if (m_splitterMap.containsKey(id)) {
-			m_splitterMap.remove(id).release();
+	public static int getId(int down, int right, int range){
+		
+		// return range + right - (down * (down - 1) / 2);
+		
+//		if (down < right | down == right) {
+//			right++;
+//			// Arithmetic series
+//			return (right + down) * (right + 1 + down) / 2 - down;
+//		} else {
+//			// Arithmetic series
+//			return (down + right) * (down + right + 1) / 2 + right;
+//		}
+		
+		int y = down * (down + 1) / 2 + 1;
+		int x = 0;
+		
+		if(right > 0){
+			int dx = down + 1;
+			int ex = dx + right;
+			int sx = dx * (dx + 1) / 2;
+			x = ex * (ex + 1) / 2 - sx;
 		}
+		
+		return x + y;
+	}
+
+	public void releaseId(int down, int right) {
+		m_splitters[down][right].release();
 	}
 }

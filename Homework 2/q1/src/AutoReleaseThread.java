@@ -12,7 +12,7 @@ public abstract class AutoReleaseThread extends Thread {
 	}
 
 	public void run() {
-
+				
 		while (true) {
 			
 			Rename.Result res = m_rename.reserveId();
@@ -38,7 +38,8 @@ public abstract class AutoReleaseThread extends Thread {
 				e.printStackTrace();
 			}
 			
-			m_rename.releaseId(res.m_id);
+			m_rename.releaseId(res.m_down, res.m_right);
+			
 			onRelease(res);
 		}
 	}
