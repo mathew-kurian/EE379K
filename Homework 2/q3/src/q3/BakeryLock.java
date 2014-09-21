@@ -23,10 +23,12 @@ public class BakeryLock implements MyLock {
 	public void lock(int myId) {
 		flag[myId] = true;
 		label[myId] = Collections.max(Arrays.asList(label)) + 1;
-		for (Integer k : label) {
-			while ((k != myId) && (flag[k]) && ((label[k]) < label[myId])
-					|| ((label[k] == label[myId]) && k < myId)) {
-			};
+		//System.out.println(Collections.max(Arrays.asList(label)));
+		for (int k = 0; k <10; k++){
+			//System.out.println(k);
+			if (k != myId) {
+				while ((flag[k]) && (((label[k]) < label[myId]) || ((label[k] == label[myId]) && k < myId))) {};
+			}
 		};
 	}
 

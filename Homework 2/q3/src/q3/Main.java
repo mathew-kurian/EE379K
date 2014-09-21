@@ -9,15 +9,15 @@ public class Main {
 		int numTotalInc = 1200000;
 
 		/*
-		 * ---- TESTING ---- ---- REMOVE BEFORE SUBMISSION ----
+		 * ---- TESTING ---- 
+		 * ---- REMOVE BEFORE SUBMISSION ----
 		 * 
 		 * 0: type of algorithm - "fast/bakery/synchronized/reentrant" 1: # of
 		 * threads 2: # of increments
 		 * 
 		 * ---- start ----
 		 */
-
-		args = new String[] { "fast", "10", "1200000" };
+		args = new String[] { "bakery", "10", "1200000" };
 
 		/*
 		 * ---- end ----

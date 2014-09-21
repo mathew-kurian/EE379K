@@ -19,13 +19,14 @@ class Splitter {
 
 	public Direction getDirection(long pid) {
 
-		m_pid = pid;
+		m_pid = pid; // 100, 50
+		//100
 
 		if (m_stopped) {
 			return Direction.RIGHT;
 		} else {
 			m_stopped = true;
-			if (pid == m_pid) {
+			if (pid == m_pid) { 
 				return Direction.STOP;
 			} else {
 				return Direction.DOWN;
