@@ -39,7 +39,6 @@ public class Main {
 			lock = new FastMutexLock(numThread);
 			counter = new LockCounter(lock);
 		} else if (args[0].equals("bakery")) {
-//			System.out.println("you are her");
 			lock = new BakeryLock(numThread);
 			counter = new LockCounter(lock);
 		} else if (args[0].equals("synchronized")) {
