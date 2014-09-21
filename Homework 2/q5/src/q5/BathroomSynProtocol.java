@@ -8,57 +8,62 @@ public class BathroomSynProtocol implements Protocol {
 	public volatile Integer m_male = 0;
 	public volatile Integer m_female = 0;
 
+	public Object m_maleWait = new Object();
+	public Object m_femaleWait = new Object();
+
 	public void enterMale() {
+		synchronized (this) {
 
-		try {
-			synchronized (m_male) {
-
+			try {
 				while (m_female > 0) {
-					m_male.wait();
+					m_maleWait.wait();
 				}
 
 				m_male++;
-			}
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
 
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		}
 	}
 
 	public void leaveMale() {
-		synchronized (m_male) {
+		synchronized (this) {
+
 			m_male--;
 
 			if (m_male == 0) {
-				m_female.notify();
+				m_femaleWait.notify();
 			}
 		}
 	}
 
 	public void enterFemale() {
-		try {
-			synchronized (m_female) {
+		synchronized (this) {
 
+			try {
 				while (m_male > 0) {
-					m_female.wait();
+					m_femaleWait.wait();
 				}
-				
+
 				m_female++;
+
+			} catch (InterruptedException e) {
+				e.printStackTrace();
 			}
-		} catch (InterruptedException e) {
-			e.printStackTrace();
 		}
+
 	}
 
 	public void leaveFemale() {
-		synchronized (m_female) {
+		synchronized (this) {
 
 			m_female--;
 
 			if (m_female == 0) {
-				m_male.notify();
+				m_maleWait.notify();
 			}
 		}
-	}
 
+	}
 }
