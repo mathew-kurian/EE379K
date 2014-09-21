@@ -17,7 +17,7 @@ public class Main {
 		 * 
 		 * ---- start ----
 		 */
-		args = new String[] { "bakery", "10", "1200000" };
+		args = new String[] { "fast", "10", "1200000" };
 
 		/*
 		 * ---- end ----
@@ -72,7 +72,16 @@ public class Main {
 		for (Thread thread : threads) {
 			thread.start();
 		}
-
+		
+		// Wait for threads to finish
+		for (Thread thread : threads) {
+			try {
+				thread.join();
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		}
+		
 		// End time
 		executeTimeMS = System.nanoTime() - executeTimeMS;
 

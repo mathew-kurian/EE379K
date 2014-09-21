@@ -78,18 +78,7 @@ public class Rename {
 	}
 
 	public static int getId(int down, int right, int range) {
-
-		// return range + right - (down * (down - 1) / 2);
-
-		// if (down < right | down == right) {
-		// right++;
-		// // Arithmetic series
-		// return (right + down) * (right + 1 + down) / 2 - down;
-		// } else {
-		// // Arithmetic series
-		// return (down + right) * (down + right + 1) / 2 + right;
-		// }
-
+		
 		int y = down * (down + 1) / 2 + 1;
 		int x = 0;
 
