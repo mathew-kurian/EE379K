@@ -25,6 +25,8 @@ public class BathroomLockProtocol implements Protocol {
 			}
 
 			m_male++;
+			
+			
 
 		} catch (InterruptedException e) {
 			e.printStackTrace();

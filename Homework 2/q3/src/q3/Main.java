@@ -16,8 +16,7 @@ public class Main {
 		 * 
 		 * ---- start ----
 		 */
-
-		args = new String[] { "fast", "10", "1200000" };
+		args = new String[] { "bakery", "10", "1200000" };
 
 		/*
 		 * ---- end ----
@@ -40,6 +39,7 @@ public class Main {
 			lock = new FastMutexLock(numThread);
 			counter = new LockCounter(lock);
 		} else if (args[0].equals("bakery")) {
+//			System.out.println("you are her");
 			lock = new BakeryLock(numThread);
 			counter = new LockCounter(lock);
 		} else if (args[0].equals("synchronized")) {
