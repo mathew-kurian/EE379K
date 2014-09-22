@@ -1,20 +1,24 @@
 package q4;
 
+import java.util.HashSet;
+import java.util.Set;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 public class PSearch implements Callable<Integer> {
 
 	// Declare variables or constructors here;
 	// however, they will not be access by TA's test drvier.
 
-	private static class PSearchResult {
+	private static class PSearchFlag {
 
 		public volatile boolean m_search;
-		public int m_index;
 
-		public PSearchResult() {
+		public PSearchFlag() {
 			m_search = true;
-			m_index = -1;
 		}
 	}
 
@@ -22,9 +26,9 @@ public class PSearch implements Callable<Integer> {
 	private int m_x;
 	private int m_start;
 	private int m_end;
-	private PSearchResult m_result;
+	private PSearchFlag m_result;
 
-	public PSearch(int[] A, int x, int start, int end, PSearchResult result) {
+	public PSearch(int[] A, int x, int start, int end, PSearchFlag result) {
 		m_a = A;
 		m_x = x;
 		m_start = start;
@@ -40,58 +44,52 @@ public class PSearch implements Callable<Integer> {
 
 		numThreads = Math.max(A.length, numThreads);
 
-		final int[] arr = A;
-		final int val = x;
-		final Thread[] threads = new Thread[numThreads];
-		final PSearchResult result = new PSearchResult();
+		ExecutorService pool = Executors.newFixedThreadPool(3);
+		Set<Future<Integer>> set = new HashSet<Future<Integer>>();
+		PSearchFlag flag = new PSearchFlag();
 
+		int val = x;
 		int index = 0;
 		int delta = A.length / numThreads;
 
 		for (int i = 0; i < numThreads; i++) {
 
-			final int startIndex = index;
-			final int endIndex = i + 1 == numThreads ? A.length : startIndex
-					+ delta;
-			final PSearch searcher = new PSearch(arr, val, startIndex,
-					endIndex, result);
-
-			Thread thread = new Thread(new Runnable() {
-				@Override
-				public void run() {
-					try {
-						searcher.call();
-					} catch (Exception e) {
-						e.printStackTrace();
-					}
-				}
-			});
-
-			thread.start();
-			threads[i] = thread;
+			int startIndex = index;
+			int endIndex = i + 1 == numThreads ? A.length : startIndex + delta;
+			PSearch searcher = new PSearch(A, val, startIndex, endIndex, flag);
+			set.add(pool.submit(searcher));
 
 			index += delta;
 		}
 
-		for (Thread thread : threads) {
+		int res = -1;
+		
+		for (Future<Integer> future : set) {
 			try {
-				thread.join();
+
+				res = future.get();
+				
+				if(res > -1){
+					break;
+				}
+				
 			} catch (InterruptedException e) {
+				e.printStackTrace();
+			} catch (ExecutionException e) {
 				e.printStackTrace();
 			}
 		}
-
-		return result.m_index; // return -1 if the target is not found
+		
+		pool.shutdown();
+		
+		return res; // return -1 if the target is not found
 	}
 
 	public Integer call() throws Exception {
 
-		// System.out.printf("%d -> %d\n", m_start, m_end);
-
 		for (int i = m_start; i < m_end && m_result.m_search; i++) {
 			if (m_a[i] == m_x) {
 				m_result.m_search = false;
-				m_result.m_index = i;
 				return i;
 			}
 		}
