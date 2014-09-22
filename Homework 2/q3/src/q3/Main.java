@@ -74,12 +74,7 @@ public class Main {
 		// Wait for threads to finish
 		for (Thread thread : threads) {
 			try {
-				//thread.join();
-				
 				thread.join();
-				if(thread.isAlive()){
-					System.out.println("fuck you thread" + thread.getId());
-				}
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
