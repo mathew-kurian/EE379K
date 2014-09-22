@@ -16,7 +16,7 @@ public class Main {
 		 * 
 		 * ---- start ----
 		 */
-		args = new String[] { "bakery", "10", "1200000" };
+		args = new String[] { "bakery", "3", "1200000" };
 		/*
 		 * ---- end ----
 		 */
