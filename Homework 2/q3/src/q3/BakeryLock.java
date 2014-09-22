@@ -31,6 +31,7 @@ public class BakeryLock implements MyLock {
 			if( k != myId){
 				while(flag[k]){};
 				while((label[k] != 0) && ((label[k]) < label[myId]) || ((label[k] == label[myId]) && k < myId)) {};
+
 			};
 		};
 	}

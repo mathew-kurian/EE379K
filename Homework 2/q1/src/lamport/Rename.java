@@ -55,10 +55,7 @@ public class Rename {
 
 			Direction direction = splitter.getDirection(Thread.currentThread()
 					.getId());
-			System.out.println(down);
-			System.out.println(right);
-			System.out.println(splitter.m_stopped);
-			System.out.println("---------------");
+			
 			switch (direction) {
 			case DOWN: {
 				down++;
