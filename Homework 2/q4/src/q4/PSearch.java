@@ -44,7 +44,7 @@ public class PSearch implements Callable<Integer> {
 
 		numThreads = Math.max(A.length, numThreads);
 
-		ExecutorService pool = Executors.newFixedThreadPool(3);
+		ExecutorService pool = Executors.newFixedThreadPool(numThreads);
 		Set<Future<Integer>> set = new HashSet<Future<Integer>>();
 		PSearchFlag flag = new PSearchFlag();
 
