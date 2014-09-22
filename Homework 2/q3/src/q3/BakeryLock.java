@@ -13,7 +13,6 @@ public class BakeryLock implements MyLock {
 	private volatile Integer numThread;
 
 	public BakeryLock(int numThread) {
-//		flag = new boolean[numThread];
 		flag = new AtomicReferenceArray<Boolean> (numThread);
 		label = new AtomicIntegerArray(numThread);
 		this.numThread = numThread;
@@ -25,8 +24,6 @@ public class BakeryLock implements MyLock {
 
 	@Override
 	public void lock(int myId) {
-		
-//		flag[myId] = true;
 		flag.set(myId, true);
 		
         for (int j = 0; j < numThread; j++){
@@ -36,10 +33,7 @@ public class BakeryLock implements MyLock {
         }
         
         label.set(myId, label.get(myId) + 1);
-//		flag[myId] = false;
 		flag.set(myId, false);
-		
-		System.out.println(label.get(myId));
 		
 		for (int k = 0; k < numThread; k++){
 	         if(k != myId){
