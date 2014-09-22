@@ -9,15 +9,14 @@ public class Main {
 		int numTotalInc = 1200000;
 
 		/*
-		 * ---- TESTING ---- 
-		 * ---- REMOVE BEFORE SUBMISSION ----
+		 * ---- TESTING ---- ---- REMOVE BEFORE SUBMISSION ----
 		 * 
 		 * 0: type of algorithm - "fast/bakery/synchronized/reentrant" 1: # of
 		 * threads 2: # of increments
 		 * 
 		 * ---- start ----
 		 */
-		args = new String[] { "bakery", "10", "1200000" };
+		args = new String[] { "bakery", "10", "120000" };
 		/*
 		 * ---- end ----
 		 */
@@ -71,7 +70,7 @@ public class Main {
 		for (Thread thread : threads) {
 			thread.start();
 		}
-		
+
 		// Wait for threads to finish
 		for (Thread thread : threads) {
 			try {
@@ -80,7 +79,7 @@ public class Main {
 				e.printStackTrace();
 			}
 		}
-		
+
 		// End time
 		executeTimeMS = System.nanoTime() - executeTimeMS;
 
@@ -93,6 +92,7 @@ public class Main {
 			@Override
 			public void run() {
 				while (counter.getCount() <= increments) {
+					System.out.println(Thread.currentThread().getId());
 					counter.increment();
 				}
 			}
