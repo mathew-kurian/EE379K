@@ -91,7 +91,7 @@ public class Main {
 		return new Runnable() {
 			@Override
 			public void run() {
-				while (counter.getCount() <= increments) {
+				while (counter.getCount() <= increments) {		
 					counter.increment();
 				}
 			}
