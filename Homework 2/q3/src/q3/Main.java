@@ -92,7 +92,6 @@ public class Main {
 			@Override
 			public void run() {
 				while (counter.getCount() <= increments) {	
-					//System.out.println(Thread.currentThread().getId());
 					counter.increment();
 				}
 			}
