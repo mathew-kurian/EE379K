@@ -7,38 +7,43 @@ import java.util.Collections;
 // Implement the bakery algorithm
 
 public class BakeryLock implements MyLock {
-	private boolean[] flag;
-	private Integer[] label;
-	private Integer numThread;
+	   int N;
+	    boolean[] choosing; // inside doorway
+	    int[] number;
 
 
 	public BakeryLock(int numThread) {
-		flag = new boolean[numThread];
-		label = new Integer[numThread];
-		this.numThread = numThread;
-		for (int i = 0; i < numThread; i++) {
-			flag[i] = false;
-			label[i] = 0;
-		}
+		N = numThread;
+        choosing = new boolean[N];
+        number = new int[N];
+        for (int j = 0; j < N; j++) {
+            choosing[j] = false;
+            number[j] = 0;
+        }
 	}
 
 	@Override
-	public void lock(int myId) {
-		flag[myId] = true;
-		label[myId] = Collections.max(Arrays.asList(label)) + 1;
-		flag[myId] = false;
-		for (int k = 0; k < numThread; ++k){
-			if( k != myId){
-				while(flag[k]){};
-				while((label[k] != 0) && ((label[k]) < label[myId]) || ((label[k] == label[myId]) && k < myId)) {};
+	public void lock(int i) {
+		// step 1: doorway: choose a number
+        choosing[i] = true;
+        for (int j = 0; j < N; j++)
+            if (number[j] > number[i])
+                number[i] = number[j];
+        number[i]++;
+        choosing[i] = false;
 
-			};
-		};
+        // step 2: check if my number is the smallest
+        for (int j = 0; j < N; j++) {
+            while (choosing[j]) ; // process j in doorway
+            while ((number[j] != 0) &&
+                    ((number[j] < number[i]) ||
+                    ((number[j] == number[i]) && j < i)))
+                ; // busy wait
+        }
 	}
 
 	@Override
-	public void unlock(int myId) {
-		label[myId] = 0;
-		flag[myId] = false;
+	public void unlock(int i) {
+        number[i] = 0;
 	}
 }

@@ -16,7 +16,7 @@ public class Main {
 		 * 
 		 * ---- start ----
 		 */
-		args = new String[] { "bakery", "10", "120000" };
+		args = new String[] { "bakery", "10", "1200000" };
 		/*
 		 * ---- end ----
 		 */
@@ -92,7 +92,6 @@ public class Main {
 			@Override
 			public void run() {
 				while (counter.getCount() <= increments) {
-					System.out.println(Thread.currentThread().getId());
 					counter.increment();
 				}
 			}
