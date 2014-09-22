@@ -1,32 +1,34 @@
 package lamport;
 
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicLong;
+
 class Splitter {
 
 	// private id
-	private volatile long m_pid;
+	private AtomicLong m_pid;
 
 	// stopped a thread
-	public volatile boolean m_stopped;
+	public AtomicBoolean m_stopped;
 
 	enum Direction {
 		RIGHT, DOWN, STOP
 	}
 
 	public Splitter() {
-		m_stopped = false;
-		m_pid = -1;
+		m_stopped = new AtomicBoolean(false);
+		m_pid = new AtomicLong(-1);
 	}
 
 	public Direction getDirection(long pid) {
 
-		m_pid = pid; // 100, 50
-		//100
+		m_pid.set(pid);
 
-		if (m_stopped) {
+		if (m_stopped.get()) {
 			return Direction.RIGHT;
 		} else {
-			m_stopped = true;
-			if (pid == m_pid) { 
+			m_stopped.set(true);
+			if (m_pid.get() == pid) { 
 				return Direction.STOP;
 			} else {
 				return Direction.DOWN;
@@ -35,7 +37,6 @@ class Splitter {
 	}
 
 	public void release() {
-		m_stopped = false;
-		m_pid = -1;
+		m_stopped.set(false);
 	}
 }

@@ -3,12 +3,10 @@ import lamport.Rename;
 public abstract class AutoReleaseThread extends Thread {
 
 	private Rename m_rename;
-	private String m_name;
 
 	public AutoReleaseThread(Rename rename, int n) {
 		super();
 		m_rename = rename;
-		m_name = Integer.toString(n);
 	}
 
 	public void run() {
@@ -27,8 +25,6 @@ public abstract class AutoReleaseThread extends Thread {
 
 				res = m_rename.reserveId();
 			}
-
-			System.out.printf("Thread #%s renamed to %d\n", m_name, res.m_id);
 
 			onReserve(res);
 
