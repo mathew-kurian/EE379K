@@ -33,6 +33,8 @@ public class BakeryLock implements MyLock {
         label[myId]++;
 		flag[myId] = false;
 				
+		System.out.println(label[myId]);
+		
 		for (int k = 0; k < numThread; k++){
 	         if(k != myId){
 				while(flag[k]);
