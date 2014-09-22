@@ -16,7 +16,6 @@ public class LockCounter extends Counter {
 		int id = (int) Thread.currentThread().getId();
 		m_lock.lock(id);
 		count++;
-		m_lock.unlock(id);
 
 	}
 
