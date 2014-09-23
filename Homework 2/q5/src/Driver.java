@@ -6,7 +6,7 @@ import q5.BathroomLockProtocol;
 public class Driver {
 
 	public static void main(String[] args) {
-		test(new BathroomSynProtocol(), 5);
+		test(new BathroomSynProtocol(), 6);
 	}
 
 	public static GenderThread createGenderThread(final BathroomSynProtocol protocol,

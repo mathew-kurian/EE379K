@@ -18,7 +18,7 @@ public class BathroomSynProtocol implements Protocol {
 				synchronized (m_male) {
 
 					while (m_female > 0) {
-						m_lock.notify();
+						m_lock.notifyAll();
 						m_male.wait();
 					}
 
@@ -41,8 +41,8 @@ public class BathroomSynProtocol implements Protocol {
 				}
 
 				if (m_male == 0) {
-					m_lock.notify();
-					m_female.notify();
+					m_lock.notifyAll();
+					m_female.notifyAll();
 				}
 			}
 		}
@@ -54,7 +54,7 @@ public class BathroomSynProtocol implements Protocol {
 				synchronized (m_female) {
 
 					while (m_male > 0) {
-						m_lock.notify();
+						m_lock.notifyAll();
 						m_female.wait();
 					}
 
@@ -76,8 +76,8 @@ public class BathroomSynProtocol implements Protocol {
 				}
 
 				if (m_female == 0) {
-					m_lock.notify();
-					m_male.notify();
+					m_lock.notifyAll();
+					m_male.notifyAll();
 				}
 			}
 		}
