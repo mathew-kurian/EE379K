@@ -1,15 +1,15 @@
 import javax.swing.SwingUtilities;
 
-import q5.BathroomLockProtocol;
 import q5.BathroomSynProtocol;
+import q5.BathroomLockProtocol;
 
 public class Driver {
 
 	public static void main(String[] args) {
-		test(new BathroomLockProtocol(), 5);
+		test(new BathroomSynProtocol(), 5);
 	}
 
-	public static GenderThread createGenderThread(final BathroomLockProtocol protocol,
+	public static GenderThread createGenderThread(final BathroomSynProtocol protocol,
 			GenderThread.Gender gender, final Bathroom bathroom) {
 		return new GenderThread(protocol, gender) {
 			@Override
@@ -25,7 +25,7 @@ public class Driver {
 		};
 	}
 
-	public static void test(final BathroomLockProtocol protocol,
+	public static void test(final BathroomSynProtocol protocol,
 			final int numThreads) {
 		
 		SwingUtilities.invokeLater(new Runnable() {

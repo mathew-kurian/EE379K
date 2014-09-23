@@ -1,4 +1,3 @@
-
 package q5;
 
 // TODO
@@ -6,73 +5,82 @@ package q5;
 // protocol
 public class BathroomSynProtocol implements Protocol {
 
-    public volatile Integer m_lock = 0;
-    public volatile Integer m_male = 0;
-    public volatile Integer m_female = 0;
+	public volatile Integer m_lock = 0;
+	public volatile Integer m_male = 0;
+	public volatile Integer m_female = 0;
+	public volatile Integer m_maleInc = 0;
+	public volatile Integer m_femaleInc = 0;
 
-    public void enterMale() {
+	public void enterMale() {
 
-        try {
-            synchronized (m_lock) {
-                synchronized (m_male) {
+		try {
+			synchronized (m_lock) {
+				synchronized (m_male) {
 
-                    while (m_female > 0) {
-                        m_lock.notify();
-                        m_male.wait();
-                    }
+					while (m_female > 0) {
+						m_lock.notify();
+						m_male.wait();
+					}
 
-                    m_male++;
-                }
-            }
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+					synchronized (m_maleInc) {
+						m_male++;
+					}
+				}
+			}
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
 
-    }
+	}
 
-    public void leaveMale() {
-        synchronized (m_lock) {
-            synchronized (m_female) {
-                m_male--;
+	public void leaveMale() {
+		synchronized (m_lock) {
+			synchronized (m_female) {
+				synchronized (m_maleInc) {
+					m_male--;
+				}
 
-                if (m_male == 0) {
-                    m_lock.notify();
-                    m_female.notify();
-                }
-            }
-        }
-    }
+				if (m_male == 0) {
+					m_lock.notify();
+					m_female.notify();
+				}
+			}
+		}
+	}
 
-    public void enterFemale() {
-        try {
-            synchronized (m_lock) {
-                synchronized (m_female) {
+	public void enterFemale() {
+		try {
+			synchronized (m_lock) {
+				synchronized (m_female) {
 
-                    while (m_male > 0) {
-                        m_lock.notify();
-                        m_female.wait();
-                    }
+					while (m_male > 0) {
+						m_lock.notify();
+						m_female.wait();
+					}
 
-                    m_female++;
-                }
-            }
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-    }
+					synchronized (m_femaleInc) {
+						m_female++;
+					}
+				}
+			}
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+	}
 
-    public void leaveFemale() {
-        synchronized (m_lock) {
-            synchronized (m_female) {
+	public void leaveFemale() {
+		synchronized (m_lock) {
+			synchronized (m_female) {
+				synchronized (m_femaleInc) {
+					m_female--;
+				}
 
-                m_female--;
-
-                if (m_female == 0) {
-                    m_lock.notify();
-                    m_male.notify();
-                }
-            }
-        }
-    }
+				if (m_female == 0) {
+					m_lock.notify();
+					m_male.notify();
+				}
+			}
+		}
+	}
 
 }
