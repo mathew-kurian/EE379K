@@ -9,4 +9,4 @@ EE379K Multicore
 - [X] **Question 2:** Done!
 - [X] **Question 3:** Done!
 - [X] **Question 4:** Done!
-- [X] **Question 5:** Race detection bug. How to fix?
+- [X] **Question 5:** Done!
