@@ -8,8 +8,7 @@ public class BathroomSynProtocol implements Protocol {
 	public volatile Integer m_lock = 0;
 	public volatile Integer m_male = 0;
 	public volatile Integer m_female = 0;
-	public volatile Integer m_maleInc = 0;
-	public volatile Integer m_femaleInc = 0;
+	public volatile Integer m_lockUpdate = 0;
 
 	public void enterMale() {
 
@@ -22,7 +21,7 @@ public class BathroomSynProtocol implements Protocol {
 						m_male.wait();
 					}
 
-					synchronized (m_maleInc) {
+					synchronized (m_lockUpdate) {
 						m_male++;
 					}
 				}
@@ -36,7 +35,7 @@ public class BathroomSynProtocol implements Protocol {
 	public void leaveMale() {
 		synchronized (m_lock) {
 			synchronized (m_female) {
-				synchronized (m_maleInc) {
+				synchronized (m_lockUpdate) {
 					m_male--;
 				}
 
@@ -58,7 +57,7 @@ public class BathroomSynProtocol implements Protocol {
 						m_female.wait();
 					}
 
-					synchronized (m_femaleInc) {
+					synchronized (m_lockUpdate) {
 						m_female++;
 					}
 				}
@@ -71,7 +70,7 @@ public class BathroomSynProtocol implements Protocol {
 	public void leaveFemale() {
 		synchronized (m_lock) {
 			synchronized (m_female) {
-				synchronized (m_femaleInc) {
+				synchronized (m_lockUpdate) {
 					m_female--;
 				}
 
