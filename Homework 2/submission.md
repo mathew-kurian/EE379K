@@ -110,7 +110,7 @@ If a read occurs concurrently with a write and an unexpected value can be read v
 | :------- | :---: |
 | Enter CS | Waiting in while-loop | label[A] = 1; label[B] = 2; |
 | Exits CS | OS halts | label[A] = 0; label[B] = 2; |
-| Lock called | ... | label[A] = 1; label[B] = 2; |
+| Lock called | ... | label[A] = 0; label[B] = 2; |
 | Write label[A] = 3| Reads wrong label. Enters CS. | label[A] = 55; (Thread B reads Thread A wrong) |
 | Enters CS |  In CS | label[A] = 3; label[B] = 2; |
 
