@@ -1,4 +1,10 @@
 
+**Kapil Gowru**
+**Mathew Kurian**
+
+Homework 2
+======
+
 [TOC]
 
 #Question 1
@@ -39,7 +45,7 @@ public Result rename() {
 			break;
 		}
 		case STOP: {
-			id = getId(down, right, m_range);
+			id = getId(down, right, m_range); // Use the function below to calculate id from the returned Result
 			search = false;
 
 			break;
@@ -63,6 +69,7 @@ public static int getId(int down, int right, int range) {
 		x = ex * (ex + 1) / 2 - sx;
 	}
 
+	// Based on grid position not the previous id
 	return x + y;
 }
 ```
@@ -102,10 +109,10 @@ If a read occurs concurrently with a write and an unexpected value can be read v
 | Thread A  | Thread B | |
 | :------- | :---: |
 | Enter CS | Waiting in while-loop | label[A] = 1; label[B] = 2; |
-| Exits CS | OS halts | label[A] = 0; | label[B] = 2; |
-| Lock called| | label[A] = 1; label[B] = 2; |
-| Update label[A] = 3| Reads wrong label. Enter CS.| label[A] = 55; //Thread B reads Thread A wrong |
-| Enters CS | Enters CS | label[A] = 3; label[B] = 2; |
+| Exits CS | OS halts | label[A] = 0; label[B] = 2; |
+| Lock called | ... | label[A] = 1; label[B] = 2; |
+| Write label[A] = 3| Reads wrong label. Enters CS. | label[A] = 55; (Thread B reads Thread A wrong) |
+| Enters CS |  In CS | label[A] = 3; label[B] = 2; |
 
 #Question 3
 
