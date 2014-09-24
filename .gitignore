@@ -28,4 +28,4 @@ local.properties
 
 # Mac finder related files
 .DS_Store
-thumbs.db
+Thumbs.db
