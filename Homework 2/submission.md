@@ -103,16 +103,16 @@ public void release() {
 
 #Question 2
 
-If a read occurs concurrently with a write and an unexpected value can be read via a different thread, the Bakery algorithm would fail. Consider the case of two threads A and B. An example of this is as follows:
+If you have an atomic read and non-atomic write, then the values returned during any duration of the write can yield an unexpected value. This behavior can cause the Bakery algorithm to fail. Bakery will fail in this case because it won't follow fairness anymore.
 
-
-| Thread A  | Thread B | |
+| Thread A  | Thread B | Labels |
 | :------- | :---: |
 | Enter CS | Waiting in while-loop | label[A] = 1; label[B] = 2; |
 | Exits CS | OS halts | label[A] = 0; label[B] = 2; |
 | Lock called | ... | label[A] = 0; label[B] = 2; |
-| Write label[A] = 3| Reads wrong label. Enters CS. | label[A] = 55; (Thread B reads Thread A wrong) |
-| Enters CS |  In CS | label[A] = 3; label[B] = 2; |
+| Write label[A] = 3| Reads wrong label. Enters CS. | label[A] = -1; (Thread B reads Thread A wrong) |
+| Enters CS |  OS pauses | label[A] = 3; label[B] = 2; |
+**Thread A is able to go around and enter, while thread B has to wait; hence, fairness was not upheld**
 
 #Question 3
 
