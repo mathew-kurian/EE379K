@@ -110,9 +110,9 @@ If you have an atomic read and non-atomic write, then the values returned during
 | Enter CS | Waiting in while-loop | label[A] = 1; label[B] = 2; |
 | Exits CS | OS halts | label[A] = 0; label[B] = 2; |
 | Lock called | ... | label[A] = 0; label[B] = 2; |
-| Write label[A] = 3| Reads wrong label. Enters CS. | label[A] = -1; (Thread B reads Thread A wrong) |
+| Write label[A] = 3| Reads wrong label. | label[A] = -1; (Thread B reads Thread A wrong) |
 | Enters CS |  OS pauses | label[A] = 3; label[B] = 2; |
-**Thread A is able to go around and enter, while thread B has to wait; hence, fairness was not upheld**
+**Thread A is able enter twice, while thread B has to wait; hence, fairness was not upheld and is not garunteed.**
 
 #Question 3
 
