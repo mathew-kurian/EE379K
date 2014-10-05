@@ -29,8 +29,3 @@ local.properties
 # Mac finder related files
 .DS_Store
 Thumbs.db
-
-*.sdf
-*.opensdf
-Bin/**
-Debug/**
