@@ -7,8 +7,6 @@
 #include <cstdlib>
 
 #define DESTROY(x)	if(x) delete x;
-#define EXIT_FAILURE 1
-#define EXIT_SUCCESS 0
 
 // compile
 // g++ matrix_mult.cpp -fopenmp
@@ -140,7 +138,7 @@ int main(int argc, char* argv[])
 
 
 	if (argc < 4){
-		lasterror = "Error: Arguments length < 3";
+		lasterror = "Error: Arguments length < 4";
 		goto failure;
 	}
 
