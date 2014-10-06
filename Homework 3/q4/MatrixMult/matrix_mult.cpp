@@ -15,6 +15,10 @@ int inline imin(int x, int y){
     return x < y ? x : y;
 }
 
+int inline imax(int x, int y){
+    return x > y ? x : y;
+}
+
 struct matrix {
 
 	int ** rows;
@@ -140,7 +144,7 @@ int main(int argc, char* argv[])
 
 	int retcode;
 	int ** solrows = NULL;
-	int n, m, maxops;
+	int n, m, maxops, nn, d;
 	int threads;
 	string lasterror;
 	matrix * mtx1 = NULL, *mtx2 = NULL, *sol = NULL;
@@ -165,25 +169,28 @@ int main(int argc, char* argv[])
 		goto failure;
 	}
 
-	if ((mtx1->m != mtx2->n) || (mtx1->n != mtx2->m)){
+	if ((mtx1->n != mtx2->m)){
 		lasterror = "Error: Matrix cannot be multiplied";
 		goto failure;
 	}
 
 	m = mtx1->m;
-	n = mtx1->n;
-	maxops = m * m;
+            nn = mtx1->n;
+	n = mtx2->n;
+            d = imax(n, m);
+
+	maxops = m * n;
 
 	solrows = new int *[m];
 	memset(solrows, 0, m);
 
 	for (int x = 0; x < m; x++){
-		int * solrow = new int[m];
-		memset(solrow, 0, m);
+		int * solrow = new int[n];
+		memset(solrow, 0, n);
 		solrows[x] = solrow;
 	}
 
-	sol = new matrix(solrows, m, m);
+	sol = new matrix(solrows, m, n);
 
 	omp_set_num_threads(imin(threads, maxops));
 
@@ -194,14 +201,13 @@ int main(int argc, char* argv[])
 		while (op < maxops){
 
 			int cprod = 0;
-			int * row = mtx1->rows[op / m];
-			int n = mtx1->n;
+			int * row = mtx1->rows[op / d];
 
-			for (int i = 0; i < n; i++){
-				cprod += row[i] * mtx2->rows[i][op % m];
+			for (int i = 0; i < nn; i++){
+				cprod += row[i] * mtx2->rows[i][op % d];
 			}
 
-			solrows[op / m][op % m] = cprod;
+			solrows[op / d][op % d] = cprod;
 
 			op += threads;
 		}
