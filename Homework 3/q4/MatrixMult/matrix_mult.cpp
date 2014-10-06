@@ -144,7 +144,7 @@ int main(int argc, char* argv[])
 
 	int retcode;
 	int ** solrows = NULL;
-	int n, m, maxops, nn, d;
+	int n, m, maxops, q, d;
 	int threads;
 	string lasterror;
 	matrix * mtx1 = NULL, *mtx2 = NULL, *sol = NULL;
@@ -175,7 +175,7 @@ int main(int argc, char* argv[])
 	}
 
 	m = mtx1->m;
-            nn = mtx1->n;
+            q = mtx1->n;
 	n = mtx2->n;
             d = imax(n, m);
 
@@ -194,7 +194,7 @@ int main(int argc, char* argv[])
 
 	omp_set_num_threads(imin(threads, maxops));
 
-#pragma omp parallel num_threads(threads)
+            #pragma omp parallel num_threads(threads)
 	{
 		int op = omp_get_thread_num();
 
@@ -203,7 +203,7 @@ int main(int argc, char* argv[])
 			int cprod = 0;
 			int * row = mtx1->rows[op / d];
 
-			for (int i = 0; i < nn; i++){
+			for (int i = 0; i < q; i++){
 				cprod += row[i] * mtx2->rows[i][op % d];
 			}
 
