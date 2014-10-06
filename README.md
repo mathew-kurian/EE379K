@@ -13,7 +13,7 @@ EE379K Multicore
 
 ###Homework 3 Issues
 
-- [X] **Question 1:** 
-- [X] **Question 2:** 
-- [X] **Question 3:** 
+- [ ] **Question 1:** 
+- [ ] **Question 2:** 
+- [ ] **Question 3:** 
 - [X] **Question 4:** Working on it.

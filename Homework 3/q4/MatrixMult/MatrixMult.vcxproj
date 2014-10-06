@@ -76,7 +76,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="MatrixMult.cpp">
+    <ClCompile Include="mutrix mult.cpp">
       <OpenMPSupport Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</OpenMPSupport>
     </ClCompile>
   </ItemGroup>
