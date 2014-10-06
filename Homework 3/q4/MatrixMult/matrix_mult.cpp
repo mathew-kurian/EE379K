@@ -11,14 +11,18 @@
 // compile
 // g++ matrix_mult.cpp -fopenmp
 
+int inline imin(int x, int y){
+    return x < y ? x : y;
+}
+
 struct matrix {
-	
+
 	int ** rows;
 	int m;
 	int n;
 
-public: 
-	
+public:
+
 	matrix() :
 		rows(NULL),
 		m(0),
@@ -56,6 +60,11 @@ public:
 		int m = 0, n = 0, i = -1;
 		bool dim = true;
 		int ** rows;
+
+                        if(!input.good())
+                        {
+                                return NULL;
+                        }
 
 		for (line; getline(input, line);)
 		{
@@ -111,7 +120,7 @@ public:
 		for (int mm = 0; mm < m; mm++){
 
 			row = rows[mm];
-			
+
 			for (int nn = 0; nn < n; ++nn){
 				cout << row[nn] << ' ';
 			}
@@ -136,7 +145,6 @@ int main(int argc, char* argv[])
 	string lasterror;
 	matrix * mtx1 = NULL, *mtx2 = NULL, *sol = NULL;
 
-
 	if (argc < 4){
 		lasterror = "Error: Arguments length < 3";
 		goto failure;
@@ -151,7 +159,7 @@ int main(int argc, char* argv[])
 
 	mtx1 = matrix::fromfile(argv[1]);
 	mtx2 = matrix::fromfile(argv[2]);
-	
+
 	if (!mtx1 || !mtx2){
 		lasterror = "Error: Read error";
 		goto failure;
@@ -177,10 +185,10 @@ int main(int argc, char* argv[])
 
 	sol = new matrix(solrows, m, m);
 
-	omp_set_num_threads(threads);
+	omp_set_num_threads(imin(threads, maxops));
 
 #pragma omp parallel num_threads(threads)
-	{	
+	{
 		int op = omp_get_thread_num();
 
 		while (op < maxops){
@@ -198,11 +206,11 @@ int main(int argc, char* argv[])
 			op += threads;
 		}
 	}
-	
+
 	sol->print();
-	
+
 	goto ok;
-	
+
 // Exits
 
 failure:
@@ -216,7 +224,7 @@ ok:
 	// set exit code
 	retcode = EXIT_SUCCESS;
 
-finish: 
+finish:
 
 	DESTROY(mtx1);
 	DESTROY(mtx2);
