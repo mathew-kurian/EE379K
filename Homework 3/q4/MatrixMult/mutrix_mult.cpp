@@ -119,13 +119,32 @@ int main(int argc, char* argv[])
 	// 2. Comment out std:getchar before submission
 
 	int retcode;
-	int ** solrows;
+	int ** solrows = NULL;
 	int n, m, maxops;
-	int threads = 8;
+	int threads;
 	string lasterror;
-	matrix * mtx1 = matrix::fromfile("input2.txt");
-	matrix * mtx2 = matrix::fromfile("input1.txt");
-	matrix * sol;
+	matrix * mtx1 = NULL, *mtx2 = NULL, *sol = NULL;
+
+	/*
+	if (argc < 3){
+		lasterror = "Error: Arguments length < 3";
+		goto failure;
+	}
+
+	threads = atoi(argv[2]");;
+
+	if(threads < 1){
+		lasterror = "Error: Thread count less than 1";
+		goto failure;
+	}
+
+	mtx1 = matrix::fromfile(argv[0]);
+	mtx2 = matrix::fromfile(argv[1]);
+	*/
+
+	threads = atoi("10");
+	mtx1 = matrix::fromfile("input2.txt");
+	mtx2 = matrix::fromfile("input1.txt");
 
 	if (!mtx1 || !mtx2){
 		lasterror = "Error: Read error";
@@ -183,7 +202,7 @@ int main(int argc, char* argv[])
 failure:
 
 	retcode = EXIT_FAILURE;
-	printf("%s\n", lasterror);
+	cout << lasterror;
 	goto finish;
 
 ok:
