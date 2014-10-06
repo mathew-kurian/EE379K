@@ -7,7 +7,7 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="mutrix_mult.cpp">
+    <ClCompile Include="monte_carlo_pi.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

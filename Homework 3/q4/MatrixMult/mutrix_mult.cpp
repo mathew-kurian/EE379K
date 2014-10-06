@@ -110,7 +110,7 @@ public:
 	}
 };
 
-int main(char* argv[])
+int main(int argc, char* argv[])
 {
 	using namespace std;
 
@@ -152,7 +152,9 @@ int main(char* argv[])
 
 	sol = new matrix(solrows, m, m);
 
-#pragma omp parallel
+	omp_set_num_threads(threads);
+
+#pragma omp parallel num_threads(threads)
 	{	
 		int op = omp_get_thread_num();
 
