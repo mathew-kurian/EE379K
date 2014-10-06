@@ -13,7 +13,7 @@ EE379K Multicore
 
 ###Homework 3 Issues
 
-- [ ] **Question 1:** 
+- [ ] **Question 1:** Starting - Kapil 
 - [ ] **Question 2:** 
-- [ ] **Question 3:** Starting
-- [X] **Question 4:** Done!
+- [ ] **Question 3:** Starting - Matthew
+- [X] **Question 4:** Done! - Kapil
