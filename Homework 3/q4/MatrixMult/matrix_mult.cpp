@@ -2,7 +2,7 @@
 
 #include <fstream>
 #include <iostream>
-#include <string>
+#include <cstring>
 #include <sstream>
 #include <cstdlib>
 
@@ -10,14 +10,24 @@
 #define EXIT_FAILURE 1
 #define EXIT_SUCCESS 0
 
+// compile
+// g++ matrix_mult.cpp -fopenmp
+
 struct matrix {
 	
-	int ** rows = NULL;
-	int m = 0;
-	int n = 0;
+	int ** rows;
+	int m;
+	int n;
 
 public: 
 	
+	matrix() :
+		rows(NULL),
+		m(0),
+		n(0)
+	{
+	}
+
 	matrix(int ** _rows, int m, int n) :
 		rows(_rows),
 		m(m),
@@ -128,27 +138,22 @@ int main(int argc, char* argv[])
 	string lasterror;
 	matrix * mtx1 = NULL, *mtx2 = NULL, *sol = NULL;
 
-	/*
-	if (argc < 3){
+
+	if (argc < 4){
 		lasterror = "Error: Arguments length < 3";
 		goto failure;
 	}
 
-	threads = atoi(argv[2]");;
+	threads = atoi(argv[3]);
 
 	if(threads < 1){
 		lasterror = "Error: Thread count less than 1";
 		goto failure;
 	}
 
-	mtx1 = matrix::fromfile(argv[0]);
-	mtx2 = matrix::fromfile(argv[1]);
-	*/
-
-	threads = atoi("10");
-	mtx1 = matrix::fromfile("input1.txt");
-	mtx2 = matrix::fromfile("input2.txt");
-
+	mtx1 = matrix::fromfile(argv[1]);
+	mtx2 = matrix::fromfile(argv[2]);
+	
 	if (!mtx1 || !mtx2){
 		lasterror = "Error: Read error";
 		goto failure;
@@ -205,7 +210,7 @@ int main(int argc, char* argv[])
 failure:
 
 	retcode = EXIT_FAILURE;
-	cout << lasterror;
+	cout << lasterror << endl;
 	goto finish;
 
 ok:
@@ -218,10 +223,6 @@ finish:
 	DESTROY(mtx1);
 	DESTROY(mtx2);
 	DESTROY(sol);
-
-	// Important !!!!!!!!!
-	// Comment out the next line on submission
-	std::getchar();
 
 	return retcode;
 }
