@@ -12,13 +12,13 @@ int inline imax(int x, int y){
 
 double MonteCarloPi(int s)
 {
-	int valid = 0;
+	int valid = 0, samples = 0, threads = 0;
 	double x, y;
 
-    #pragma omp parallel private(x, y) reduction(+:valid) 
+    #pragma omp parallel private(x, y,samples, threads) reduction(+:valid) 
 	{
-		int threads = omp_get_num_threads();
-		int samples = s / threads;
+		threads = omp_get_num_threads();
+		samples = imax(s / threads, 1);
 
 		srand(int(time(NULL)) ^ threads);
 		
