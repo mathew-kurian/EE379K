@@ -16,4 +16,4 @@ EE379K Multicore
 - [ ] **Question 1:** 
 - [ ] **Question 2:** 
 - [ ] **Question 3:** 
-- [X] **Question 4:** Working on it.
+- [X] **Question 4:** Almost done. 

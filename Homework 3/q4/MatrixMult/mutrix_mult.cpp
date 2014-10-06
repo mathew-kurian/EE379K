@@ -143,8 +143,8 @@ int main(int argc, char* argv[])
 	*/
 
 	threads = atoi("10");
-	mtx1 = matrix::fromfile("input2.txt");
-	mtx2 = matrix::fromfile("input1.txt");
+	mtx1 = matrix::fromfile("input1.txt");
+	mtx2 = matrix::fromfile("input2.txt");
 
 	if (!mtx1 || !mtx2){
 		lasterror = "Error: Read error";
