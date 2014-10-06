@@ -138,7 +138,7 @@ int main(int argc, char* argv[])
 
 
 	if (argc < 4){
-		lasterror = "Error: Arguments length < 4";
+		lasterror = "Error: Arguments length < 3";
 		goto failure;
 	}
 

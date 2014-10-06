@@ -42,7 +42,7 @@ int main(int argc, char* argv[])
 	using namespace std;
 
 	if(argc < 2){
-		cout << "Error: Arguments length < 2" << endl;
+		cout << "Error: Arguments length < 1" << endl;
 		return EXIT_FAILURE;
 	}
 
