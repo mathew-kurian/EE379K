@@ -178,9 +178,9 @@ int main(int argc, char* argv[])
   }
 
   m = mtx1->m;
-      q = mtx1->n;
+  q = mtx1->n;
   n = mtx2->n;
-      d = imax(n, m);
+  d = imax(n, m);
 
   maxops = m * n;
 
