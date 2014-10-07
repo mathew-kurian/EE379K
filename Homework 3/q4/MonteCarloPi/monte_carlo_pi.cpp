@@ -28,19 +28,26 @@ double MonteCarloPi(int s)
     seed = (double) time(NULL) * (double) (omp_get_thread_num() + rand());
     // cout << omp_get_thread_num() << ": " << rand_r(&seed) << endl;
 
+    int count = 0;
+
     #pragma omp for private(i)
     for (i = 0; i < samples; i++)
     {
       x = ((double)rand_r(&seed)) / ((double)RAND_MAX);
       y = ((double)rand_r(&seed)) / ((double)RAND_MAX);
 
+      count++;
+
       if ((x * x + y * y) <= 1.0){
         ++valid;
       }
     }
+
+    cout << count << endl;
+
   }
   
-  // cout << valid << " / " << s << endl;
+  cout << valid << " / " << s << endl;
 
   return (((double)valid) / ((double)s)) * 4.0;
 }
