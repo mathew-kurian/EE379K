@@ -13,6 +13,7 @@ int inline imax(int x, int y){
 double MonteCarloPi(int s)
 {
   #define THREAD_COUNT 8
+  // #define MC_DEBUG true
 
   using namespace std;
 
@@ -26,9 +27,11 @@ double MonteCarloPi(int s)
   {
     samples = s;
     seed = (double) time(NULL) * (double) (omp_get_thread_num() + rand());
-    // cout << omp_get_thread_num() << ": " << rand_r(&seed) << endl;
-
+    
+    #ifdef MC_DEBUG
+    cout << omp_get_thread_num() << ": " << rand_r(&seed) << endl;
     int count = 0;
+    #endif
 
     #pragma omp for private(i)
     for (i = 0; i < samples; i++)
@@ -36,18 +39,24 @@ double MonteCarloPi(int s)
       x = ((double)rand_r(&seed)) / ((double)RAND_MAX);
       y = ((double)rand_r(&seed)) / ((double)RAND_MAX);
 
+      #ifdef MC_DEBUG
       count++;
+      #endif
 
       if ((x * x + y * y) <= 1.0){
         ++valid;
       }
     }
 
+    #ifdef MC_DEBUG
     cout << count << endl;
+    #endif
 
   }
   
+  #ifdef MC_DEBUG
   cout << valid << " / " << s << endl;
+  #endif
 
   return (((double)valid) / ((double)s)) * 4.0;
 }
