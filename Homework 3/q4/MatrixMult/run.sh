@@ -4,7 +4,7 @@ rm "time.txt"
 
 echo "#(threads, time)" >> "time.txt"
 
-for i in `seq 1 100000`
+for i in `seq 1 10`
 do
 	T="$(date +%s%N)"
 

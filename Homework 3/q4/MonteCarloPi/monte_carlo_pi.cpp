@@ -7,46 +7,54 @@
 #include <time.h>
 
 int inline imax(int x, int y){
-	return x > y ? x : y;
+  return x > y ? x : y;
 }
 
 double MonteCarloPi(int s)
 {
-	int valid = 0, samples = 0, threads = 0;
-	double x, y;
+  #define THREAD_COUNT 8
 
-    #pragma omp parallel private(x, y,samples, threads) reduction(+:valid) 
-	{
-		threads = omp_get_num_threads();
-		samples = imax(s / threads, 1);
+  using namespace std;
 
-		srand(int(time(NULL)) ^ threads);
-		
-		#pragma omp for
-		for (int i = 0; i < samples; ++i)
-		{
-			x = ((double)rand()) / ((double)RAND_MAX);
-			y = ((double)rand()) / ((double)RAND_MAX);
+  int valid = 0, samples = 0, i = 0;
+  unsigned int seed;
+  double x, y;
 
-			if ((x * x + y * y) <= 1.0){
-				++valid;
-			}
-		}
-	}
+  omp_set_num_threads(THREAD_COUNT);
 
-	return (((double)valid) / ((double)s)) * 4.0;
+  #pragma omp parallel private(x, y,samples, seed, i) reduction(+:valid) 
+  {
+    samples = s;
+    seed = (double) time(NULL) * (double) (omp_get_thread_num() + rand());
+    // cout << omp_get_thread_num() << ": " << rand_r(&seed) << endl;
+
+    #pragma omp for private(i)
+    for (i = 0; i < samples; i++)
+    {
+      x = ((double)rand_r(&seed)) / ((double)RAND_MAX);
+      y = ((double)rand_r(&seed)) / ((double)RAND_MAX);
+
+      if ((x * x + y * y) <= 1.0){
+        ++valid;
+      }
+    }
+  }
+  
+  // cout << valid << " / " << s << endl;
+
+  return (((double)valid) / ((double)s)) * 4.0;
 }
 
 int main(int argc, char* argv[])
 {
-	using namespace std;
+  using namespace std;
 
-	if(argc < 2){
-		cout << "Error: Arguments length < 1" << endl;
-		return EXIT_FAILURE;
-	}
+  if(argc < 2){
+    cout << "Error: Arguments length < 1" << endl;
+    return EXIT_FAILURE;
+  }
 
-	cout << MonteCarloPi(atoi(argv[1])) << endl;
+  cout << MonteCarloPi(atoi(argv[1])) << endl;
 
-	return EXIT_SUCCESS;
+  return EXIT_SUCCESS;
 }
