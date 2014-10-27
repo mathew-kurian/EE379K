@@ -23,7 +23,7 @@ EE379K Multicore
 - [X] **Question 1:** In Progress - Kapil
 - [X] **Question 2:** Not Started - Kapil 
 - [X] **Question 3:** Not Started - Kapil
-- [X] **Question 4:** Not Started
-- [X] **Question 5:** Not Started
-- [X] **Question 6:** Not Started
-- [X] **Question 7:** Not Started - Kapil + Matthew
+- [X] **Question 4:** Not Started - Mathew
+- [X] **Question 5:** Not Started - Mathew
+- [X] **Question 6:** Not Started - Kapil
+- [X] **Question 7:** Not Started - Mathew
