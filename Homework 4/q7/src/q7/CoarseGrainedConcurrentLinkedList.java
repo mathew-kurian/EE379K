@@ -10,10 +10,12 @@ public class CoarseGrainedConcurrentLinkedList extends LinkedList {
 			// Head related issues
 			if(this.head == null){
 				this.head = new Entry(x);
+				return true;
 			} else if(x < this.head.value){
 				Entry entry = new Entry(x);
 				entry.next = head;
 				this.head = entry;
+				return true;
 			}
 			
 			// Other
