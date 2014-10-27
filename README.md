@@ -20,8 +20,8 @@ EE379K Multicore
 
 ###Homework 4 Issues
 
-- [X] **Question 1:** In Progress - Kapil
-- [X] **Question 2:** Not Started - Kapil 
+- [X] **Question 1:** Finished
+- [X] **Question 2:** Finished
 - [X] **Question 3:** Not Started - Kapil
 - [X] **Question 4:** Not Started - Mathew
 - [X] **Question 5:** Not Started - Mathew
