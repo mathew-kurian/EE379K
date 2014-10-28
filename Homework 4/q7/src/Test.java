@@ -135,7 +135,7 @@ public class Test {
 		test(lists, 0, 0, Math.abs(N));
 	}
 
-	private void test(LinkedList[] lists, int index, int t, int N) {
+	private void test(final LinkedList[] lists, final int index, int t, final int N) {
 		if (index >= lists.length) {
 			return;
 		}

@@ -5,7 +5,7 @@ import java.util.concurrent.atomic.AtomicReference;
 public class CLHLock implements Lock {
 	
 	private static class QNode{
-		private volatile Boolean locked;
+		private volatile Boolean locked = false;
 	}
 	
 	AtomicReference<QNode> tail;
