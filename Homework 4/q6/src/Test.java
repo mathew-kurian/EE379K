@@ -13,14 +13,17 @@ public class Test implements Runnable {
 	int max = 0;
 	Integer count = 0;
 
-	public Test(Lock lock, int threads, int max) {
+	public Test(Lock lock, int threads, int max, Runnable done) {
 		this.lock = lock;
 		this.max = max;
 		this.threadCount = threads;
 		this.cb = new CyclicBarrier(threads, new Runnable() {
 			@Override
 			public void run() {
-				System.out.println((double) (System.nanoTime() - startTime) / 1000000000.0);
+				System.out.println(lock.getClass().getSimpleName() + ": " + (double) (System.nanoTime() - startTime) / 1000000000.0);
+				if(done != null){
+					done.run();
+				}
 			}
 		});
 		this.start = new CyclicBarrier(threads, new Runnable() {
