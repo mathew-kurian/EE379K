@@ -4,7 +4,10 @@ public class Driver {
 
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
-		Thread[] threads = new Thread[numThread];
+		long executeTimeMS = 0;
+		int numThread = 6;
+		
+		Thread[] threads = new Thread[8];
 
 		for (int i = 0; i < threads.length; i++) {
 			threads[i] = new CountedThread(
@@ -32,6 +35,18 @@ public class Driver {
 
 		System.out.println(executeTimeMS);
 
+	}
+	
+	public static Runnable createRunnable(final Counter counter,
+			final int increments) {
+		return new Runnable() {
+			@Override
+			public void run() {
+				while (counter.getCount() <= increments) {	
+					counter.increment();
+				}
+			}
+		};
 	}
 
 }
