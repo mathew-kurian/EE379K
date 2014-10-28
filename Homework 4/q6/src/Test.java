@@ -1,10 +1,10 @@
 import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.CyclicBarrier;
 
-import q6.Lock;	
+import q6.Lock;
 
 public class Test implements Runnable {
-	
+
 	Lock lock;
 	CyclicBarrier cb;
 	CyclicBarrier start;
@@ -12,54 +12,53 @@ public class Test implements Runnable {
 	int threadCount;
 	int max = 0;
 	Integer count = 0;
-	
-	public Test(Lock lock, int threads, int max){
+
+	public Test(Lock lock, int threads, int max) {
 		this.lock = lock;
 		this.max = max;
 		this.threadCount = threads;
-		this.cb = new CyclicBarrier(threads, new Runnable(){
+		this.cb = new CyclicBarrier(threads, new Runnable() {
 			@Override
 			public void run() {
-				System.out.println(System.nanoTime() - startTime);
-			}			
+				System.out.println((double) (System.nanoTime() - startTime) / 1000000000.0);
+			}
 		});
-		this.start = new CyclicBarrier(threads, new Runnable(){
+		this.start = new CyclicBarrier(threads, new Runnable() {
 			@Override
 			public void run() {
-				startTime = System.nanoTime();				
+				startTime = System.nanoTime();
 			}
 		});
 	}
-	
-	public void run(){
+
+	public void run() {
 		try {
 			this.start.await();
 		} catch (InterruptedException | BrokenBarrierException e) {
 			e.printStackTrace();
 		}
-		
-		while(true){
+
+		while (true) {
 			lock.lock();
-			
-			if(count >= max){
+			if (count >= max) {
 				lock.unlock();
 				break;
 			}
-			
+
 			count++;
-			
+
 			lock.unlock();
 		}
-		
+
 		try {
 			this.cb.await();
 		} catch (InterruptedException | BrokenBarrierException e) {
 			e.printStackTrace();
 		}
 	}
-	
-	public void start(){
-		for(int i = 0; i < threadCount; i++){
+
+	public void start() {
+		for (int i = 0; i < threadCount; i++) {
 			new Thread(this).start();
 		}
 	}
