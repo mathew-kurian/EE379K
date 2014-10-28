@@ -42,6 +42,7 @@ public class Test implements Runnable {
 			lock.lock();
 			
 			if(count >= max){
+				lock.unlock();
 				break;
 			}
 			

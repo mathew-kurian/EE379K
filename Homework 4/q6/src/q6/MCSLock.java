@@ -4,7 +4,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 public class MCSLock implements Lock{
 
-	private static class QNode{
+	class QNode{
 		private volatile boolean locked = false;
 		private volatile QNode next = null;
 		
