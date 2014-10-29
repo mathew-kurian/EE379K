@@ -32,14 +32,50 @@ public class Driver {
 				System.exit(-1);
 			}
 			
+			final int threadCountCpy = threadCount;
+			
 			// Create Threads
 			Thread[] threads = new Thread[threadCount];
+			// Create cyclic barrier for add operation
+			CyclicBarrier addCb = new CyclicBarrier(threadCount, new Runnable(){
+				
+				boolean end = false;
+				double time = 0;
+				
+				@Override
+				public void run() {
+					if(!end){
+						time = System.nanoTime();
+						end = true;
+						return;
+					}
+					
+					time = (double)(System.nanoTime() - time) / 1000000000.0;
+					System.out.printf("%-15s[%d][add]: %fms\n", args[0], threadCountCpy, time);
+				}
+			});
 
-			// Create cyclic barrier
-			CyclicBarrier cb = new CyclicBarrier(threadCount);
-
+			// Create cyclic barrier for combo operation
+			CyclicBarrier comboCb = new CyclicBarrier(threadCount, new Runnable(){
+				
+				boolean end = false;
+				double time = 0;
+				
+				@Override
+				public void run() {
+					if(!end){
+						time = System.nanoTime();
+						end = true;
+						return;
+					}
+					
+					time = (double)(System.nanoTime() - time) / 1000000000.0;
+					System.out.printf("%-15s[%d][combo]: %fms\n", args[0], threadCountCpy, time);
+				}
+			});
+			
 			for (int i = 0; i < threads.length; i++) {
-				threads[i] = new Thread(createRunnable((5000 + threadCount) / threadCount, (25000 + threadCount) / threadCount, cb, list));
+				threads[i] = new Thread(createRunnable((5000 + threadCount) / threadCount, (25000 + threadCount) / threadCount, addCb, comboCb, list));
 			}
 
 			// Start time
@@ -62,11 +98,11 @@ public class Driver {
 			// End time
 			executeTimeMS = (double)(System.nanoTime() - executeTimeMS) / 1000000000.0;
 
-			System.out.printf("%-15s[%d]: %fms\n", args[0], threadCount, executeTimeMS);
+			System.out.printf("%-15s[%d][total]: %fms\n", args[0], threadCount, executeTimeMS);
 		}
 	}
 
-	public static Runnable createRunnable(final int toAdd, final int toContainsRemoveAdd, final CyclicBarrier cb,
+	public static Runnable createRunnable(final int toAdd, final int toContainsRemoveAdd, final CyclicBarrier addCb, final CyclicBarrier comboCb,
 			final LinkedList list) {
 		return new Runnable() {
 
@@ -76,6 +112,15 @@ public class Driver {
 			public void run() {
 
 				int threadId = (int) Thread.currentThread().getId();
+
+				// Wait for threads to finish
+				try {
+					addCb.await();
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				} catch (BrokenBarrierException e) {
+					e.printStackTrace();
+				}
 				
 				// Add random number
 				for (int i = 0; i < toAdd; i++) {
@@ -84,7 +129,17 @@ public class Driver {
 
 				// Wait for threads to finish
 				try {
-					cb.await();
+					addCb.await();
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				} catch (BrokenBarrierException e) {
+					e.printStackTrace();
+				}
+				
+
+				// Wait for threads to finish
+				try {
+					comboCb.await();
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				} catch (BrokenBarrierException e) {
@@ -106,7 +161,7 @@ public class Driver {
 
 				// Wait for threads to finish
 				try {
-					cb.await();
+					comboCb.await();
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				} catch (BrokenBarrierException e) {
