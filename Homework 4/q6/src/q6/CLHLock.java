@@ -2,7 +2,11 @@ package q6;
 
 import java.util.concurrent.atomic.AtomicReference;
 
-public class CLHLock implements Lock {  
+/*
+ * Code from book
+ */
+
+public class CLHLock implements MyLock {  
 
 	private static class QNode{
 		private volatile Boolean locked = false;
@@ -12,7 +16,7 @@ public class CLHLock implements Lock {
     ThreadLocal<QNode> myPred;  
     ThreadLocal<QNode> myNode;  
   
-    public CLHLock() {  
+    public CLHLock() {
         tail = new AtomicReference<QNode>(new QNode());  
         myNode = new ThreadLocal<QNode>() {  
             protected QNode initialValue() {  

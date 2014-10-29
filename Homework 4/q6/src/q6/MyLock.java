@@ -1,7 +1,6 @@
 package q6;
 
-public interface Lock {
+public interface MyLock {
 	public void lock();
 	public void unlock();
-
 }

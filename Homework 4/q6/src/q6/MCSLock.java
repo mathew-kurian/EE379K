@@ -2,7 +2,11 @@ package q6;
 
 import java.util.concurrent.atomic.AtomicReference;
 
-public class MCSLock implements Lock{
+/*
+ * Code from book
+ */
+
+public class MCSLock implements MyLock {
 
 	class QNode{
 		private volatile boolean locked = false;
