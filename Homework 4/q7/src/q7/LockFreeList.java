@@ -2,6 +2,10 @@ package q7;
 
 import java.util.concurrent.atomic.AtomicMarkableReference;
 
+/*
+ * Code from book
+ */
+
 public class LockFreeList implements LinkedList {
 
 	private class Node {

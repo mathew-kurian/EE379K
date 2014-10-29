@@ -3,11 +3,15 @@ package q7;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-public class LockBased implements LinkedList {
+/*
+ * Code from book
+ */
+
+public class LockBasedList implements LinkedList {
 
 	Node head;
 
-	public LockBased() {
+	public LockBasedList() {
 		this.head = new Node(Integer.MIN_VALUE);
 		this.head.next = new Node(Integer.MAX_VALUE);
 	}
