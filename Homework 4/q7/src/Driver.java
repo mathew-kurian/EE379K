@@ -6,6 +6,31 @@ import q7.*;
 
 public class Driver {
 
+	static class TimedRunnable implements Runnable {
+		
+		boolean end = false;
+		double time = 0;
+		int threadCount = 0;
+		String algo = "";
+		
+		public TimedRunnable(String algo, int threadCount){
+			this.algo = algo;
+			this.threadCount = threadCount;
+		}
+		
+		
+		public void run() {
+			if(!end){
+				time = System.nanoTime();
+				end = true;
+				return;
+			}
+			
+			time = (double)(System.nanoTime() - time) / 1000000000.0;
+			System.out.printf("%-15s[%d][add]: %fms\n", algo, threadCount, time);
+		}
+	}
+	
 	public static void main(String args[]) {
 		double executeTimeMS = 0;
 		int numThread = 8;
@@ -32,47 +57,12 @@ public class Driver {
 				System.exit(-1);
 			}
 			
-			final int threadCountCpy = threadCount;
-			
 			// Create Threads
 			Thread[] threads = new Thread[threadCount];
 			// Create cyclic barrier for add operation
-			CyclicBarrier addCb = new CyclicBarrier(threadCount, new Runnable(){
-				
-				boolean end = false;
-				double time = 0;
-				
-				@Override
-				public void run() {
-					if(!end){
-						time = System.nanoTime();
-						end = true;
-						return;
-					}
-					
-					time = (double)(System.nanoTime() - time) / 1000000000.0;
-					System.out.printf("%-15s[%d][add]: %fms\n", args[0], threadCountCpy, time);
-				}
-			});
-
+			CyclicBarrier addCb = new CyclicBarrier(threadCount, new TimedRunnable(args[0], threadCount));
 			// Create cyclic barrier for combo operation
-			CyclicBarrier comboCb = new CyclicBarrier(threadCount, new Runnable(){
-				
-				boolean end = false;
-				double time = 0;
-				
-				@Override
-				public void run() {
-					if(!end){
-						time = System.nanoTime();
-						end = true;
-						return;
-					}
-					
-					time = (double)(System.nanoTime() - time) / 1000000000.0;
-					System.out.printf("%-15s[%d][combo]: %fms\n", args[0], threadCountCpy, time);
-				}
-			});
+			CyclicBarrier comboCb = new CyclicBarrier(threadCount, new TimedRunnable(args[0], threadCount));
 			
 			for (int i = 0; i < threads.length; i++) {
 				threads[i] = new Thread(createRunnable((5000 + threadCount) / threadCount, (25000 + threadCount) / threadCount, addCb, comboCb, list));
