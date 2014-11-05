@@ -7,6 +7,9 @@ import java.awt.*;
  */
 public class Point extends java.awt.Point {
 
+    public static final Color VISITED = Color.GREEN;
+    public static final Color UNVISITED = Color.WHITE;
+
     public Color getColor() {
         return color;
     }
@@ -15,7 +18,7 @@ public class Point extends java.awt.Point {
         this.color = color;
     }
 
-    private Color color = Color.WHITE;
+    private Color color = UNVISITED;
 
     public Point(int a, int i) {
         super(a, i);

@@ -6,10 +6,6 @@ import java.util.Random;
 
 public class Common {
 
-    public static enum Direction {
-        NORTH, SOUTH, EAST, WEST
-    }
-
     public static List<Point> generateRandomPoints(int length) {
         Random rand = new Random();
         List<Point> points = new ArrayList<Point>();
@@ -67,13 +63,24 @@ public class Common {
         return p;
     }
 
-
-    public static boolean isPointLeftOf(Point A, Point B, Point P){
+    public static boolean isPointLeftOf(Point A, Point B, Point P) {
         return (((B.x - A.x) * (P.y - A.y) - (B.y - A.y) * (P.x - A.x)) > 0) ? true : false;
     }
 
     public static double angleBetween(Point center, Point current, Point previous) {
         return Math.toDegrees(Math.atan2(current.x - center.x, current.y - center.y) -
                 Math.atan2(previous.x - center.x, previous.y - center.y));
+    }
+
+    public static int distance(Point line1, Point line2, Point p) {
+        int ABx = line2.x - line1.x;
+        int ABy = line2.y - line1.y;
+        int num = ABx * (line1.y - p.y) - ABy * (line1.x - p.x);
+        if (num < 0) num = -num;
+        return num;
+    }
+
+    public static enum Direction {
+        NORTH, SOUTH, EAST, WEST
     }
 }
