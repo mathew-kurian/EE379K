@@ -3,19 +3,23 @@ package com.computation;
 import javax.swing.*;
 import java.awt.*;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class PointCloud {
 
     private JPanel panel = new PointPanel();
     ;
-    private JFrame frame = new JFrame();
-    private List<Point> points = Common.generateRandomPoints(50);
-    private List<Point> polygon = new ArrayList<Point>();
+    private JFrame frame;
+    private List<Point> points;
+    private Set<Edge> polygon;
 
-    public PointCloud() {
-
-        panel.setPreferredSize(new Dimension(1000, 1000));
+    public PointCloud(int count, int width, int height) {
+        frame = new JFrame();
+        polygon = new HashSet<Edge>();
+        points = Common.generateRandomPoints(count, width, height, 50);
+        panel.setPreferredSize(new Dimension(width, height));
 
         frame.getContentPane().setLayout(new BorderLayout());
         frame.getContentPane().add(panel, BorderLayout.CENTER);
@@ -25,8 +29,12 @@ public class PointCloud {
         frame.setVisible(true);
     }
 
+    public void showMessage(String msg) {
+        JOptionPane.showMessageDialog(frame, msg);
+    }
+
     public List<Point> getPoints() {
-        return points;
+        return new ArrayList<Point>(points);
     }
 
     public void draw() {
@@ -38,15 +46,29 @@ public class PointCloud {
         });
     }
 
-    public void updateHullAndDraw(List<Point> polygon) {
+    public void addEdge(Edge edge) {
 
         // Thread-safe
-        final List<Point> polygonCpy = polygon == null ? new ArrayList<Point>(0) : new ArrayList<Point>(polygon);
+        final Edge edgeCpy = new Edge(edge);
 
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
-                PointCloud.this.polygon = polygonCpy;
+                PointCloud.this.polygon.add(edgeCpy);
+                PointCloud.this.panel.repaint();
+            }
+        });
+    }
+
+    public void removeEdge(Edge edge) {
+
+        // Thread-safe
+        final Edge edgeCpy = new Edge(edge);
+
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                PointCloud.this.polygon.remove(edgeCpy);
                 PointCloud.this.panel.repaint();
             }
         });
@@ -58,7 +80,7 @@ public class PointCloud {
         protected void paintComponent(Graphics g) {
             Graphics2D g2d = (Graphics2D) g;
 
-            if(points == null || points.size() == 0){
+            if (points == null || points.size() == 0) {
                 return;
             }
 
@@ -69,43 +91,19 @@ public class PointCloud {
             g2d.setColor(Color.BLACK);
             g2d.setBackground(Color.BLACK);
             g2d.fillRect(0, 0, getWidth(), getHeight());
+            g2d.setColor(Color.RED);
+
+            for (Edge edge : polygon) {
+                g2d.drawLine(edge.p1.x, edge.p1.y, edge.p2.x, edge.p2.y);
+            }
+
             g2d.setColor(Color.WHITE);
 
             for (Point p : points) {
                 g2d.setColor(p.getColor());
-                g2d.fillOval(p.x, p.y, 10, 10);
+                g2d.fillOval(p.x - 2, p.y - 2, 4, 4);
             }
 
-            g2d.setColor(Color.RED);
-
-            if(polygon == null || polygon.size() == 0){
-                return;
-            }
-
-            Point start = polygon.get(0);
-
-            for (Point p : polygon) {
-                g2d.fillOval(p.x - 5, p.y - 5, 20, 20);
-            }
-
-            Font font = g2d.getFont();
-            g2d.setFont(new Font(font.getName(), font.getStyle(), 20));
-
-            for (int i = 1; i < polygon.size(); i++) {
-                Point next = polygon.get(i);
-                g2d.drawLine(start.x, start.y, next.x, next.y);
-                g2d.drawString(i + "", next.x + 25, next.y);
-                start = next;
-            }
-
-            g2d.drawLine(start.x, start.y, polygon.get(0).x, polygon.get(0).y);
-
-            g2d.setColor(Color.GREEN);
-
-            start = polygon.get(0);
-
-            g2d.fillOval(start.x - 5, start.y - 5, 20, 20);
-            g2d.drawString("0", start.x + 20, start.y);
         }
     }
 

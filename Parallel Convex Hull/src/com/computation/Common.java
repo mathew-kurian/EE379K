@@ -6,12 +6,12 @@ import java.util.Random;
 
 public class Common {
 
-    public static List<Point> generateRandomPoints(int length) {
+    public static List<Point> generateRandomPoints(int length, int width, int height, int inset) {
         Random rand = new Random();
         List<Point> points = new ArrayList<Point>();
 
         for (int i = 0; i < length; i++) {
-            points.add(new Point(rand.nextInt(700) + 100, rand.nextInt(700) + 100));
+            points.add(new Point(rand.nextInt(width - inset * 2) + inset, rand.nextInt(height - inset * 2) + inset));
         }
 
         return points;
