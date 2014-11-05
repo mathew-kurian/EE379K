@@ -1,4 +1,4 @@
-package com.computation;
+package com.computation.common;
 
 import javax.swing.*;
 import java.awt.*;
@@ -22,7 +22,7 @@ public class PointCloud {
         frame = new JFrame();
         polygon = new HashSet<Edge>();
         threadCountLabel = new JLabel();
-        points = Common.generateRandomPoints(count, width, height, 50);
+        points = Utils.generateRandomPoints(count, width, height, 50);
 
         panel.setPreferredSize(new Dimension(width, height));
 

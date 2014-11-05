@@ -1,8 +1,7 @@
 package com.computation.quickhull;
 
-import com.computation.*;
+import com.computation.common.*;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -29,8 +28,8 @@ public class QuickHull implements ConvexHull {
         // Get points
         List<Point> points = pointCloud.getPoints();
 
-        Point p1 = Common.findMax(points, Common.Direction.NORTH);
-        Point p2 = Common.findMax(points, Common.Direction.SOUTH);
+        Point p1 = Utils.findMax(points, Utils.Direction.NORTH);
+        Point p2 = Utils.findMax(points, Utils.Direction.SOUTH);
 
         p1.setColor(Point.VISITED);
         p2.setColor(Point.VISITED);
@@ -45,7 +44,7 @@ public class QuickHull implements ConvexHull {
         pointCloud.addEdge(new Edge(p1, p2));
 
         for (Point point : points) {
-            if (Common.isPointLeftOf(p1, p2, point)) {
+            if (Utils.isPointLeftOf(p1, p2, point)) {
                 left.add(point);
             } else {
                 right.add(point);
@@ -60,7 +59,7 @@ public class QuickHull implements ConvexHull {
         }
     }
 
-    class Subset implements Runnable {
+    private class Subset implements Runnable {
 
         private final Point a;
         private final Point b;
@@ -79,7 +78,7 @@ public class QuickHull implements ConvexHull {
 
             // Thread this later
             for (Point p : points) {
-                int d = Common.distance(a, b, p);
+                int d = Utils.distance(a, b, p);
                 if (d > dist) {
                     dist = d;
                     max = p;
@@ -94,10 +93,10 @@ public class QuickHull implements ConvexHull {
 
             max.setColor(Point.VISITED);
 
-            if (pointCloud.DEBUG) {
+            if (PointCloud.DEBUG) {
                 pointCloud.draw();
                 try {
-                    Thread.sleep(pointCloud.DEBUG_ANIMATION_TIME_MS);
+                    Thread.sleep(PointCloud.DEBUG_ANIMATION_TIME_MS);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
@@ -111,9 +110,9 @@ public class QuickHull implements ConvexHull {
             HashSet<Point> right = new HashSet<Point>();
 
             for (Point point : points) {
-                if (Common.isPointLeftOf(a, max, point)) {
+                if (Utils.isPointLeftOf(a, max, point)) {
                     left.add(point);
-                } else if (!Common.isPointLeftOf(b, max, point)) {
+                } else if (!Utils.isPointLeftOf(b, max, point)) {
                     right.add(point);
                 }
             }
@@ -124,8 +123,6 @@ public class QuickHull implements ConvexHull {
             } catch (Exception e) {
                 e.printStackTrace();
             }
-
-            return;
         }
     }
 }

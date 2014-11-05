@@ -1,4 +1,4 @@
-package com.computation;
+package com.computation.common;
 
 public class Edge {
 

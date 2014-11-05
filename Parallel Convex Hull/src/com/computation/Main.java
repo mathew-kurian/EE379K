@@ -1,5 +1,7 @@
 package com.computation;
 
+import com.computation.common.ConvexHull;
+import com.computation.common.PointCloud;
 import com.computation.quickhull.QuickHull;
 
 import javax.swing.*;
