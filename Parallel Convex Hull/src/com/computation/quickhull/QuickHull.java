@@ -11,31 +11,29 @@ import java.util.concurrent.Executors;
 
 public class QuickHull implements ConvexHull {
 
-    private static final boolean DEBUG = true;
-    private static final long DEBUG_ANIMATION_TIME_MS = 1000;
-
     private PointCloud pointCloud;
-    private List<Point> points;
-    private List<Point> hull;
-
     private ExecutorService executorService;
 
     public void findConvexHull(PointCloud pointCloud, int threads) {
 
         // Start
         this.executorService = Executors.newFixedThreadPool(threads);
-        this.hull = new ArrayList<Point>();
         this.pointCloud = pointCloud;
-        this.points = pointCloud.getPoints();
+
+        // Set basic information
+        pointCloud.setThreadCount(threads);
+
+        // Pause and ask to continue
+        pointCloud.toast("Press OK to start");
+
+        // Get points
+        List<Point> points = pointCloud.getPoints();
 
         Point p1 = Common.findMax(points, Common.Direction.NORTH);
         Point p2 = Common.findMax(points, Common.Direction.SOUTH);
 
         p1.setColor(Point.VISITED);
         p2.setColor(Point.VISITED);
-
-        hull.add(p1);
-        hull.add(p2);
 
         // Handle left side
         HashSet<Point> left = new HashSet<Point>();
@@ -96,10 +94,10 @@ public class QuickHull implements ConvexHull {
 
             max.setColor(Point.VISITED);
 
-            if (DEBUG) {
+            if (pointCloud.DEBUG) {
                 pointCloud.draw();
                 try {
-                    Thread.sleep(DEBUG_ANIMATION_TIME_MS);
+                    Thread.sleep(pointCloud.DEBUG_ANIMATION_TIME_MS);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }

@@ -2,9 +2,6 @@ package com.computation;
 
 import java.awt.*;
 
-/**
- * Created by Mathew on 10/31/2014.
- */
 public class Point extends java.awt.Point {
 
     public static final Color VISITED = Color.GREEN;
