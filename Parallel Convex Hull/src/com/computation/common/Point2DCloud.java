@@ -9,8 +9,6 @@ import java.util.Set;
 
 public class Point2DCloud {
 
-    public static final boolean DEBUG = true;
-    public static final long DEBUG_ANIMATION_TIME_MS = 1000;
     public static final int DPI_SCALING = 2;
 
     private JPanel panel = new PointPanel();
@@ -94,11 +92,13 @@ public class Point2DCloud {
 
         // Thread-safe
         final Edge edgeCpy = new Edge(edge);
+        final Edge edgeFlip = new Edge(edge.p2, edge.p1);
 
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
                 Point2DCloud.this.polygon.remove(edgeCpy);
+                Point2DCloud.this.polygon.remove(edgeFlip);
                 Point2DCloud.this.panel.repaint();
             }
         });

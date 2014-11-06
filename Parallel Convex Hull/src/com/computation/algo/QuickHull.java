@@ -90,10 +90,10 @@ public class QuickHull extends VisualConvexHull {
 
             max.setColor(Point2D.VISITED);
 
-            if (Point2DCloud.DEBUG) {
+            if (DEBUG) {
                 point2DCloud.draw();
                 try {
-                    Thread.sleep(Point2DCloud.DEBUG_ANIMATION_TIME_MS);
+                    Thread.sleep(DEBUG_ANIMATION_TIME_MS);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }

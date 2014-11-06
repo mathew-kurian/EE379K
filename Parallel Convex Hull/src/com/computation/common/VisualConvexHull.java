@@ -2,6 +2,9 @@ package com.computation.common;
 
 public abstract class VisualConvexHull {
 
+    public static final boolean DEBUG = true;
+    public static final long DEBUG_ANIMATION_TIME_MS = 1000;
+
     protected final Point2DCloud point2DCloud;
 
     public VisualConvexHull(Point2DCloud point2DCloud){
