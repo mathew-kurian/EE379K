@@ -2,10 +2,10 @@ package com.computation.common;
 
 public class Edge {
 
-    public final Point p1;
-    public final Point p2;
+    public final Point2D p1;
+    public final Point2D p2;
 
-    public Edge(Point p1, Point p2) {
+    public Edge(Point2D p1, Point2D p2) {
         this.p1 = p1;
         this.p2 = p2;
     }

@@ -1,8 +1,8 @@
 package com.computation;
 
-import com.computation.common.ConvexHull;
-import com.computation.common.PointCloud;
-import com.computation.quickhull.QuickHull;
+import com.computation.algo.QuickHull;
+import com.computation.common.VisualConvexHull;
+import com.computation.common.Point2DCloud;
 
 import javax.swing.*;
 
@@ -13,7 +13,7 @@ public class Main {
 
         UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 
-        ConvexHull convexHull = new QuickHull();
-        convexHull.findConvexHull(new PointCloud(/* points */ 23, /* width */ 1000, /* height */ 1000), /* threadCount */ 10);
+        VisualConvexHull visualConvexHull = new QuickHull(new Point2DCloud(/* points */ 31, /* width */ 800, /* height */ 600));
+        visualConvexHull.start(/* threadCount */ 10);
     }
 }
