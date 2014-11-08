@@ -1,54 +1,111 @@
 package com.computation.common;
 
 import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
 import java.awt.*;
-import java.util.ArrayList;
-import java.util.HashSet;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.*;
 import java.util.List;
-import java.util.Set;
 
 public class Point2DCloud {
 
     public static final int DPI_SCALING = 2;
-
-    private JPanel panel = new PointPanel();
+    public static final int GRID_SPACING = 40;
+    private JPanel panel;
     private JFrame frame;
-    private JLabel threadCountLabel;
+    private JTable props;
     private List<Point2D> point2Ds;
     private Set<Edge> polygon;
+    private HashMap<String, Integer> fields;
+    private DefaultTableModel model;
+    private JPanel buttons;
 
     public Point2DCloud(int count, int width, int height) {
+        model = new DefaultTableModel() {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false;
+            }
+        };
+
+        buttons = new JPanel();
+        panel = new PointPanel();
         frame = new JFrame();
+        fields = new HashMap<String, Integer>();
         polygon = new HashSet<Edge>();
-        threadCountLabel = new JLabel();
         point2Ds = Utils.generateRandomPoints(count, width, height, 50);
+        props = new JTable(model);
+
+        buttons.setLayout(new FlowLayout(FlowLayout.CENTER));
+
+        model.addColumn("Property");
+        model.addColumn("Value");
 
         panel.setPreferredSize(new Dimension(width, height));
+        panel.setSize(width, height);
 
-        threadCountLabel.setBackground(Color.BLACK);
-        threadCountLabel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-        threadCountLabel.setText("Running threads: Not set");
+        props.setRowHeight(25 * DPI_SCALING);
+        props.setFocusable(false);
+        props.setIntercellSpacing(new Dimension(25, 25));
+        props.setCellSelectionEnabled(false);
+        props.setTableHeader(null);
 
         frame.getContentPane().setLayout(new BorderLayout());
-        frame.getContentPane().add(threadCountLabel, BorderLayout.SOUTH);
         frame.getContentPane().add(panel, BorderLayout.CENTER);
+        frame.getContentPane().add(new JScrollPane(props), BorderLayout.EAST);
+        frame.getContentPane().add(buttons, BorderLayout.SOUTH);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.pack();
-        frame.setLocationRelativeTo(null);
-        frame.setVisible(true);
+        frame.setResizable(false);
     }
 
-    public void setThreadCount(final int count) {
+    public void show() {
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
-                threadCountLabel.setText("Running threads: " + count + " threads");
+                frame.pack();
+                frame.setLocationRelativeTo(null);
+                frame.setVisible(true);
             }
         });
-
     }
 
-    public void setAlgorithm(final String name){
+    public void addButton(final String name, final Runnable runnable) {
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                JButton jButton = new JButton(name);
+                jButton.addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        new Thread(runnable).start();
+                    }
+                });
+
+                buttons.add(jButton);
+            }
+        });
+    }
+
+    public <T> void setField(final String key, final T value) {
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                int row;
+                if (fields.containsKey(key)) {
+                    row = fields.get(key);
+                    model.removeRow(row);
+                } else {
+                    row = model.getRowCount();
+                    fields.put(key, row);
+                }
+
+                model.insertRow(row, new String[]{key, value + ""});
+            }
+        });
+    }
+
+    public void setName(final String name) {
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
@@ -106,6 +163,48 @@ public class Point2DCloud {
 
     private class PointPanel extends JPanel {
 
+        protected void paintGrid(Graphics2D g2d) {
+
+            int height = getHeight();
+            int width = getWidth();
+
+            g2d.setStroke(new BasicStroke(2));
+            g2d.setColor(new Color(0x222222));
+
+            for (int i = GRID_SPACING; i < height; i += GRID_SPACING) {
+                g2d.drawLine(0, i, width, i);
+            }
+
+            for (int i = GRID_SPACING; i < width; i += GRID_SPACING) {
+                g2d.drawLine(i, 0, i, height);
+            }
+        }
+
+        protected void paintClear(Graphics2D g2d) {
+            g2d.setColor(Color.BLACK);
+            g2d.setBackground(Color.BLACK);
+            g2d.fillRect(0, 0, getWidth(), getHeight());
+        }
+
+        protected void paintEdges(Graphics2D g2d) {
+            g2d.setColor(Color.RED);
+            g2d.setStroke(new BasicStroke(DPI_SCALING * 3));
+
+            for (Edge edge : polygon) {
+                g2d.drawLine(edge.p1.x, edge.p1.y, edge.p2.x, edge.p2.y);
+            }
+        }
+
+        protected void paintPoints(Graphics2D g2d) {
+            g2d.setStroke(new BasicStroke(1));
+            g2d.setColor(Color.WHITE);
+
+            for (Point2D p : point2Ds) {
+                g2d.setColor(p.getColor());
+                g2d.fillOval(p.x - DPI_SCALING * 3, p.y - DPI_SCALING * 3, DPI_SCALING * 6, DPI_SCALING * 6);
+            }
+        }
+
         @Override
         protected void paintComponent(Graphics g) {
             Graphics2D g2d = (Graphics2D) g;
@@ -117,24 +216,10 @@ public class Point2DCloud {
             g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
                     RenderingHints.VALUE_ANTIALIAS_ON);
 
-            g2d.setColor(Color.BLACK);
-            g2d.setBackground(Color.BLACK);
-            g2d.fillRect(0, 0, getWidth(), getHeight());
-            g2d.setColor(Color.RED);
-            g2d.setStroke(new BasicStroke(DPI_SCALING * 3));
-
-            for (Edge edge : polygon) {
-                g2d.drawLine(edge.p1.x, edge.p1.y, edge.p2.x, edge.p2.y);
-            }
-
-            g2d.setStroke(new BasicStroke(1));
-            g2d.setColor(Color.WHITE);
-
-            for (Point2D p : point2Ds) {
-                g2d.setColor(p.getColor());
-                g2d.fillOval(p.x - DPI_SCALING * 3, p.y - DPI_SCALING * 3, DPI_SCALING * 6, DPI_SCALING * 6);
-            }
-
+            paintClear(g2d);
+            paintGrid(g2d);
+            paintEdges(g2d);
+            paintPoints(g2d);
         }
     }
 

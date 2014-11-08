@@ -7,13 +7,16 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicInteger;
 
-public class QuickHull extends VisualConvexHull {
+public class QuickHull extends ConvexHull {
 
     private ExecutorService executorService;
+    private AtomicInteger subsetStartCount;
+    private AtomicInteger subsetFinishCount;
 
-    public QuickHull(Point2DCloud point2DCloud) {
-        super(point2DCloud);
+    public QuickHull(int points, int width, int height, int threads) {
+        super(points, width, height, threads);
     }
 
     @Override
@@ -21,9 +24,14 @@ public class QuickHull extends VisualConvexHull {
 
         // Start
         this.executorService = Executors.newFixedThreadPool(threads);
+        this.subsetStartCount = new AtomicInteger(0);
+        this.subsetFinishCount = new AtomicInteger(0);
+
+        // Set some fields
+        pointCloud.setField("ThreadPool", true);
 
         // Get points
-        List<Point2D> point2Ds = point2DCloud.getPoints();
+        List<Point2D> point2Ds = pointCloud.getPoints();
 
         Point2D p1 = Utils.findMax(point2Ds, Utils.Direction.NORTH);
         Point2D p2 = Utils.findMax(point2Ds, Utils.Direction.SOUTH);
@@ -38,7 +46,7 @@ public class QuickHull extends VisualConvexHull {
         point2Ds.remove(p1);
         point2Ds.remove(p2);
 
-        point2DCloud.addEdge(new Edge(p1, p2));
+        pointCloud.addEdge(new Edge(p1, p2));
 
         for (Point2D point2D : point2Ds) {
             if (Utils.isPointLeftOf(p1, p2, point2D)) {
@@ -66,6 +74,9 @@ public class QuickHull extends VisualConvexHull {
             this.a = a;
             this.b = b;
             this.point2Ds = point2Ds;
+
+            int subsets = subsetStartCount.incrementAndGet();
+            pointCloud.setField("Subsets", subsets);
         }
 
         @Override
@@ -83,6 +94,9 @@ public class QuickHull extends VisualConvexHull {
             }
 
             if (max == null) {
+                if (subsetStartCount.get() == subsetFinishCount.incrementAndGet()) {
+                    finish();
+                }
                 return;
             }
 
@@ -90,18 +104,18 @@ public class QuickHull extends VisualConvexHull {
 
             max.setColor(Point2D.VISITED);
 
-            if (DEBUG) {
-                point2DCloud.draw();
+            if (debug) {
+                pointCloud.draw();
                 try {
-                    Thread.sleep(DEBUG_ANIMATION_TIME_MS);
+                    Thread.sleep(debugFrameDelay);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
             }
 
-            point2DCloud.removeEdge(new Edge(a, b));
-            point2DCloud.addEdge(new Edge(max, a));
-            point2DCloud.addEdge(new Edge(max, b));
+            pointCloud.removeEdge(new Edge(a, b));
+            pointCloud.addEdge(new Edge(max, a));
+            pointCloud.addEdge(new Edge(max, b));
 
             HashSet<Point2D> left = new HashSet<Point2D>();
             HashSet<Point2D> right = new HashSet<Point2D>();
@@ -119,6 +133,8 @@ public class QuickHull extends VisualConvexHull {
                 executorService.execute(new Subset(right, max, b));
             } catch (Exception e) {
                 e.printStackTrace();
+            } finally {
+                subsetFinishCount.incrementAndGet();
             }
         }
     }
