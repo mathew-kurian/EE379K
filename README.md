@@ -5,15 +5,16 @@ EE379K Multicore
 
 ###Project
 
-- [X] **QuickHull2D:** Mathew. Done
+- [X] **QuickHull2D:** Finished
 - [ ] **Graham2D:** Ankit
 - [ ] **GiftWrap2D:** Kapil
+- [ ] **QuickHull3D:** Maaaaybe
 
 ###Homework 5 Issues
 
 - [ ] **Question 1:** TBD
-- [ ] **Question 2:** TBD
-- [X] **Question 3:** Mathew. Done. Uhh I think. No clue what is going on.
+- [ ] **Question 2:** Pushed template/tests. Need to implement.
+- [X] **Question 3:** Finished (Doublecheck)
 
 ###Homework 4 Issues
 
