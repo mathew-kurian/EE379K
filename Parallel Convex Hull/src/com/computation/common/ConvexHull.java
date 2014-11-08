@@ -3,7 +3,7 @@ package com.computation.common;
 public abstract class ConvexHull implements Runnable {
 
     protected final Point2DCloud pointCloud;
-    private final int threadCount;
+    protected final int threads;
     protected boolean debug = true;
     protected long debugFrameDelay = 1000;
 
@@ -19,7 +19,7 @@ public abstract class ConvexHull implements Runnable {
 
     public ConvexHull(int points, int width, int height, int threads, boolean debug, int animationDelay) {
         this.pointCloud = new Point2DCloud(points, width, height);
-        this.threadCount = threads;
+        this.threads = threads;
         this.debug = debug;
         this.debugFrameDelay = animationDelay;
     }
@@ -35,7 +35,7 @@ public abstract class ConvexHull implements Runnable {
         pointCloud.setName(algo);
         pointCloud.setField("Algorithm", algo);
         pointCloud.setField("Points", pointCloud.getPoints().size());
-        pointCloud.setField("Threads", threadCount);
+        pointCloud.setField("Threads", threads);
         pointCloud.setField("Debug", debug);
         pointCloud.setField("Frame Delay (ms)", debugFrameDelay);
 
@@ -46,7 +46,7 @@ public abstract class ConvexHull implements Runnable {
     public void run() {
         if (!active) {
             active = true;
-            findHull(threadCount);
+            findHull();
         }
     }
 
@@ -55,5 +55,5 @@ public abstract class ConvexHull implements Runnable {
         active = false;
     }
 
-    protected abstract void findHull(int threads);
+    protected abstract void findHull();
 }

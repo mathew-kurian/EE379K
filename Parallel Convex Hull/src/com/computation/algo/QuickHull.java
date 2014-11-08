@@ -20,7 +20,7 @@ public class QuickHull extends ConvexHull {
     }
 
     @Override
-    protected void findHull(int threads) {
+    protected void findHull() {
 
         // Start
         this.executorService = Executors.newFixedThreadPool(threads);

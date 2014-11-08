@@ -5,6 +5,7 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 import java.util.List;
 
@@ -21,42 +22,54 @@ public class Point2DCloud {
     private DefaultTableModel model;
     private JPanel buttons;
 
-    public Point2DCloud(int count, int width, int height) {
-        model = new DefaultTableModel() {
-            @Override
-            public boolean isCellEditable(int row, int column) {
-                return false;
-            }
-        };
+    public Point2DCloud(final int count, final int width, final int height) {
 
-        buttons = new JPanel();
-        panel = new PointPanel();
-        frame = new JFrame();
-        fields = new HashMap<String, Integer>();
-        polygon = new HashSet<Edge>();
-        point2Ds = Utils.generateRandomPoints(count, width, height, 50);
-        props = new JTable(model);
+        try {
+            SwingUtilities.invokeAndWait(new Runnable() {
+                @Override
+                public void run() {
+                    model = new DefaultTableModel() {
+                        @Override
+                        public boolean isCellEditable(int row, int column) {
+                            return false;
+                        }
+                    };
 
-        buttons.setLayout(new FlowLayout(FlowLayout.CENTER));
+                    buttons = new JPanel();
+                    panel = new PointPanel();
+                    frame = new JFrame();
+                    fields = new HashMap<String, Integer>();
+                    polygon = new HashSet<Edge>();
+                    point2Ds = Utils.generateRandomPoints(count, width, height, 50);
+                    props = new JTable(model);
 
-        model.addColumn("Property");
-        model.addColumn("Value");
+                    buttons.setLayout(new FlowLayout(FlowLayout.CENTER));
 
-        panel.setPreferredSize(new Dimension(width, height));
-        panel.setSize(width, height);
+                    model.addColumn("Property");
+                    model.addColumn("Value");
 
-        props.setRowHeight(25 * DPI_SCALING);
-        props.setFocusable(false);
-        props.setIntercellSpacing(new Dimension(25, 25));
-        props.setCellSelectionEnabled(false);
-        props.setTableHeader(null);
+                    panel.setPreferredSize(new Dimension(width, height));
+                    panel.setSize(width, height);
 
-        frame.getContentPane().setLayout(new BorderLayout());
-        frame.getContentPane().add(panel, BorderLayout.CENTER);
-        frame.getContentPane().add(new JScrollPane(props), BorderLayout.EAST);
-        frame.getContentPane().add(buttons, BorderLayout.SOUTH);
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setResizable(false);
+                    props.setRowHeight(25 * DPI_SCALING);
+                    props.setFocusable(false);
+                    props.setIntercellSpacing(new Dimension(25, 25));
+                    props.setCellSelectionEnabled(false);
+                    props.setTableHeader(null);
+
+                    frame.getContentPane().setLayout(new BorderLayout());
+                    frame.getContentPane().add(panel, BorderLayout.CENTER);
+                    frame.getContentPane().add(new JScrollPane(props), BorderLayout.EAST);
+                    frame.getContentPane().add(buttons, BorderLayout.SOUTH);
+                    frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+                    frame.setResizable(false);
+                }
+            });
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (InvocationTargetException e) {
+            e.printStackTrace();
+        }
     }
 
     public void show() {
