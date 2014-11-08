@@ -3,13 +3,27 @@ EE379K
 
 EE379K Multicore
 
-###Homework 2 Issues
+###Project
 
-- [X] **Question 1:** Done!
-- [X] **Question 2:** Done!
-- [X] **Question 3:** Done!
-- [X] **Question 4:** Done!
-- [X] **Question 5:** Done!
+- [X] **QuickHull2D:** Mathew. Done
+- [ ] **Graham2D:** Ankit
+- [ ] **GiftWrap2D:** Kapil
+
+###Homework 4 Issues
+
+- [ ] **Question 1:** TBD
+- [ ] **Question 2:** TBD
+- [X] **Question 3:** Mathew. Working on it
+
+###Homework 4 Issues
+
+- [X] **Question 1:** Finished
+- [X] **Question 2:** Finished
+- [X] **Question 3:** Finished
+- [X] **Question 4:** Finished
+- [X] **Question 5:** Finished
+- [X] **Question 6:** Finished
+- [X] **Question 7:** Finished
 
 ###Homework 3 Issues
 
@@ -18,12 +32,10 @@ EE379K Multicore
 - [X] **Question 3:** Done!
 - [X] **Question 4:** Done!
 
-###Homework 4 Issues
+###Homework 2 Issues
 
-- [X] **Question 1:** Finished
-- [X] **Question 2:** Finished
-- [X] **Question 3:** Not Started - Kapil
-- [X] **Question 4:** Not Started - Mathew
-- [X] **Question 5:** Not Started - Mathew
-- [X] **Question 6:** Not Started - Kapil
-- [X] **Question 7:** Not Started - Mathew
+- [X] **Question 1:** Done!
+- [X] **Question 2:** Done!
+- [X] **Question 3:** Done!
+- [X] **Question 4:** Done!
+- [X] **Question 5:** Done!
