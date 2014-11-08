@@ -209,10 +209,6 @@ public class Point2DCloud {
         protected void paintComponent(Graphics g) {
             Graphics2D g2d = (Graphics2D) g;
 
-            if (point2Ds == null || point2Ds.size() == 0) {
-                return;
-            }
-
             g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
                     RenderingHints.VALUE_ANTIALIAS_ON);
 

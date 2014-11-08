@@ -9,7 +9,7 @@ public class HashTableTests {
 	}
 
 	@org.junit.Test
-	public void lockbased() {
+	public void lockBased() {
 		Driver.main(new String[] { "lock-based", "6", "12000" });
 		assertTrue(true);
 	}

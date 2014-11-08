@@ -32,7 +32,7 @@ public class Driver {
 		if (args[0].equals("lock-free")) {
 			map = new LockFreeHashTable<Integer, Object>();
 		} else if (args[0].equals("lock-based")) {
-			map = new LockBasedHashTable<Integer, Object>();
+			map = new LockBasedHashTable<Integer, Object>(100);
 		} else {
 			System.err.println("ERROR: no such algorithm implemented");
 			System.exit(-1);
@@ -73,7 +73,7 @@ public class Driver {
 		executeTimeMS = (double) (System.nanoTime() - executeTimeMS) / 1000000000.0;
 
 		System.out.print("------------\n" + args[0] + ": ");
-		System.out.printf("%fms\n------------\n", executeTimeMS);
+		System.out.printf("%fms (%d ops)\n------------\n", executeTimeMS, numTotalOps);
 		System.out.printf("%-20s   %-20s    %-20s\n", "put(K,T)",
 				"contains(K,T)", "remove(K,T)");
 		System.out.printf("%-20d   %-20d    %-20d\n\n", putOps, containsOps,

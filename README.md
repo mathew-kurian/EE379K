@@ -13,7 +13,7 @@ EE379K Multicore
 
 - [ ] **Question 1:** TBD
 - [ ] **Question 2:** TBD
-- [X] **Question 3:** Mathew. Added LockFreeHashTable + Tests. Working on LockBasedHashTable.
+- [X] **Question 3:** Mathew. Done. Uhh I think. No clue what is going on.
 
 ###Homework 4 Issues
 
