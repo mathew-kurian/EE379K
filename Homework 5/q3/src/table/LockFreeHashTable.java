@@ -1,4 +1,4 @@
-package q3;
+package table;
 
 /*
  * BucketList.java

@@ -1,4 +1,4 @@
-package q3;
+package table;
 
 /*
  * BaseHashSet.java

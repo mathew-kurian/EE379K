@@ -1,8 +1,8 @@
 import java.util.Random;
 
-import q3.LockBasedHashTable;
-import q3.LockFreeHashTable;
-import q3.Map;
+import table.LockBasedHashTable;
+import table.LockFreeHashTable;
+import table.Map;
 
 public class Driver {
 
@@ -18,8 +18,7 @@ public class Driver {
 
 		if (args.length < 3) {
 			System.err.println("Provide 3 arguments");
-			System.err.println("\t(1) <algorithm>: lock-free/lock-based/"
-					+ "reentrant");
+			System.err.println("\t(1) <algorithm>: lock-free/lock-based");
 			System.err.println("\t(2) <numThread>: the number of test thread");
 			System.err.println("\t(3) <numTotalOps>: the total number of "
 					+ "operations performed");
