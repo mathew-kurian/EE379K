@@ -14,7 +14,9 @@ package q3;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /*
@@ -49,17 +51,27 @@ public class LockBasedHashTable<K, T> implements Map<K, T> {
 
 	}
 
-	private final ReadWriteLock lock;
+	protected final Lock readLock;
+    protected final Lock writeLock;
+    protected volatile Lock[] locks;
 	protected List<Entry>[] table;
 	protected int size;
 
 	public LockBasedHashTable(int capacity) {
-		lock = new ReentrantReadWriteLock();
 		size = 0;
 		table = (List<Entry>[]) new List[capacity];
 		for (int i = 0; i < capacity; i++) {
 			table[i] = new ArrayList<Entry>();
 		}
+		
+        locks = new Lock[capacity];
+        for(int j = 0; j < locks.length; j++) {
+            locks[j] = new ReentrantLock();
+        }
+        
+        ReadWriteLock rwLock = new ReentrantReadWriteLock();
+        readLock = rwLock.readLock();
+        writeLock = rwLock.writeLock();
 	}
 
 	/**
@@ -70,12 +82,12 @@ public class LockBasedHashTable<K, T> implements Map<K, T> {
 	 * @return <code>true</code> iff item present
 	 */
 	public boolean contains(K k) {
-		lock.readLock().lock();
+		acquire(k);
 		try {
 			int myBucket = Math.abs(k.hashCode() % table.length);
 			return table[myBucket].contains(k);
 		} finally {
-			lock.readLock().unlock();
+			release(k);
 		}
 	}
 
@@ -88,13 +100,13 @@ public class LockBasedHashTable<K, T> implements Map<K, T> {
 	 */
 	public T put(K k, T t) {
 		boolean result = false;
-		lock.writeLock().lock();
+		acquire(k);
 		try {
 			int myBucket = Math.abs(k.hashCode() % table.length);
 			result = table[myBucket].add(new Entry(k, t));
 			size = result ? size + 1 : size;
 		} finally {
-			lock.writeLock().unlock();
+			release(k);
 		}
 
 		if (policy()) {
@@ -112,7 +124,7 @@ public class LockBasedHashTable<K, T> implements Map<K, T> {
 	 * @return <code>true</code> iff set changed
 	 */
 	public T remove(K k) {
-		lock.writeLock().lock();
+		acquire(k);
 		try {
 			int myBucket = Math.abs(k.hashCode() % table.length);
 			int index = table[myBucket].indexOf(k);
@@ -125,43 +137,62 @@ public class LockBasedHashTable<K, T> implements Map<K, T> {
 			}
 			return null;
 		} finally {
-			lock.writeLock().unlock();
+			release(k);
 		}
 	}
 
-	/**
-	 * double the set size
-	 */
-	public void resize() {
-		int oldCapacity = table.length;
-		lock.writeLock().lock();
-		try {
-			if (oldCapacity != table.length) {
-				return; // someone beat us to it
-			}
-			int newCapacity = 2 * oldCapacity;
-			List<Entry>[] oldTable = table;
-			table = (List<Entry>[]) new List[newCapacity];
-			for (int i = 0; i < newCapacity; i++)
-				table[i] = new ArrayList<Entry>();
-			for (List<Entry> bucket : oldTable) {
-				for (Entry x : bucket) {
-					int myBucket = Math.abs(x.hashCode() % table.length);
-					table[myBucket].add(x);
-				}
-			}
-		} finally {
-			lock.writeLock().unlock();
-		}
-	}
+    /**
+     * double the set size
+     */
+    public void resize() {
+        int oldCapacity = table.length;
+        writeLock.lock();
+        try {
+            if(oldCapacity != table.length) {
+                return; // someone beat us to it
+            }
+            int newCapacity = 2 * oldCapacity;
+            List<Entry>[] oldTable = table;
+            table = (List<Entry>[]) new List[newCapacity];
+            for(int i = 0; i < newCapacity; i++)
+                table[i] = new ArrayList<Entry>();
+            initializeFrom(oldTable);
+        } finally {
+            writeLock.unlock();
+        }
+    }
 
-	/**
-	 * decide whether to resize
-	 * 
-	 * @return whether to resize
-	 */
-	public boolean policy() {
-		return size / table.length > 4;
-	}
+    private void initializeFrom(List<Entry>[] oldTable) {
+        for(List<Entry> bucket : oldTable) {
+            for(Entry x : bucket) {
+                int myBucket = Math.abs(x.hashCode() % table.length);
+                table[myBucket].add(x);
+            }
+        }
+    }
+
+    /**
+     * Synchronize before adding, removing, or testing for item
+     * @param k item involved
+     */
+    public final void acquire(K k) {
+        readLock.lock();
+        int myBucket = Math.abs(k.hashCode() % locks.length);
+        locks[myBucket].lock();
+    }
+
+    /**
+     * synchronize after adding, removing, or testing for item
+     * @param k item involved
+     */
+    public void release(K k) {
+        readLock.unlock();
+        int myBucket = Math.abs(k.hashCode() % locks.length);
+        locks[myBucket].unlock();
+    }
+
+    public boolean policy() {
+        return size / table.length > 4;
+    }
 
 }
