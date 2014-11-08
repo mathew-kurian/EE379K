@@ -13,8 +13,15 @@ EE379K Multicore
 ###Homework 5 Issues
 
 - [ ] **Question 1:** TBD
-- [ ] **Question 2:** Pushed template/tests. Need to implement.
-- [X] **Question 3:** Finished (Doublecheck)
+- [X] **Question 2:** Pushed template/tests. Need to implement.
+  - [ ] **LockBasedQueue:** TBD
+  - [ ] **LockFreeQueue:** TBD
+  - [X] **LockBasedStack:** Finished
+  - [ ] **LockFreeStackWithContentionManagement:** TBD
+  - [ ] **LockFreeStackMethod2:** TBD
+- [X] **Question 3:** Finished
+  - [X] **LockBasedHashTable:** Finished
+  - [X] **LockFreeHashTable:** Finished
 
 ###Homework 4 Issues
 
