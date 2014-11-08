@@ -9,11 +9,11 @@ EE379K Multicore
 - [ ] **Graham2D:** Ankit
 - [ ] **GiftWrap2D:** Kapil
 
-###Homework 4 Issues
+###Homework 5 Issues
 
 - [ ] **Question 1:** TBD
 - [ ] **Question 2:** TBD
-- [X] **Question 3:** Mathew. Working on it
+- [X] **Question 3:** Mathew. Added LockFreeHashTable + Tests. Working on LockBasedHashTable.
 
 ###Homework 4 Issues
 
