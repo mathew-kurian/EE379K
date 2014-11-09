@@ -11,7 +11,7 @@ import java.util.List;
 
 public class Point2DCloud {
 
-    public static final int DPI_SCALING = 2;
+    public static int DPI_SCALING = 2;
     public static final int GRID_SPACING = 40;
     private JPanel panel;
     private JFrame frame;
@@ -53,7 +53,7 @@ public class Point2DCloud {
 
                     props.setRowHeight(25 * DPI_SCALING);
                     props.setFocusable(false);
-                    props.setIntercellSpacing(new Dimension(25, 25));
+                    props.setIntercellSpacing(new Dimension(8 * DPI_SCALING, 8 * DPI_SCALING));
                     props.setCellSelectionEnabled(false);
                     props.setTableHeader(null);
 
@@ -181,7 +181,7 @@ public class Point2DCloud {
             int height = getHeight();
             int width = getWidth();
 
-            g2d.setStroke(new BasicStroke(2));
+            g2d.setStroke(new BasicStroke(DPI_SCALING));
             g2d.setColor(new Color(0x222222));
 
             for (int i = GRID_SPACING; i < height; i += GRID_SPACING) {
