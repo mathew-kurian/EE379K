@@ -5,6 +5,7 @@ import queue.LockBasedQueue;
 import queue.LockFreeQueue;
 import stack.LockBasedStack;
 import stack.LockFreeStack;
+import stack.LockFreeContentionManagedStack;
 
 public class Driver {
 
@@ -17,25 +18,25 @@ public class Driver {
 		if (args.length < 4) {
 			System.err.println("Provide 4 arguments");
 			System.err.println("\t(1) <structure>: queue/stack");
-			System.err.println("\t(1) <algorithm>: lock-free/lock-based/"
-					+ "reentrant");
+			System.err.println("\t(1) <algorithm>: lock-free/lock-based/lock-free-with-contention");
 			System.err.println("\t(2) <numThread>: the number of test thread");
-			System.err.println("\t(3) <numTotalOps>: the total number of "
-					+ "operations performed");
+			System.err.println("\t(3) <numTotalOps>: the total number of " + "operations performed");
 			System.exit(-1);
 		}
 
 		numThread = Integer.parseInt(args[2]);
 		numTotalOps = Integer.parseInt(args[3]);
-		
+
 		args[0] = args[0] + "-" + args[1];
-		
+
 		if (args[0].equals("queue-lock-free")) {
 			collection = new LockFreeQueue<Object>();
 		} else if (args[0].equals("queue-lock-based")) {
 			collection = new LockBasedQueue<Object>();
 		} else if (args[0].equals("stack-lock-free")) {
 			collection = new LockFreeStack<Object>();
+		} else if (args[0].equals("stack-lock-free-contention-managed")) {
+			collection = new LockFreeContentionManagedStack<Object>();
 		} else if (args[0].equals("stack-lock-based")) {
 			collection = new LockBasedStack<Object>();
 		} else {
@@ -53,8 +54,7 @@ public class Driver {
 		Thread[] threads = new Thread[numThread];
 
 		for (int i = 0; i < threads.length; i++) {
-			threads[i] = new Thread(createRunnable(collection,
-					(numTotalOps + numThread) / numThread));
+			threads[i] = new Thread(createRunnable(collection, (numTotalOps + numThread) / numThread));
 		}
 
 		// Start time
@@ -77,13 +77,12 @@ public class Driver {
 		// End time
 		executeTimeMS = (double) (System.nanoTime() - executeTimeMS) / 1000000000.0;
 
-		System.out.printf("%-20s (threads: %d) (time: %fms)\n", args[0], numThread, executeTimeMS);
+		System.out.printf("%-50s (threads: %d) (time: %fms)\n", args[0], numThread, executeTimeMS);
 
 		System.gc();
 	}
 
-	public static Runnable createRunnable(final SequentialCollection<Object> collection,
-			final int increments) {
+	public static Runnable createRunnable(final SequentialCollection<Object> collection, final int increments) {
 		return new Runnable() {
 			@Override
 			public void run() {

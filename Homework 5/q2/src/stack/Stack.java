@@ -12,6 +12,8 @@ public abstract class Stack<T> implements SequentialCollection<T> {
 	public final T get() {
 		return pop();
 	}
+
 	public abstract void push(T t);
+
 	public abstract T pop();
 }

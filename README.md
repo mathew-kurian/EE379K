@@ -17,8 +17,8 @@ EE379K Multicore
   - [ ] **LockBasedQueue:** TBD
   - [ ] **LockFreeQueue:** TBD
   - [X] **LockBasedStack:** Finished
-  - [ ] **LockFreeStackWithContentionManagement:** TBD
-  - [ ] **LockFreeStackMethod2:** TBD
+  - [ ] **LockFreeContentionManagedStack:** Finished (Doublecheck)
+  - [ ] **LockFreeStack:** TBD
 - [X] **Question 3:** Finished
   - [X] **LockBasedHashTable:** Finished
   - [X] **LockFreeHashTable:** Finished

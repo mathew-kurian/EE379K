@@ -5,7 +5,7 @@ public class LockFreeQueue<T> extends Queue<T> {
 	@Override
 	public void enqueue(T t) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override

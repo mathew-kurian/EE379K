@@ -18,8 +18,8 @@ public class LockBasedStack<T> extends Stack<T> {
 			this.marked = false;
 			this.lock = new ReentrantLock();
 		}
-		
-		Node(int item, T value){
+
+		Node(int item, T value) {
 			this(item);
 			this.value = value;
 		}
@@ -32,10 +32,10 @@ public class LockBasedStack<T> extends Stack<T> {
 			lock.unlock();
 		}
 	}
-	
+
 	private final Node head;
-	
-	public LockBasedStack(){
+
+	public LockBasedStack() {
 		this.head = new Node(Integer.MIN_VALUE);
 		this.head.next = new Node(Integer.MAX_VALUE);
 	}
@@ -43,9 +43,9 @@ public class LockBasedStack<T> extends Stack<T> {
 	private boolean validate(Node pred, Node curr) {
 		return !pred.marked && !curr.marked && pred.next == curr;
 	}
-	
+
 	@Override
-	public void push(T value) {		
+	public void push(T value) {
 		while (true) {
 			Node pred = this.head;
 			Node curr = head.next;
@@ -69,7 +69,7 @@ public class LockBasedStack<T> extends Stack<T> {
 	}
 
 	@Override
-	public T pop() {		
+	public T pop() {
 		while (true) {
 			Node pred = this.head;
 			Node curr = head.next;
