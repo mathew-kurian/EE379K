@@ -10,21 +10,21 @@ public class LockBasedQueue<T> extends Queue<T> {
 	private static class Node<T> {
 		T value;
 		Node<T> next;
-		Lock lock;
+		//Lock lock;
 
 		public Node(T value,Node<T> next) {
 			this.next = next;
 			this.value = value;
-			this.lock = new ReentrantLock();
+			//this.lock = new ReentrantLock();
 		}
 
-		void lock() {
+		/*void lock() {
 			lock.lock();
 		}
 
 		void unlock() {
 			lock.unlock();
-		}
+		}*/
 	}
 	private Node<T> head;
 	private Node<T> tail;
@@ -34,26 +34,30 @@ public class LockBasedQueue<T> extends Queue<T> {
 	public LockBasedQueue(){
 		this.head = new Node<T>(null,null);
 		this.tail = this.head;
+		//this.headerLock = new Object();
+		//this.tailLock = new Object();
 		this.headerLock = new ReentrantLock();
 		this.tailLock = new ReentrantLock();
 	}
 	
 	@Override
 	public boolean enqueue(T t) {
-		// TODO Auto-generated method stub
 		Node<T> newNode = new Node<T>(t,null);
-		synchronized(tailLock){
+		try{
+			tailLock.lock();
 			tail.next = newNode;
 			tail = newNode;
+		} finally{
+			tailLock.unlock();
 		}
 		return true;
 	}
 
 	@Override
 	public T dequeue() {
-		// TODO Auto-generated method stub
 		T t = null;
-		synchronized(headerLock){
+		try{
+			headerLock.lock();
 			Node<T> node = this.head;
 			Node<T> newHead = node.next;
 			if(newHead != null){
@@ -61,6 +65,8 @@ public class LockBasedQueue<T> extends Queue<T> {
 				head = newHead;
 				node = null;
 			}
+		} finally{
+			headerLock.unlock();
 		}
 		return t;
 	}
