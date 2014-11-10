@@ -12,10 +12,10 @@ EE379K Multicore
 
 ###Homework 5 Issues
 
-- [ ] **Question 1:** TBD
+- [ ] **Question 1:** Kapil -- WORKING
 - [X] **Question 2:** Pushed template/tests. Need to implement.
-  - [ ] **LockBasedQueue:** TBD
-  - [X] **LockFreeQueue:** Finished (Have to test)
+  - [X] **LockBasedQueue:** Finished
+  - [ ] **LockFreeQueue:** Finished (Have to test)
   - [X] **LockBasedStack:** Finished
   - [ ] **LockFreeContentionManagedStack:** Finished (Doublecheck). Found bug :'(
   - [ ] **LockFreeStack:** TBD
