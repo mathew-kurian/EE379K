@@ -32,7 +32,7 @@ public class Driver {
 		if (args[0].equals("queue-lock-free")) {
 			collection = new LockFreeQueue<Object>();
 		} else if (args[0].equals("queue-lock-based")) {
-			collection = new LockBasedQueue<Object>(100);
+			collection = new LockBasedQueue<Object>();
 		} else if (args[0].equals("stack-lock-free")) {
 			collection = new LockFreeStack<Object>();
 		} else if (args[0].equals("stack-lock-free-contention-managed")) {
