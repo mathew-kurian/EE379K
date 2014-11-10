@@ -11,7 +11,7 @@ public class LockBasedQueue<T> extends Queue<T> {
 	@Override
 	public boolean enqueue(T t) {
 		// TODO Auto-generated method stub
-		return true;
+		return false;
 	}
 
 	@Override
