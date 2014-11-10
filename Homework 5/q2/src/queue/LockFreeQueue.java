@@ -1,8 +1,6 @@
 package queue;
 
-import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.concurrent.atomic.AtomicReferenceArray;
 
 //single consumer lock free unbounded queue
 public class LockFreeQueue<T> extends Queue<T> {

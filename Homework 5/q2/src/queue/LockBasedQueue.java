@@ -4,9 +4,9 @@ package queue;
 public class LockBasedQueue<T> extends Queue<T> {
 
 	@Override
-	public void enqueue(T t) {
+	public boolean enqueue(T t) {
 		// TODO Auto-generated method stub
-
+		return false;
 	}
 
 	@Override
@@ -14,6 +14,5 @@ public class LockBasedQueue<T> extends Queue<T> {
 		// TODO Auto-generated method stub
 		return null;
 	}
-
 
 }
