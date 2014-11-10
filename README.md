@@ -15,7 +15,7 @@ EE379K Multicore
 - [ ] **Question 1:** TBD
 - [X] **Question 2:** Pushed template/tests. Need to implement.
   - [ ] **LockBasedQueue:** TBD
-  - [ ] **LockFreeQueue:** Finished (Have to test)s
+  - [X] **LockFreeQueue:** Finished (Have to test)
   - [X] **LockBasedStack:** Finished
   - [ ] **LockFreeContentionManagedStack:** Finished (Doublecheck). Found bug :'(
   - [ ] **LockFreeStack:** TBD
