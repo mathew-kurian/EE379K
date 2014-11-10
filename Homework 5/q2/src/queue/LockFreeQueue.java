@@ -14,10 +14,16 @@ public class LockFreeQueue<T> extends Queue<T> {
 		}
 	}
 	
-	private final Node<T> temp = new Node<T>(null,null);
-	private final AtomicReference<Node<T>> head = new AtomicReference<Node<T>>(temp);
-	private final AtomicReference<Node<T>> tail = new AtomicReference<Node<T>>(temp);
+	private final Node<T> temp;
+	private final AtomicReference<Node<T>> head;
+	private final AtomicReference<Node<T>> tail;
 
+	public LockFreeQueue(){
+		temp = new Node<T>(null,null);
+		head = new AtomicReference<Node<T>>(temp);
+		tail = new AtomicReference<Node<T>>(temp);
+	}
+	
 	//puts t into the queue, returns true when successful
 	@Override
 	public boolean enqueue(T t) {
@@ -42,7 +48,7 @@ public class LockFreeQueue<T> extends Queue<T> {
 	//takes T out of the queue
 	@Override
 	public T dequeue() {
-		while(true){
+		for(;;){
 			Node<T> oldHead = head.get();
 			Node<T> oldTail = tail.get();
 			Node<T> oldNextHead = oldHead.next.get();
@@ -50,12 +56,11 @@ public class LockFreeQueue<T> extends Queue<T> {
 				if(oldHead == oldTail){
 					if(oldNextHead == null) return null;
 					tail.compareAndSet(oldTail, oldNextHead);
-				} 
-			} else {
-				if(head.compareAndSet(oldTail, oldNextHead))
-					return oldNextHead.item;
+				} else {
+					if(head.compareAndSet(oldTail, oldNextHead))
+						return oldNextHead.item;
+				}
 			}
-			
 		}
 	}
 
