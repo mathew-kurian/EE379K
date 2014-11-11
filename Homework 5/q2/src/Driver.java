@@ -18,9 +18,11 @@ public class Driver {
 		if (args.length < 4) {
 			System.err.println("Provide 4 arguments");
 			System.err.println("\t(1) <structure>: queue/stack");
-			System.err.println("\t(1) <algorithm>: lock-free/lock-based/lock-free-with-contention");
+			System.err
+					.println("\t(1) <algorithm>: lock-free/lock-based/lock-free-with-contention");
 			System.err.println("\t(2) <numThread>: the number of test thread");
-			System.err.println("\t(3) <numTotalOps>: the total number of " + "operations performed");
+			System.err.println("\t(3) <numTotalOps>: the total number of "
+					+ "operations performed");
 			System.exit(-1);
 		}
 
@@ -54,7 +56,8 @@ public class Driver {
 		Thread[] threads = new Thread[numThread];
 
 		for (int i = 0; i < threads.length; i++) {
-			threads[i] = new Thread(createRunnable(collection, (numTotalOps + numThread) / numThread));
+			threads[i] = new Thread(createRunnable(collection,
+					(numTotalOps + numThread) / numThread));
 		}
 
 		// Start time
@@ -77,12 +80,14 @@ public class Driver {
 		// End time
 		executeTimeMS = (double) (System.nanoTime() - executeTimeMS) / 1000000000.0;
 
-		System.out.printf("%-50s (threads: %d) (time: %fms)\n", args[0], numThread, executeTimeMS);
+		System.out.printf("%-50s (threads: %d) (time: %fms)\n", args[0],
+				numThread, executeTimeMS);
 
 		System.gc();
 	}
 
-	public static Runnable createRunnable(final SequentialCollection<Object> collection, final int increments) {
+	public static Runnable createRunnable(
+			final SequentialCollection<Object> collection, final int increments) {
 		return new Runnable() {
 			@Override
 			public void run() {

@@ -1,7 +1,7 @@
 package stack;
 
 import com.sun.istack.internal.NotNull;
- 
+
 public class LockBasedStack<T> extends Stack<T> {
 
 	private static class Node<T> {
@@ -13,10 +13,10 @@ public class LockBasedStack<T> extends Stack<T> {
 			this.value = value;
 		}
 	}
-	
+
 	@NotNull
 	private final Node<T> head;
-	
+
 	public LockBasedStack() {
 		this.head = new Node<T>(null, null);
 	}

@@ -8,7 +8,7 @@ import java.util.concurrent.atomic.AtomicReference;
  * 
  * @author Maurice Herlihy
  */
-public class LockFreeQueue<T> extends Queue<T>{
+public class LockFreeQueue<T> extends Queue<T> {
 	private final AtomicReference<Node> head;
 	private final AtomicReference<Node> tail;
 
