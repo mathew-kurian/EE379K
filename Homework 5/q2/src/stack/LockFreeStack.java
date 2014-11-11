@@ -2,6 +2,8 @@ package stack;
 
 import java.util.concurrent.atomic.AtomicReference;
 
+// http://www.win.tue.nl/ipa/archive/springdays2010/Weber.pdf
+
 public class LockFreeStack<E> extends Stack<E> {
 
 	private class Node {
