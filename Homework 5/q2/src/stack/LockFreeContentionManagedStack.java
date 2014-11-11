@@ -8,7 +8,7 @@ import java.util.concurrent.atomic.AtomicReference;
 public class LockFreeContentionManagedStack<T> extends Stack<T> {
 
 	private static boolean ENABLE_BLOCKING_POP = false;
-	
+
 	AtomicReference<Node> top = new AtomicReference<Node>(null);
 
 	// Use backoff, tweak these numbers to improve perf
@@ -23,11 +23,11 @@ public class LockFreeContentionManagedStack<T> extends Stack<T> {
 		return (top.compareAndSet(oldTop, node));
 	}
 
-	public void push(T value) {
+	public boolean push(T value) {
 		Node node = new Node(value);
 		while (true) {
 			if (tryPush(node)) {
-				return;
+				return true;
 			} else {
 				try {
 					backoff.backoff();
@@ -54,14 +54,13 @@ public class LockFreeContentionManagedStack<T> extends Stack<T> {
 	}
 
 	public T pop() {
-		if(LockFreeContentionManagedStack.ENABLE_BLOCKING_POP){
+		if (LockFreeContentionManagedStack.ENABLE_BLOCKING_POP) {
 			return blockingPop();
 		}
-		
+
 		return nonBlockingPop();
 	}
 
-	
 	public T blockingPop() {
 		while (true) {
 			Node returnNode = tryPop();
@@ -76,7 +75,7 @@ public class LockFreeContentionManagedStack<T> extends Stack<T> {
 			}
 		}
 	}
-	
+
 	public T nonBlockingPop() {
 		Node node = tryPop();
 		return node != null ? node.value : null;

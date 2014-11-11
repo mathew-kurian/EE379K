@@ -16,18 +16,17 @@ public class LockBasedQueue<T> extends Queue<T> {
 		}
 	}
 
-
-	/* 
-	 * @Kapil: The goal is to always have an empty Node at 
-	 * the head so we can synchronize() with a @nonNull object
+	/*
+	 * @Kapil: The goal is to always have an empty Node at the head so we can
+	 * synchronize() with a @nonNull object
 	 */
-	
+
 	@NotNull
 	private final Node<T> head;
-	
+
 	@Nullable
 	private Node<T> tail;
-	
+
 	public LockBasedQueue() {
 		this.head = new Node<T>(null, null);
 		this.tail = this.head;

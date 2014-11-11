@@ -1,17 +1,51 @@
 package stack;
 
-public class LockFreeStack<T> extends Stack<T> {
+import java.util.concurrent.atomic.AtomicReference;
+
+// http://www.win.tue.nl/ipa/archive/springdays2010/Weber.pdf
+
+public class LockFreeStack<E> extends Stack<E> {
+
+	private class Node {
+		Node next;
+		final E item;
+
+		public Node(E item) {
+			this.item = item;
+		}
+
+	}
+
+	AtomicReference<Node> head = new AtomicReference<Node>();
 
 	@Override
-	public void push(T t) {
-		// TODO Auto-generated method stub
+	public boolean push(E t) {
+		Node newHead = new Node(t);
+		Node oldHead = head.get();
+		newHead.next = oldHead;
+		while (!head.compareAndSet(oldHead, newHead)) {
+			oldHead = head.get();
+			newHead.next = oldHead;
+		}
+
+		return true;
 
 	}
 
 	@Override
-	public T pop() {
-		// TODO Auto-generated method stub
-		return null;
+	public E pop() {
+		Node oldHead = head.get();
+		if (oldHead == null)
+			return null;
+		Node newHead = oldHead.next;
+		while (!head.compareAndSet(oldHead, newHead)) {
+			oldHead = head.get();
+			if (oldHead == null)
+				return null;
+			newHead = oldHead.next;
+		}
+		
+		return oldHead.item;
 	}
 
 }

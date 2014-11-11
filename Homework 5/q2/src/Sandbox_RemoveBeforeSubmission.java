@@ -12,7 +12,7 @@ public class Sandbox_RemoveBeforeSubmission {
 		LockBasedStack<Integer> lbs = new LockBasedStack<Integer>();
 
 		assertTrue(lbs.pop() == null);
-		
+
 		lbs.push(10);
 		lbs.push(9);
 		lbs.push(8);
@@ -24,13 +24,13 @@ public class Sandbox_RemoveBeforeSubmission {
 		assertTrue(lbs.pop().equals(10));
 		assertTrue(lbs.pop() == null);
 	}
-	
+
 	@Test
 	public void lockBasedQueueSimpleTest() {
 		LockBasedQueue<Integer> lbs = new LockBasedQueue<Integer>();
 
 		assertTrue(lbs.dequeue() == null);
-		
+
 		lbs.enqueue(10);
 		lbs.enqueue(9);
 		lbs.enqueue(8);
@@ -42,9 +42,10 @@ public class Sandbox_RemoveBeforeSubmission {
 		assertTrue(lbs.dequeue().equals(7));
 		assertTrue(lbs.dequeue() == null);
 	}
-	
+
 	@Test
-	public void myTest(){
-		Driver.main(new String[] { "stack", "lock-free-contention-managed", "1", "12000" });	
+	public void myTest() {
+		Driver.main(new String[] { "stack", "lock-free-contention-managed",
+				"1", "12000" });
 	}
 }

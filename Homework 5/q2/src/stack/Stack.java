@@ -13,7 +13,7 @@ public abstract class Stack<T> implements SequentialCollection<T> {
 		return pop();
 	}
 
-	public abstract void push(T t);
+	public abstract boolean push(T t);
 
 	public abstract T pop();
 }
