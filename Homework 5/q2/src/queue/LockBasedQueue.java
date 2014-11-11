@@ -1,5 +1,9 @@
 package queue;
 
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
+
 import com.sun.istack.internal.NotNull;
 import com.sun.istack.internal.Nullable;
 
@@ -16,10 +20,9 @@ public class LockBasedQueue<T> extends Queue<T> {
 		}
 	}
 
-	/*
-	 * @Kapil: The goal is to always have an empty Node at the head so we can
-	 * synchronize() with a @nonNull object
-	 */
+	private Lock headLock;
+	private Lock tailLock;
+	private AtomicInteger count;
 
 	@NotNull
 	private final Node<T> head;
@@ -30,27 +33,45 @@ public class LockBasedQueue<T> extends Queue<T> {
 	public LockBasedQueue() {
 		this.head = new Node<T>(null, null);
 		this.tail = this.head;
+		this.headLock = new ReentrantLock();
+		this.tailLock = new ReentrantLock();
+		this.count = new AtomicInteger(0);
 	}
 
 	@Override
 	public boolean enqueue(T t) {
 		Node<T> newNode = new Node<T>(t, null);
-		synchronized (tail) {
+		try {
+
+			tailLock.lock();
 			tail.next = newNode;
 			tail = tail.next;
+
+			// Increment after
+			count.incrementAndGet();
+
+		} finally {
+			tailLock.unlock();
 		}
+
 		return true;
 	}
 
 	@Override
 	public T dequeue() {
 		T t = null;
-		synchronized (head) {
-			Node<T> curr = head.next;
-			if (curr != null) {
-				t = curr.value;
-				head.next = curr.next;
+		try {
+			headLock.lock();
+			int length = count.get(); // Check length so head != tail
+			if (length > 0) {
+				Node<T> curr = head.next;
+				if (curr != null) {
+					t = curr.value;
+					head.next = curr.next;
+				}
 			}
+		} finally {
+			headLock.unlock();
 		}
 		return t;
 	}
