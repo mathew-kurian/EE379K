@@ -2,101 +2,103 @@ package queue;
 
 import java.util.concurrent.atomic.AtomicReference;
 
-//single consumer lock free unbounded queue
-public class LockFreeQueue<T> extends Queue<T> {
+/**
+ * Lock-free queue. Based on Michael and Scott
+ * http://doi.acm.org/10.1145/248052.248106
+ * 
+ * @author Maurice Herlihy
+ */
+public class LockFreeQueue<T> extends Queue<T>{
+	private final AtomicReference<Node> head;
+	private final AtomicReference<Node> tail;
 
-	private static class Node<T> {
-		final T item;
-		final AtomicReference<Node<T>> next;
-
-		public Node(T item, Node<T> next) {
-			this.item = item;
-			this.next = new AtomicReference<Node<T>>(next);
-		}
-	}
-
-	private final Node<T> temp;
-	private final AtomicReference<Node<T>> head;
-	private final AtomicReference<Node<T>> tail;
-
+	/**
+	 * Create a new object of this class.
+	 */
 	public LockFreeQueue() {
-		temp = new Node<T>(null, null);
-		head = new AtomicReference<Node<T>>(temp);
-		tail = new AtomicReference<Node<T>>(temp);
+		Node sentinel = new Node(null);
+		head = new AtomicReference<Node>(sentinel);
+		tail = new AtomicReference<Node>(sentinel);
 	}
 
-	// puts t into the queue, returns true when successful
-	@Override
-<<<<<<< HEAD
-	public void enqueue(T t) {
-		Node<T> currTail;
-		Node<T> nextTail;
-		System.out.println("working enque");
-		while(true){
-			currTail = tail.get();
-			nextTail = currTail.next.get();
-			//trying something different
-			/*if(currTail == tail.get()){
-				if(nextTail!=null){
-=======
-	public boolean enqueue(T t) {
-		Node<T> newNode = new Node<T>(t, null);
-		while (true) {
-			Node<T> currTail = tail.get();
-			Node<T> nextTail = currTail.next.get();
-			if (currTail == tail.get()) {
-				if (nextTail != null) {
->>>>>>> b4911791f26d731df7fe9f2a6db4f6babfe02522
-					tail.compareAndSet(currTail, nextTail);
-				} else {
-					if (currTail.next.compareAndSet(null, newNode)) {
-						tail.compareAndSet(currTail, newNode);
+	/**
+	 * Enqueue an item.
+	 * 
+	 * @param value
+	 *            Item to enqueue.
+	 */
+	public boolean enqueue(T value) {
+		// try to allocate new node from local pool
+		Node node = new Node(value);
+		while (true) { // keep trying
+			Node last = tail.get(); // read tail
+			Node next = last.next.get(); // read next
+			// are they consistent?
+			if (last == tail.get()) {
+				if (next == null) { // was tail the last node?
+					// try to link node to end of list
+					if (last.next.compareAndSet(next, node)) {
+						// enq done, try to advance tail
+						tail.compareAndSet(last, node);
 						return true;
 					}
-				}
-			}*/
-			
-			if(currTail == tail.get()){
-				if (nextTail == null){
-					if(tail.compareAndSet(currTail.next.get(), nextTail)){
-						break;
-					}
-				} else {
-					tail.compareAndSet(tail.get(), currTail);
+				} else { // tail was not the last node
+					// try to swing tail to next node
+					tail.compareAndSet(last, next);
 				}
 			}
-<<<<<<< HEAD
-=======
-
->>>>>>> b4911791f26d731df7fe9f2a6db4f6babfe02522
 		}
-		tail.compareAndSet(tail.get(), currTail);
 	}
 
-	// takes T out of the queue
-	@Override
+	/**
+	 * Dequeue an item.
+	 * 
+	 * @throws queue.EmptyException
+	 *             The queue is empty.
+	 * @return Item at the head of the queue.
+	 */
 	public T dequeue() {
-<<<<<<< HEAD
-		//System.out.println("working deque");
-		for(;;){
-=======
 		while (true) {
->>>>>>> b4911791f26d731df7fe9f2a6db4f6babfe02522
-			Node<T> oldHead = head.get();
-			Node<T> oldTail = tail.get();
-			Node<T> oldNextHead = oldHead.next.get();
-			if (oldHead == head.get()) {
-				if (oldHead == oldTail) {
-					if (oldNextHead == null)
+			Node first = head.get();
+			Node last = tail.get();
+			Node next = first.next.get();
+			// are they consistent?
+			if (first == head.get()) {
+				if (first == last) { // is queue empty or tail falling behind?
+					if (next == null) { // is queue empty?
 						return null;
-					tail.compareAndSet(oldTail, oldNextHead);
+					}
+					// tail is behind, try to advance
+					tail.compareAndSet(last, next);
 				} else {
-					if (head.compareAndSet(oldTail, oldNextHead))
-						return oldNextHead.item;
+					T value = next.value; // read value before dequeuing
+					if (head.compareAndSet(first, next)) {
+						return value;
+					}
 				}
 			}
 		}
 	}
 
-	
+	/**
+	 * Items are kept in a list of nodes.
+	 */
+	public class Node {
+		/**
+		 * Item kept by this node.
+		 */
+		public T value;
+		/**
+		 * Next node in the queue.
+		 */
+		public AtomicReference<Node> next;
+
+		/**
+		 * Create a new node.
+		 */
+		public Node(T value) {
+			this.next = new AtomicReference<Node>(null);
+			this.value = value;
+		}
+	}
 }

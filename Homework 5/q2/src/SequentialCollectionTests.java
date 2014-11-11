@@ -6,10 +6,10 @@ import org.junit.rules.Timeout;
 
 public class SequentialCollectionTests {
 
-	private static final String OPERATIONS = "12000";
+	private static final String OPERATIONS = "1200000";
 
     @Rule
-    public Timeout TIMEOUT = new Timeout(4000);
+    public Timeout TIMEOUT = new Timeout(12000);
     
 	@Test
 	public void lockFreeQueueTest() {
