@@ -2,67 +2,103 @@ package queue;
 
 import java.util.concurrent.atomic.AtomicReference;
 
-//single consumer lock free unbounded queue
-public class LockFreeQueue<T> extends Queue<T> {
+/**
+ * Lock-free queue. Based on Michael and Scott
+ * http://doi.acm.org/10.1145/248052.248106
+ * 
+ * @author Maurice Herlihy
+ */
+public class LockFreeQueue<T> extends Queue<T>{
+	private final AtomicReference<Node> head;
+	private final AtomicReference<Node> tail;
 
-	private static class Node<T> {
-		final T item;
-		final AtomicReference<Node<T>> next;
+	/**
+	 * Create a new object of this class.
+	 */
+	public LockFreeQueue() {
+		Node sentinel = new Node(null);
+		head = new AtomicReference<Node>(sentinel);
+		tail = new AtomicReference<Node>(sentinel);
+	}
 
-		public Node(T item, Node<T> next) {
-			this.item = item;
-			this.next = new AtomicReference<Node<T>>(next);
+	/**
+	 * Enqueue an item.
+	 * 
+	 * @param value
+	 *            Item to enqueue.
+	 */
+	public boolean enqueue(T value) {
+		// try to allocate new node from local pool
+		Node node = new Node(value);
+		while (true) { // keep trying
+			Node last = tail.get(); // read tail
+			Node next = last.next.get(); // read next
+			// are they consistent?
+			if (last == tail.get()) {
+				if (next == null) { // was tail the last node?
+					// try to link node to end of list
+					if (last.next.compareAndSet(next, node)) {
+						// enq done, try to advance tail
+						tail.compareAndSet(last, node);
+						return true;
+					}
+				} else { // tail was not the last node
+					// try to swing tail to next node
+					tail.compareAndSet(last, next);
+				}
+			}
 		}
 	}
 
-	private final Node<T> temp;
-	private final AtomicReference<Node<T>> head;
-	private final AtomicReference<Node<T>> tail;
-
-	public LockFreeQueue() {
-		temp = new Node<T>(null, null);
-		head = new AtomicReference<Node<T>>(temp);
-		tail = new AtomicReference<Node<T>>(temp);
-	}
-
-	// puts t into the queue, returns true when successful
-	@Override
-	public boolean enqueue(T t) {
-		Node<T> newNode = new Node<T>(t, null);
+	/**
+	 * Dequeue an item.
+	 * 
+	 * @throws queue.EmptyException
+	 *             The queue is empty.
+	 * @return Item at the head of the queue.
+	 */
+	public T dequeue() {
 		while (true) {
-			Node<T> currTail = tail.get();
-			Node<T> nextTail = currTail.next.get();
-			if (currTail == tail.get()) {
-				if (nextTail != null) {
-					tail.compareAndSet(currTail, nextTail);
+			Node first = head.get();
+			Node last = tail.get();
+			Node next = first.next.get();
+			// are they consistent?
+			if (first == head.get()) {
+				if (first == last) { // is queue empty or tail falling behind?
+					if (next == null) { // is queue empty?
+						return null;
+					}
+					// tail is behind, try to advance
+					tail.compareAndSet(last, next);
 				} else {
-					if (currTail.next.compareAndSet(null, newNode)) {
-						tail.compareAndSet(currTail, newNode);
-						return true;
+					T value = next.value; // read value before dequeuing
+					if (head.compareAndSet(first, next)) {
+						return value;
 					}
 				}
 			}
-
 		}
 	}
 
-	// takes T out of the queue
-	@Override
-	public T dequeue() {
-		while (true) {
-			Node<T> oldHead = head.get();
-			Node<T> oldTail = tail.get();
-			Node<T> oldNextHead = oldHead.next.get();
-			if (oldHead == head.get()) {
-				if (oldHead == oldTail) {
-					if (oldNextHead == null)
-						return null;
-					tail.compareAndSet(oldTail, oldNextHead);
-				} else {
-					if (head.compareAndSet(oldTail, oldNextHead))
-						return oldNextHead.item;
-				}
-			}
+	/**
+	 * Items are kept in a list of nodes.
+	 */
+	public class Node {
+		/**
+		 * Item kept by this node.
+		 */
+		public T value;
+		/**
+		 * Next node in the queue.
+		 */
+		public AtomicReference<Node> next;
+
+		/**
+		 * Create a new node.
+		 */
+		public Node(T value) {
+			this.next = new AtomicReference<Node>(null);
+			this.value = value;
 		}
 	}
 }
