@@ -97,7 +97,7 @@ public class Driver {
 					if (op <= 0.6) {
 						collection.add(new Object());
 					} else {
-						collection.add(new Object());
+						collection.get();
 					}
 				}
 			}
