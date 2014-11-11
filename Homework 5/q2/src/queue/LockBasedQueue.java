@@ -1,71 +1,57 @@
 package queue;
 
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
-
+import com.sun.istack.internal.NotNull;
+import com.sun.istack.internal.Nullable;
 
 //single consumer lock based unbounded queue 
 public class LockBasedQueue<T> extends Queue<T> {
-	
+
 	private static class Node<T> {
 		T value;
 		Node<T> next;
-		//Lock lock;
 
-		public Node(T value,Node<T> next) {
+		public Node(T value, Node<T> next) {
 			this.next = next;
 			this.value = value;
-			//this.lock = new ReentrantLock();
 		}
-
-		/*void lock() {
-			lock.lock();
-		}
-
-		void unlock() {
-			lock.unlock();
-		}*/
 	}
-	private Node<T> head;
+
+
+	/* 
+	 * @Kapil: The goal is to always have an empty Node at 
+	 * the head so we can synchronize() with a @nonNull object
+	 */
+	
+	@NotNull
+	private final Node<T> head;
+	
+	@Nullable
 	private Node<T> tail;
-	private final Lock headerLock;
-	private final Lock tailLock;
 	
-	public LockBasedQueue(){
-		this.head = new Node<T>(null,null);
+	public LockBasedQueue() {
+		this.head = new Node<T>(null, null);
 		this.tail = this.head;
-		//this.headerLock = new Object();
-		//this.tailLock = new Object();
-		this.headerLock = new ReentrantLock();
-		this.tailLock = new ReentrantLock();
 	}
-	
+
 	@Override
-	public void enqueue(T t) {
-		Node<T> newNode = new Node<T>(t,null);
-		try{
-			tailLock.lock();
+	public boolean enqueue(T t) {
+		Node<T> newNode = new Node<T>(t, null);
+		synchronized (tail) {
 			tail.next = newNode;
-			tail = newNode;
-		} finally{
-			tailLock.unlock();
+			tail = tail.next;
 		}
+		return true;
 	}
 
 	@Override
 	public T dequeue() {
 		T t = null;
-		try{
-			headerLock.lock();
-			Node<T> node = this.head;
-			Node<T> newHead = node.next;
-			if(newHead != null){
-				t = newHead.value;
-				head = newHead;
-				node = null;
+		synchronized (head) {
+			Node<T> curr = head.next;
+			if (curr != null) {
+				t = curr.value;
+				head.next = curr.next;
 			}
-		} finally{
-			headerLock.unlock();
 		}
 		return t;
 	}
