@@ -23,11 +23,11 @@ public class LockFreeContentionManagedStack<T> extends Stack<T> {
 		return (top.compareAndSet(oldTop, node));
 	}
 
-	public void push(T value) {
+	public boolean push(T value) {
 		Node node = new Node(value);
 		while (true) {
 			if (tryPush(node)) {
-				return;
+				return true;
 			} else {
 				try {
 					backoff.backoff();

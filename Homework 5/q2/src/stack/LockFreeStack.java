@@ -3,8 +3,9 @@ package stack;
 public class LockFreeStack<T> extends Stack<T> {
 
 	@Override
-	public void push(T t) {
+	public boolean push(T t) {
 		// TODO Auto-generated method stub
+		return true;
 
 	}
 

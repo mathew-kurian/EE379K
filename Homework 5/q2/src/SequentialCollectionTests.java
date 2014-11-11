@@ -9,7 +9,7 @@ public class SequentialCollectionTests {
 	private static final String OPERATIONS = "1200000";
 
     @Rule
-    public Timeout TIMEOUT = new Timeout(6000);
+    public Timeout TIMEOUT = new Timeout(8000);
     
 	@Test
 	public void lockFreeQueueTest() {
