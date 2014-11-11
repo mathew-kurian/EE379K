@@ -64,7 +64,7 @@ public class Sandbox_RemoveBeforeSubmission {
 
 	@Test
 	public void myTest() {
-		Driver.main(new String[] { "stack", "lock-free-contention-managed",
+		Driver.main(new String[] { "stack", "lock-free-elimination-backoff",
 				"1", "12000" });
 	}
 }

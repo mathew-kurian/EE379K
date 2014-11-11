@@ -6,6 +6,7 @@ import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicStampedReference;
 
 public class EliminationBackOffStack<T> extends LockFreeStack<T> {
+	
 	private static class RangePolicy {
 		int maxRange;
 		int currentRange = 1;
