@@ -1,51 +1,108 @@
 package stack;
 
+import java.util.Random;
 import java.util.concurrent.atomic.AtomicReference;
 
-// http://www.win.tue.nl/ipa/archive/springdays2010/Weber.pdf
+// http://users.ece.utexas.edu/~garg/dist/jbkv2Code/LockFree/LockFreeStack.java.html
 
-public class LockFreeStack<E> extends Stack<E> {
+public class LockFreeStack<T> extends Stack<T> {
 
-	private class Node {
-		Node next;
-		final E item;
+	private boolean blocking = false;
+	
+	AtomicReference<Node> top = new AtomicReference<Node>(null);
 
-		public Node(E item) {
-			this.item = item;
-		}
+	// Use backoff, tweak these numbers to improve perf
+	static final int MIN_DELAY = 1;
+	static final int MAX_DELAY = 100;
+	Backoff backoff = new Backoff(MIN_DELAY, MAX_DELAY);
 
+	public LockFreeStack(boolean blocking){
+		this.blocking = blocking;
+	}
+	
+	// Push logic
+	protected boolean tryPush(Node node) {
+		Node oldTop = top.get();
+		node.next = oldTop;
+		return (top.compareAndSet(oldTop, node));
 	}
 
-	AtomicReference<Node> head = new AtomicReference<Node>();
-
-	@Override
-	public boolean push(E t) {
-		Node newHead = new Node(t);
-		Node oldHead = head.get();
-		newHead.next = oldHead;
-		while (!head.compareAndSet(oldHead, newHead)) {
-			oldHead = head.get();
-			newHead.next = oldHead;
+	public boolean push(T value) {
+		Node node = new Node(value);
+		while (true) {
+			if (tryPush(node)) {
+				return true;
+			} else {
+				try {
+					backoff.backoff();
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+			}
 		}
-
-		return true;
-
 	}
 
-	@Override
-	public E pop() {
-		Node oldHead = head.get();
-		if (oldHead == null)
+	// Pop logic
+	protected Node tryPop() {
+		Node oldTop = top.get();
+		if (oldTop == null) {
 			return null;
-		Node newHead = oldHead.next;
-		while (!head.compareAndSet(oldHead, newHead)) {
-			oldHead = head.get();
-			if (oldHead == null)
-				return null;
-			newHead = oldHead.next;
 		}
-		
-		return oldHead.item;
+
+		Node newTop = oldTop.next;
+		if (top.compareAndSet(oldTop, newTop)) {
+			return oldTop;
+		} else {
+			return null;
+		}
 	}
 
+	public T pop() {
+		while (true){
+			Node returnNode = tryPop();
+			if (returnNode != null)
+				return returnNode.value;
+			else if (!blocking)
+				return null;
+			else
+				try {
+					backoff.backoff();
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+		}
+
+	}
+	
+	// Node class
+	public class Node {
+
+		public T value;
+		public Node next;
+
+		public Node(T value) {
+			this.value = value;
+			next = null;
+		}
+	}
+
+	// Backoff class
+	private class Backoff {
+		final int minDelay, maxDelay;
+		int limit;
+		final Random random;
+
+		public Backoff(int min, int max) {
+			minDelay = min;
+			maxDelay = max;
+			limit = minDelay;
+			random = new Random();
+		}
+
+		public void backoff() throws InterruptedException {
+			int delay = random.nextInt(limit);
+			limit = Math.min(maxDelay, 2 * limit);
+			Thread.sleep(delay);
+		}
+	}
 }

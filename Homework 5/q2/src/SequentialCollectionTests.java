@@ -42,9 +42,9 @@ public class SequentialCollectionTests {
 	}
 
 	@Test
-	public void lockFreeContentionManagedStackTest() {
+	public void lockFreeEliminationBackOffStackTest() {
 		for (int i = 1; i <= 6; i++) {
-			Driver.main(new String[] { "stack", "lock-free-contention-managed",
+			Driver.main(new String[] { "stack", "lock-free-elimination-backoff",
 					Integer.toString(i), OPERATIONS });
 		}
 

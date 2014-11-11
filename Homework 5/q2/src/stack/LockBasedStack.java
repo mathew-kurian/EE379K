@@ -4,7 +4,7 @@ import com.sun.istack.internal.NotNull;
 
 public class LockBasedStack<T> extends Stack<T> {
 
-	private static class Node<T> {
+	protected static class Node<T> {
 		T value;
 		Node<T> next;
 

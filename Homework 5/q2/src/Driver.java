@@ -3,9 +3,9 @@ import java.util.Random;
 import common.SequentialCollection;
 import queue.LockBasedQueue;
 import queue.LockFreeQueue;
+import stack.EliminationBackOffStack;
 import stack.LockBasedStack;
 import stack.LockFreeStack;
-import stack.LockFreeContentionManagedStack;
 
 public class Driver {
 
@@ -32,15 +32,13 @@ public class Driver {
 		args[0] = args[0] + "-" + args[1];
 
 		if (args[0].equals("queue-lock-free")) {
-			// To prevent infinite dequeue() loop with single thread
-			// pass in false if numThread == 1
-			collection = new LockFreeQueue<Object>(numThread > 1); 
+			collection = new LockFreeQueue<Object>(false /* non-blocking */); 
 		} else if (args[0].equals("queue-lock-based")) {
 			collection = new LockBasedQueue<Object>();
 		} else if (args[0].equals("stack-lock-free")) {
-			collection = new LockFreeStack<Object>();
-		} else if (args[0].equals("stack-lock-free-contention-managed")) {
-			collection = new LockFreeContentionManagedStack<Object>();
+			collection = new LockFreeStack<Object>(false /* non-blocking */);
+		} else if (args[0].equals("stack-lock-free-elimination-backoff")) {
+			collection = new EliminationBackOffStack<Object>(2, 10, false /* non-blocking */);
 		} else if (args[0].equals("stack-lock-based")) {
 			collection = new LockBasedStack<Object>();
 		} else {
