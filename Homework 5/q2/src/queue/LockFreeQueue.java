@@ -26,12 +26,15 @@ public class LockFreeQueue<T> extends Queue<T> {
 	
 	//puts t into the queue, returns true when successful
 	@Override
-	public boolean enqueue(T t) {
-		Node<T> newNode = new Node<T> (t,null);
+	public void enqueue(T t) {
+		Node<T> currTail;
+		Node<T> nextTail;
+		System.out.println("working enque");
 		while(true){
-			Node<T> currTail = tail.get();
-			Node<T> nextTail = currTail.next.get();
-			if(currTail == tail.get()){
+			currTail = tail.get();
+			nextTail = currTail.next.get();
+			//trying something different
+			/*if(currTail == tail.get()){
 				if(nextTail!=null){
 					tail.compareAndSet(currTail, nextTail);
 				} else {
@@ -40,14 +43,25 @@ public class LockFreeQueue<T> extends Queue<T> {
 						return true;
 					}
 				}
+			}*/
+			
+			if(currTail == tail.get()){
+				if (nextTail == null){
+					if(tail.compareAndSet(currTail.next.get(), nextTail)){
+						break;
+					}
+				} else {
+					tail.compareAndSet(tail.get(), currTail);
+				}
 			}
-		
 		}
+		tail.compareAndSet(tail.get(), currTail);
 	}
 
 	//takes T out of the queue
 	@Override
 	public T dequeue() {
+		//System.out.println("working deque");
 		for(;;){
 			Node<T> oldHead = head.get();
 			Node<T> oldTail = tail.get();
@@ -63,4 +77,6 @@ public class LockFreeQueue<T> extends Queue<T> {
 			}
 		}
 	}
+
+	
 }

@@ -13,7 +13,7 @@ public abstract class Queue<T> implements SequentialCollection<T> {
 		return dequeue();
 	}
 
-	public abstract boolean enqueue(T t);
+	public abstract void enqueue(T t);
 
 	public abstract T dequeue();
 }

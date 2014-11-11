@@ -41,7 +41,7 @@ public class LockBasedQueue<T> extends Queue<T> {
 	}
 	
 	@Override
-	public boolean enqueue(T t) {
+	public void enqueue(T t) {
 		Node<T> newNode = new Node<T>(t,null);
 		try{
 			tailLock.lock();
@@ -50,7 +50,6 @@ public class LockBasedQueue<T> extends Queue<T> {
 		} finally{
 			tailLock.unlock();
 		}
-		return true;
 	}
 
 	@Override
