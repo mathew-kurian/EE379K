@@ -3,6 +3,7 @@ import static org.junit.Assert.*;
 import org.junit.Test;
 
 import queue.LockBasedQueue;
+import queue.LockFreeQueue;
 import stack.LockBasedStack;
 
 public class Sandbox_RemoveBeforeSubmission {
@@ -28,6 +29,24 @@ public class Sandbox_RemoveBeforeSubmission {
 	@Test
 	public void lockBasedQueueSimpleTest() {
 		LockBasedQueue<Integer> lbs = new LockBasedQueue<Integer>();
+
+		assertTrue(lbs.dequeue() == null);
+
+		lbs.enqueue(10);
+		lbs.enqueue(9);
+		lbs.enqueue(8);
+		lbs.enqueue(7);
+
+		assertTrue(lbs.dequeue().equals(10));
+		assertTrue(lbs.dequeue().equals(9));
+		assertTrue(lbs.dequeue().equals(8));
+		assertTrue(lbs.dequeue().equals(7));
+		assertTrue(lbs.dequeue() == null);
+	}
+	
+	@Test
+	public void lockFreeQueueSimpleTest() {
+		LockFreeQueue<Integer> lbs = new LockFreeQueue<Integer>(false);
 
 		assertTrue(lbs.dequeue() == null);
 

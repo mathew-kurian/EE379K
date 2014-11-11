@@ -6,7 +6,7 @@ import org.junit.rules.Timeout;
 
 public class SequentialCollectionTests {
 
-	private static final String OPERATIONS = "1200000";
+	private static final String OPERATIONS = "2500000";
 
     @Rule
     public Timeout TIMEOUT = new Timeout(12000);

@@ -6,10 +6,10 @@ import org.junit.rules.Timeout;
 public class HashTableTests {
 
 	private static final String THREAD_COUNT = "6";
-	private static final String OPERATIONS = "12000";
+	private static final String OPERATIONS = "25000";
 
     @Rule
-    public Timeout TIMEOUT = new Timeout(4000);
+    public Timeout TIMEOUT = new Timeout(6000);
     
 	@org.junit.Test
 	public void lockFree() {

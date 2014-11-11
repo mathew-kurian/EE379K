@@ -32,7 +32,9 @@ public class Driver {
 		args[0] = args[0] + "-" + args[1];
 
 		if (args[0].equals("queue-lock-free")) {
-			collection = new LockFreeQueue<Object>();
+			// To prevent infinite dequeue() loop with single thread
+			// pass in false if numThread == 1
+			collection = new LockFreeQueue<Object>(numThread > 1); 
 		} else if (args[0].equals("queue-lock-based")) {
 			collection = new LockBasedQueue<Object>();
 		} else if (args[0].equals("stack-lock-free")) {

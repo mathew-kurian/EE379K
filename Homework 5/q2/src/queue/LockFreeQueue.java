@@ -11,11 +11,13 @@ import java.util.concurrent.atomic.AtomicReference;
 public class LockFreeQueue<T> extends Queue<T> {
 	private final AtomicReference<Node> head;
 	private final AtomicReference<Node> tail;
-
+	private final boolean blocking;
+	
 	/**
 	 * Create a new object of this class.
 	 */
-	public LockFreeQueue() {
+	public LockFreeQueue(boolean blocking) {
+		this.blocking = blocking;
 		Node sentinel = new Node(null);
 		head = new AtomicReference<Node>(sentinel);
 		tail = new AtomicReference<Node>(sentinel);
@@ -66,6 +68,11 @@ public class LockFreeQueue<T> extends Queue<T> {
 			if (first == head.get()) {
 				if (first == last) { // is queue empty or tail falling behind?
 					if (next == null) { // is queue empty?
+						// enable blocking
+						if(blocking){
+							continue;
+						}
+						
 						return null;
 					}
 					// tail is behind, try to advance
