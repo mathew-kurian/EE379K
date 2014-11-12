@@ -51,9 +51,7 @@ public class LockBasedHashTable<K, T> implements Table<K, T> {
 
 	}
 
-	protected final Lock readLock;
-    protected final Lock writeLock;
-    protected volatile Lock[] locks;
+    protected volatile ReadWriteLock[] locks;
 	protected List<Entry>[] table;
 	protected int size;
 
@@ -64,14 +62,10 @@ public class LockBasedHashTable<K, T> implements Table<K, T> {
 			table[i] = new ArrayList<Entry>();
 		}
 		
-        locks = new Lock[capacity];
+        locks = new ReadWriteLock[capacity];
         for(int j = 0; j < locks.length; j++) {
-            locks[j] = new ReentrantLock();
+            locks[j] = new ReentrantReadWriteLock();
         }
-        
-        ReadWriteLock rwLock = new ReentrantReadWriteLock();
-        readLock = rwLock.readLock();
-        writeLock = rwLock.writeLock();
 	}
 
 	/**
@@ -82,12 +76,12 @@ public class LockBasedHashTable<K, T> implements Table<K, T> {
 	 * @return <code>true</code> iff item present
 	 */
 	public boolean contains(K k) {
-		acquire(k);
+		acquire(k, true);
 		try {
 			int myBucket = Math.abs(k.hashCode() % table.length);
 			return table[myBucket].contains(k);
 		} finally {
-			release(k);
+			release(k, true);
 		}
 	}
 
@@ -100,13 +94,13 @@ public class LockBasedHashTable<K, T> implements Table<K, T> {
 	 */
 	public T put(K k, T t) {
 		boolean result = false;
-		acquire(k);
+		acquire(k, false);
 		try {
 			int myBucket = Math.abs(k.hashCode() % table.length);
 			result = table[myBucket].add(new Entry(k, t));
 			size = result ? size + 1 : size;
 		} finally {
-			release(k);
+			release(k, false);
 		}
 
 		if (policy()) {
@@ -124,7 +118,7 @@ public class LockBasedHashTable<K, T> implements Table<K, T> {
 	 * @return <code>true</code> iff set changed
 	 */
 	public T remove(K k) {
-		acquire(k);
+		acquire(k, false);
 		try {
 			int myBucket = Math.abs(k.hashCode() % table.length);
 			int index = table[myBucket].indexOf(k);
@@ -137,7 +131,7 @@ public class LockBasedHashTable<K, T> implements Table<K, T> {
 			}
 			return null;
 		} finally {
-			release(k);
+			release(k, false);
 		}
 	}
 
@@ -146,7 +140,9 @@ public class LockBasedHashTable<K, T> implements Table<K, T> {
      */
     public void resize() {
         int oldCapacity = table.length;
-        writeLock.lock();
+        for(ReadWriteLock lock : locks) {
+            lock.writeLock().lock();
+        }
         try {
             if(oldCapacity != table.length) {
                 return; // someone beat us to it
@@ -158,7 +154,9 @@ public class LockBasedHashTable<K, T> implements Table<K, T> {
                 table[i] = new ArrayList<Entry>();
             initializeFrom(oldTable);
         } finally {
-            writeLock.unlock();
+            for(ReadWriteLock lock : locks) {
+                lock.writeLock().unlock();
+            }
         }
     }
 
@@ -175,20 +173,20 @@ public class LockBasedHashTable<K, T> implements Table<K, T> {
      * Synchronize before adding, removing, or testing for item
      * @param k item involved
      */
-    public final void acquire(K k) {
-        readLock.lock();
+    public final void acquire(K k, boolean read) {
         int myBucket = Math.abs(k.hashCode() % locks.length);
-        locks[myBucket].lock();
+        if(read) locks[myBucket].readLock().lock();
+        else locks[myBucket].writeLock().lock();
     }
 
     /**
      * synchronize after adding, removing, or testing for item
      * @param k item involved
      */
-    public void release(K k) {
-        readLock.unlock();
+    public void release(K k, boolean read) {
         int myBucket = Math.abs(k.hashCode() % locks.length);
-        locks[myBucket].unlock();
+        if(read) locks[myBucket].readLock().unlock();
+        else locks[myBucket].writeLock().unlock();
     }
 
     public boolean policy() {
