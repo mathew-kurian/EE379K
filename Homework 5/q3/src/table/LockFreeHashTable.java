@@ -3,7 +3,7 @@ package table;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /*
- * LockFreeHashMap.java
+ * LockFreeHashTable.java
  *
  * Created on December 30, 2005, 12:48 AM
  *

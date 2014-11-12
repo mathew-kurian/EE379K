@@ -65,15 +65,16 @@ public class BucketList<K, T> {
 			Node curr = window.curr;
 			// is the key present?
 			if (curr.key == key) {
+				T oldValue = curr.value;
 				curr.value = t;
-				return t;
+				return oldValue;
 			} else {
 				// splice in new entry
 				Node entry = new Node(key, t);
 				entry.next.set(curr, false);
 				splice = pred.next.compareAndSet(curr, entry, false, false);
 				if (splice)
-					return t;
+					return null;
 				else
 					continue;
 			}
