@@ -29,7 +29,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  */
 
 @SuppressWarnings("unchecked")
-public class LockBasedHashTable<K, T> implements Map<K, T> {
+public class LockBasedHashTable<K, T> implements Table<K, T> {
 
 	private class Entry {
 

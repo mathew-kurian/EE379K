@@ -2,7 +2,7 @@ import java.util.Random;
 
 import table.LockBasedHashTable;
 import table.LockFreeHashTable;
-import table.Map;
+import table.Table;
 
 public class Driver {
 
@@ -11,7 +11,7 @@ public class Driver {
 	private static int containsOps = 0;
 
 	public static void main(String[] args) {
-		Map<Integer, Object> map = null;
+		Table<Integer, Object> map = null;
 		double executeTimeMS = 0;
 		int numThread;
 		int numTotalOps;
@@ -29,7 +29,7 @@ public class Driver {
 		numTotalOps = Integer.parseInt(args[2]);
 
 		if (args[0].equals("lock-free")) {
-			map = new LockFreeHashTable<Integer, Object>();
+			map = new LockFreeHashTable<Integer, Object>(100, 2);
 		} else if (args[0].equals("lock-based")) {
 			map = new LockBasedHashTable<Integer, Object>(100);
 		} else {
@@ -81,7 +81,7 @@ public class Driver {
 		System.gc();
 	}
 
-	public static Runnable createRunnable(final Map<Integer, Object> map,
+	public static Runnable createRunnable(final Table<Integer, Object> map,
 			final int increments) {
 		return new Runnable() {
 			@Override
