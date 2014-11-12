@@ -33,14 +33,11 @@ public class EliminationBackOffStack<T> extends LockFreeStack<T> {
 	private boolean blocking = false;
 	private EliminationArray<T> eliminationArray;
 	private static ThreadLocal<RangePolicy> policy;
-	private int exchangerCapacity, exchangerWaitDuration;
 
 	public EliminationBackOffStack(final int exchangerCapacity,
 			int exchangerWaitDuration, boolean blocking) {
 		super(blocking);
 		this.blocking = blocking;
-		this.exchangerCapacity = exchangerCapacity;
-		this.exchangerWaitDuration = exchangerWaitDuration;
 		eliminationArray = new EliminationArray<T>(exchangerCapacity,
 				exchangerWaitDuration);
 		policy = new ThreadLocal<RangePolicy>() {
@@ -48,10 +45,6 @@ public class EliminationBackOffStack<T> extends LockFreeStack<T> {
 				return new RangePolicy(exchangerCapacity);
 			}
 		};
-	}
-
-	public String getStackInfo() {
-		return exchangerCapacity + "," + exchangerWaitDuration;
 	}
 
 	public boolean push(T value) {
