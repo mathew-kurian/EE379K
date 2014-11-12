@@ -20,7 +20,7 @@ EE379K Multicore
     - Java pseudo code: http://www.cs.technion.ac.il/~yahave/papers/softmc03.pdf
   - [X] **LockBasedStack:** Finished
   - [X] **LockFreeContentionManagedStack:** Finished
-  - [X] **LockFreeStack:**
+  - [X] **LockFreeStack:** Finished
 - [X] **Question 3:** Finished
   - [X] **LockBasedHashTable:** Finished
   - [X] **LockFreeHashTable:** Finished
