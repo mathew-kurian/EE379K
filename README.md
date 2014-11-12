@@ -12,15 +12,15 @@ EE379K Multicore
 
 ###Homework 5 Issues
 
-- [ ] **Question 1:** Kapil -- WORKING
+- [X] **Question 1:** Finished - SEMICOPIED PLEASE EDIT
   - check HW5 directory for PDF
 - [X] **Question 2:** Pushed template/tests. Need to implement.
   - [X] **LockBasedQueue:** Finished
-  - [ ] **LockFreeQueue:** Finished (Have to test)
+  - [X] **LockFreeQueue:** Finished
     - Java pseudo code: http://www.cs.technion.ac.il/~yahave/papers/softmc03.pdf
   - [X] **LockBasedStack:** Finished
-  - [ ] **LockFreeContentionManagedStack:** Finished (Doublecheck). Found bug :'(
-  - [ ] **LockFreeStack:** TBD
+  - [X] **LockFreeContentionManagedStack:** Finished
+  - [X] **LockFreeStack:**
 - [X] **Question 3:** Finished
   - [X] **LockBasedHashTable:** Finished
   - [X] **LockFreeHashTable:** Finished
