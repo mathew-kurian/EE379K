@@ -80,6 +80,18 @@ public class Utils {
         return num;
     }
 
+    //finds orientation of triplet (p,q,r)
+    //true --> p-r is counterclockwise from p-q
+    //false --> if not
+    public static boolean CCW(Point2D p, Point2D q, Point2D r){
+        int val = (q.y-p.y) * (r.x-q.x) - (q.x*p.x) * (r.y-q.y);
+
+        if(val >= 0){
+            return false;
+        }
+        return true;
+    }
+
     public static enum Direction {
         NORTH, SOUTH, EAST, WEST
     }
