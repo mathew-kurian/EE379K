@@ -51,6 +51,17 @@ public abstract class ConvexHull implements Runnable {
         }
     }
 
+    protected void delay(){
+        if (debug) {
+            pointCloud.draw();
+            try {
+                Thread.sleep(debugFrameDelay);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
     protected void finish() {
         pointCloud.toast("Completed!");
         active = false;

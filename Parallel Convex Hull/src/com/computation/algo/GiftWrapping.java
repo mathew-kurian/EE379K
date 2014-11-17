@@ -99,6 +99,8 @@ public class GiftWrapping extends ConvexHull {
                 }
                 hullArray.getAndSet(p, q); //add q as the next point from p
                 pointCloud.addEdge(new Edge(point2Ds.get(p), point2Ds.get(q), color));
+                
+                // @Kapil: Just call delay()
                 //wait a while so you can see it
                 try {
                     Thread.sleep(1000);

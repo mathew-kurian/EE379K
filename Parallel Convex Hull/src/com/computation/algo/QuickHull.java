@@ -107,14 +107,8 @@ public class QuickHull extends ConvexHull {
 
             max.setColor(Point2D.VISITED);
 
-            if (debug) {
-                pointCloud.draw();
-                try {
-                    Thread.sleep(debugFrameDelay);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
+            // animation delay
+            delay();
 
             pointCloud.removeEdge(new Edge(a, b));
             pointCloud.addEdge(new Edge(max, a));
