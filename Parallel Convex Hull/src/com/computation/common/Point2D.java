@@ -7,7 +7,7 @@ public class Point2D extends java.awt.Point {
     public static final Color VISITED = Color.GREEN;
     public static final Color UNVISITED = Color.WHITE;
 
-    private Color color = UNVISITED;
+    private volatile Color color = UNVISITED;
 
     public Point2D(int a, int i) {
         super(a, i);

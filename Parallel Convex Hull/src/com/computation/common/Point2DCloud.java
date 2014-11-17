@@ -21,8 +21,11 @@ public class Point2DCloud {
     private HashMap<String, Integer> fields;
     private DefaultTableModel model;
     private JPanel buttons;
+    private boolean drawEnabled;
 
-    public Point2DCloud(final int count, final int width, final int height) {
+    public Point2DCloud(final int count, final int width, final int height, boolean drawEnabled) {
+
+        this.drawEnabled = drawEnabled;
 
         try {
             SwingUtilities.invokeAndWait(new Runnable() {
@@ -136,6 +139,10 @@ public class Point2DCloud {
     }
 
     public void draw() {
+        if (!drawEnabled) {
+            return;
+        }
+
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
@@ -145,6 +152,9 @@ public class Point2DCloud {
     }
 
     public void addEdge(Edge edge) {
+        if (!drawEnabled) {
+            return;
+        }
 
         // Thread-safe
         final Edge edgeCpy = new Edge(edge);
@@ -159,6 +169,9 @@ public class Point2DCloud {
     }
 
     public void removeEdge(Edge edge) {
+        if (!drawEnabled) {
+            return;
+        }
 
         // Thread-safe
         final Edge edgeCpy = new Edge(edge);
@@ -214,12 +227,17 @@ public class Point2DCloud {
 
             for (Point2D p : point2Ds) {
                 g2d.setColor(p.getColor());
-                g2d.fillOval(p.x - DPI_SCALING * 3, p.y - DPI_SCALING * 3, DPI_SCALING * 6, DPI_SCALING * 6);
+                int mlp = p.getColor() == Point2D.VISITED ? 2 : 1;
+                g2d.fillOval(p.x - DPI_SCALING * 3 * mlp, p.y - DPI_SCALING * 3 * mlp, DPI_SCALING * 6 * mlp, DPI_SCALING * 6 * mlp);
             }
         }
 
         @Override
         protected void paintComponent(Graphics g) {
+            if (!drawEnabled) {
+                return;
+            }
+
             Graphics2D g2d = (Graphics2D) g;
 
             g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING,

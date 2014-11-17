@@ -1,5 +1,6 @@
 package com.computation.common;
 
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -17,50 +18,62 @@ public class Utils {
         return point2Ds;
     }
 
-    public static Point2D findMax(List<Point2D> point2Ds, Direction dir) {
+    public static Point2D findMax(List<Point2D> point2Ds, Direction dir, double degrees) {
         Point2D p = null;
-        int val;
+        double val;
 
         switch (dir) {
             case NORTH:
                 val = Integer.MAX_VALUE;
                 for (Point2D point2D : point2Ds) {
-                    if (point2D.y < val) {
+                    double y = rotateY(point2D, degrees);
+                    if (y < val) {
                         p = point2D;
-                        val = point2D.y;
+                        val = y;
                     }
                 }
                 break;
             case SOUTH:
                 val = Integer.MIN_VALUE;
                 for (Point2D point2D : point2Ds) {
-                    if (point2D.y > val) {
+                    double y = rotateY(point2D, degrees);
+                    if (y > val) {
                         p = point2D;
-                        val = point2D.y;
+                        val = y;
                     }
                 }
                 break;
             case EAST:
                 val = Integer.MIN_VALUE;
                 for (Point2D point2D : point2Ds) {
-                    if (point2D.x > val) {
+                    double x = rotateX(point2D, degrees);
+                    if (x > val) {
                         p = point2D;
-                        val = point2D.x;
+                        val = x;
                     }
                 }
                 break;
             case WEST:
                 val = Integer.MAX_VALUE;
                 for (Point2D point2D : point2Ds) {
-                    if (point2D.x < val) {
+                    double x = rotateX(point2D, degrees);
+                    if (x < val) {
                         p = point2D;
-                        val = point2D.x;
+                        val = x;
                     }
                 }
                 break;
         }
 
         return p;
+    }
+
+    public static double rotateY(Point2D point2D, double degrees) {
+        return -Math.sin(degrees) * point2D.x + Math.cos(degrees) * point2D.y;
+    }
+
+    public static double rotateX(Point2D point2D, double degrees) {
+        return Math.cos(degrees) * point2D.x + Math.sin(degrees) * point2D.y;
     }
 
     public static boolean isPointLeftOf(Point2D line1, Point2D line2, Point2D point2D) {
@@ -89,6 +102,14 @@ public class Utils {
 
         if (val == 0) return 0;  // colinear
         return (val > 0) ? 1 : 2; // clock or counterclock wise
+    }
+
+    public static Color[] getColorPalette(int n) {
+        Color[] cols = new Color[n];
+        for (int i = 0; i < n; i++) {
+            cols[i] = Color.getHSBColor((float) i / (float) n, 0.85f, 1.0f);
+        }
+        return cols;
     }
 
     public static enum Direction {

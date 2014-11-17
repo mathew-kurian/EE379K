@@ -21,9 +21,15 @@ public class QuickHull extends ConvexHull {
     public QuickHull(int points, int width, int height, int threads) {
         super(points, width, height, threads);
     }
+    public QuickHull(int points, int width, int height, int threads, boolean debug) {
+        super(points, width, height, threads, debug);
+    }
+    public QuickHull(int points, int width, int height, int threads, boolean debug, int animationDelay) {
+        super(points, width, height, threads, debug, animationDelay);
+    }
 
     @Override
-    protected void findHull() {
+    protected void findHull(int threads) {
 
         // Start
         this.executorService = Executors.newFixedThreadPool(threads);
@@ -33,11 +39,11 @@ public class QuickHull extends ConvexHull {
         // Set some fields
         pointCloud.setField("ThreadPool", true);
 
-        // Get points
+        // Get pointCount
         List<Point2D> point2Ds = pointCloud.getPoints();
 
-        Point2D p1 = Utils.findMax(point2Ds, Utils.Direction.NORTH);
-        Point2D p2 = Utils.findMax(point2Ds, Utils.Direction.SOUTH);
+        Point2D p1 = Utils.findMax(point2Ds, Utils.Direction.NORTH, 0);
+        Point2D p2 = Utils.findMax(point2Ds, Utils.Direction.SOUTH, 0);
 
         p1.setColor(Point2D.VISITED);
         p2.setColor(Point2D.VISITED);
