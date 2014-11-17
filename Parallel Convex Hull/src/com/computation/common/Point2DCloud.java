@@ -200,10 +200,10 @@ public class Point2DCloud {
         }
 
         protected void paintEdges(Graphics2D g2d) {
-            g2d.setColor(Color.RED);
             g2d.setStroke(new BasicStroke(DPI_SCALING * 3));
 
             for (Edge edge : polygon) {
+                g2d.setColor(edge.getColor());
                 g2d.drawLine(edge.p1.x, edge.p1.y, edge.p2.x, edge.p2.y);
             }
         }
