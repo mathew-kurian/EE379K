@@ -1,6 +1,9 @@
 package com.computation.algo;
 
-import com.computation.common.*;
+import com.computation.common.ConvexHull;
+import com.computation.common.Edge;
+import com.computation.common.Point2D;
+import com.computation.common.Utils;
 
 import java.util.HashSet;
 import java.util.List;

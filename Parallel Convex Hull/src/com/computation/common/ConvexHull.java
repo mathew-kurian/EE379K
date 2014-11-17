@@ -4,10 +4,9 @@ public abstract class ConvexHull implements Runnable {
 
     protected final Point2DCloud pointCloud;
     protected final int threads;
+    protected final int points;
     protected boolean debug = true;
     protected long debugFrameDelay = 1000;
-    protected final int points;
-
     private boolean active = false;
 
     public ConvexHull(int points, int width, int height, int threads) {

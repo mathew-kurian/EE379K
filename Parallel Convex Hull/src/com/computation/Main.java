@@ -1,7 +1,6 @@
 package com.computation;
 
 import com.computation.algo.GiftWrapping;
-import com.computation.algo.QuickHull;
 import com.computation.common.ConvexHull;
 import com.computation.common.Point2DCloud;
 
@@ -15,14 +14,14 @@ public class Main {
 
         UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 
-        Point2DCloud.DPI_SCALING = 1; /* Set display scaling */
+        Point2DCloud.DPI_SCALING = 2; /* Set display scaling */
 
         //Mathew's Concurrent Quick Hull Implementation
 //        ConvexHull convexHull = new QuickHull(/* points */ 100, /* width */ 800, /* height */ 600, /* threadCount */ 10);
 //        convexHull.show();
 
         //Kapil's Concurrent Gift Wrapping Implemntation (max at 4 threads)
-        ConvexHull convexHull = new GiftWrapping(800, 800, 600, 4);
+        ConvexHull convexHull = new GiftWrapping(100, 800, 600, 4);
         convexHull.show();
     }
 }

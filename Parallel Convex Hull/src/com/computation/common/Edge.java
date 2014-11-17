@@ -42,7 +42,7 @@ public class Edge {
         return false;
     }
 
-    public Color getColor(){
+    public Color getColor() {
         return this.color;
     }
 }

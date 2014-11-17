@@ -11,8 +11,8 @@ import java.util.List;
 
 public class Point2DCloud {
 
-    public static int DPI_SCALING = 2;
     public static final int GRID_SPACING = 40;
+    public static int DPI_SCALING = 2;
     private JPanel panel;
     private JFrame frame;
     private JTable props;
