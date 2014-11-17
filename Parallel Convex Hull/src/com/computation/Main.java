@@ -17,8 +17,8 @@ public class Main {
 
         Point2DCloud.DPI_SCALING = 1; /* Set display scaling */
 
-       // ConvexHull convexHull = new QuickHull(/* points */ 31, /* width */ 800, /* height */ 600, /* threadCount */ 10);
-       // convexHull.show();
+//        ConvexHull convexHull = new QuickHull(/* points */ 100, /* width */ 800, /* height */ 600, /* threadCount */ 10);
+//        convexHull.show();
 
         ConvexHull convexHull = new GiftWrapping(20, 800, 600, 1);
         convexHull.show();

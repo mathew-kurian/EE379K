@@ -45,21 +45,23 @@ public class GiftWrapping extends ConvexHull{
         int p,q;
         p = leftMost;
 
-
-       // for (int i = 0; i < numOfPoints; i++){
-        //    System.out.println("Point "+i + "("+ point2Ds.get(i).x +", "+ point2Ds.get(i).y +")");
-       // }
-
         do{
-            q = (p+1) % numOfPoints;
+            q = (p+1) % numOfPoints; //search for q such that it is CCW for all other i
             for (int i = 0; i < numOfPoints; i++){
                 if(Utils.CCW(point2Ds.get(p), point2Ds.get(i), point2Ds.get(q)) == 2)
                     q = i;
             }
-            next[p] = q;
-            p = q;
+            next[p] = q; //add q as the next point from p
+            pointCloud.addEdge(new Edge(point2Ds.get(p),point2Ds.get(q)));
+            //wait a while so you can see it
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e){
+                Thread.currentThread().interrupt();
+            }
+            p = q; //start from q next time
 
-        } while (p != leftMost);
+        } while (p != leftMost); //keep going till you make full circle
 
         int count = 0;
         for (int i = 0; i < numOfPoints; i++){
@@ -68,11 +70,15 @@ public class GiftWrapping extends ConvexHull{
                 count++;
             }
         }
-        int a = leftMost;
-        for (int i = 0 ; i < count; i ++){
-            pointCloud.addEdge(new Edge(point2Ds.get(a),point2Ds.get(next[a])));
-            a = next[a];
-        }
+
+        //printing results
+//        int a = leftMost;
+//        for (int i = 0 ; i < count; i ++){
+//            pointCloud.addEdge(new Edge(point2Ds.get(a),point2Ds.get(next[a])));
+//            a = next[a];
+//        }
+
+
         System.out.println("Finished");
 
     }
