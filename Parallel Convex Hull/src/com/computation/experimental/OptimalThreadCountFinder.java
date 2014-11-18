@@ -13,10 +13,10 @@ import java.util.Random;
 /**
  * Created by mwkurian on 11/18/2014.
  */
-public class OptimalSearch {
+public class OptimalThreadCountFinder {
 
     static final int MIN_SIZE = 20000;
-    static final int MAX_SIZE = 1500000;
+    static final int MAX_SIZE = 2500000;
     static final int OFFSET_SIZE = 100000;
     static final int MIN_THREADS = 10;
     static final int MAX_THREADS = 20;
@@ -30,7 +30,7 @@ public class OptimalSearch {
     private int totalTests = 0;
     private int doneTests = 0;
 
-    public OptimalSearch() {
+    public OptimalThreadCountFinder() {
 
         SwingUtilities.invokeLater(new Runnable() {
             @Override
@@ -52,7 +52,6 @@ public class OptimalSearch {
                 progressBar.setIndeterminate(true);
                 progressBar.setPreferredSize(new Dimension(400 * DPI_SCALING, 45 * DPI_SCALING));
                 panel.add(progressBar, BorderLayout.CENTER);
-
 
                 jmf.pack();
                 jmf.setResizable(false);
@@ -90,6 +89,8 @@ public class OptimalSearch {
 
     private void findHelper(final int threads, final int length, final ArrayList<Result> results) {
 
+        System.gc();
+
         if (threads >= MAX_THREADS) {
 
             // Done
@@ -97,9 +98,13 @@ public class OptimalSearch {
 
             try {
                 PrintWriter writer = new PrintWriter("optimal-search.txt", "UTF-8");
+                int lastSize = -1;
                 for (Result r : results) {
-                    writer.printf("(size: %d)(threads: %d)(time: %fs)\n",
-                            r.size, r.threads, r.time);
+                    if (lastSize != r.size) {
+                        writer.printf("For size (%15d), use threads (%15d). Completed in %4.5fs.\n",
+                                r.size, r.threads, r.time);
+                        lastSize = r.size;
+                    }
                 }
                 writer.close();
             } catch (FileNotFoundException e) {
@@ -111,7 +116,7 @@ public class OptimalSearch {
             SwingUtilities.invokeLater(new Runnable() {
                 @Override
                 public void run() {
-                    label.setText("Saved test results to optimal-search.txt");
+                    label.setText("Saved test results to optimal-search.txt. Close window.");
                 }
             });
 
@@ -123,7 +128,7 @@ public class OptimalSearch {
             return;
         }
 
-        final List<Integer> searchData = OptimalSearch.generate(length);
+        final List<Integer> searchData = OptimalThreadCountFinder.generate(length);
 
         final ConcurrentSearch cs =
                 new ConcurrentSearch<Integer>(searchData, Integer.MIN_VALUE, threads) {
@@ -174,7 +179,7 @@ public class OptimalSearch {
 
         @Override
         public int compareTo(Result o) {
-            return Double.compare(time, o.time);
+            return Double.compare(size + time, o.size + o.time);
         }
     }
 
