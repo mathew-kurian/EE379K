@@ -1,5 +1,7 @@
 package com.computation.experimental;
 
+import javax.swing.*;
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -17,6 +19,46 @@ public class OptimalSearch {
     static final int MAX_THREADS = 20;
     static final int OFFSET_THREADS = 1;
 
+    public static int DPI_SCALING = 2;
+
+    private JFrame jmf;
+    private JLabel label;
+    private JProgressBar progressBar;
+    private int totalTests = 0;
+    private int doneTests = 0;
+
+    public OptimalSearch() {
+
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+
+                JPanel panel = new JPanel(new BorderLayout());
+                panel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+
+                jmf = new JFrame("Optimal Search");
+                jmf.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+                jmf.getContentPane().setLayout(new BorderLayout());
+                jmf.getContentPane().add(panel);
+
+                label = new JLabel("Warming...");
+                label.setBorder(BorderFactory.createEmptyBorder(0, 0, 20, 0));
+                panel.add(label, BorderLayout.NORTH);
+
+                progressBar = new JProgressBar();
+                progressBar.setIndeterminate(true);
+                progressBar.setPreferredSize(new Dimension(400 * DPI_SCALING, 45 * DPI_SCALING));
+                panel.add(progressBar, BorderLayout.CENTER);
+
+
+                jmf.pack();
+                jmf.setResizable(false);
+                jmf.setLocationRelativeTo(null);
+                jmf.setVisible(true);
+            }
+        });
+    }
+
     private static List<Integer> generate(int length) {
         List<Integer> data = new ArrayList<Integer>();
         Random rand = new Random();
@@ -28,10 +70,16 @@ public class OptimalSearch {
         return data;
     }
 
-    private int totalTests = 0;
-    private int doneTests = 0;
-
     public void find() {
+
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                progressBar.setIndeterminate(false);
+                progressBar.setValue(0);
+            }
+        });
+
         totalTests = (MAX_THREADS - MIN_THREADS) / OFFSET_THREADS
                 * (MAX_SIZE - MIN_SIZE) / OFFSET_SIZE * 2;
         findHelper(MIN_THREADS, MIN_SIZE, new ArrayList<Result>());
@@ -62,13 +110,22 @@ public class OptimalSearch {
                     public void found(Integer integer) {
                         super.found(integer);
                         doneTests++;
-                        System.out.println(Math.round(((double)doneTests / (double)totalTests) * 100.0) + "%");
+                        final int progress = (int) Math.round(((double) doneTests / (double) totalTests) * 100.0);
+                        SwingUtilities.invokeLater(new Runnable() {
+                            @Override
+                            public void run() {
+                                label.setText("Completed test " + doneTests + " of " + totalTests + "...");
+                                progressBar.setIndeterminate(false);
+                                progressBar.setValue(progress);
+                            }
+                        });
+
                         results.add(new Result(length, threads, elapsed()));
                         findHelper(threads, length + OFFSET_SIZE, results);
                     }
                 };
 
-        if(threads == MIN_THREADS) {
+        if (threads == MIN_THREADS) {
             new SimpleSearch<Integer>(searchData, Integer.MIN_VALUE) {
                 @Override
                 public void found(Integer integer) {
