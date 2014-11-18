@@ -31,6 +31,6 @@ public class Search<T extends Comparable<T>> {
 //        System.out.printf("(size: %d)(threads: %d)(time: %f)(value: %s)\n",
 //                data.size(), threadCount, elapsedTime, t.toString());
 
-        System.out.println("Termination - Found in " + elapsedTime + "s");
+        // System.out.println("Termination - Found in " + elapsedTime + "s");
     }
 }

@@ -28,14 +28,18 @@ public class OptimalSearch {
         return data;
     }
 
+    private int totalTests = 0;
+    private int doneTests = 0;
+
     public void find() {
+        totalTests = (MAX_THREADS - MIN_THREADS) / OFFSET_THREADS
+                * (MAX_SIZE - MIN_SIZE) / OFFSET_SIZE * 2;
         findHelper(MIN_THREADS, MIN_SIZE, new ArrayList<Result>());
     }
 
     private void findHelper(final int threads, final int length, final ArrayList<Result> results) {
 
         if (threads >= MAX_THREADS) {
-            System.out.println("herere");
             // Done
             Collections.sort(results);
             for (Result r : results) {
@@ -57,6 +61,8 @@ public class OptimalSearch {
                     @Override
                     public void found(Integer integer) {
                         super.found(integer);
+                        doneTests++;
+                        System.out.println(Math.round(((double)doneTests / (double)totalTests) * 100.0) + "%");
                         results.add(new Result(length, threads, elapsed()));
                         findHelper(threads, length + OFFSET_SIZE, results);
                     }
@@ -67,6 +73,7 @@ public class OptimalSearch {
                 @Override
                 public void found(Integer integer) {
                     super.found(integer);
+                    doneTests++;
                     results.add(new Result(length, threads, elapsed()));
                     cs.start();
                 }
