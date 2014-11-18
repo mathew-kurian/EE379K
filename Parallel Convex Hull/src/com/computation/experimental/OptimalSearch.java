@@ -2,6 +2,9 @@ package com.computation.experimental;
 
 import javax.swing.*;
 import java.awt.*;
+import java.io.FileNotFoundException;
+import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -13,8 +16,8 @@ import java.util.Random;
 public class OptimalSearch {
 
     static final int MIN_SIZE = 20000;
-    static final int MAX_SIZE = 15000000;
-    static final int OFFSET_SIZE = 1000000;
+    static final int MAX_SIZE = 1500000;
+    static final int OFFSET_SIZE = 100000;
     static final int MIN_THREADS = 10;
     static final int MAX_THREADS = 20;
     static final int OFFSET_THREADS = 1;
@@ -80,20 +83,38 @@ public class OptimalSearch {
             }
         });
 
-        totalTests = (MAX_THREADS - MIN_THREADS) / OFFSET_THREADS
-                * (MAX_SIZE - MIN_SIZE) / OFFSET_SIZE * 2;
+        totalTests = ((MAX_THREADS - MIN_THREADS) / OFFSET_THREADS + 1)
+                * (MAX_SIZE - MIN_SIZE) / OFFSET_SIZE;
         findHelper(MIN_THREADS, MIN_SIZE, new ArrayList<Result>());
     }
 
     private void findHelper(final int threads, final int length, final ArrayList<Result> results) {
 
         if (threads >= MAX_THREADS) {
+
             // Done
             Collections.sort(results);
-            for (Result r : results) {
-                System.out.printf("(size: %d)(threads: %d)(time: %fs)\n",
-                        r.size, r.threads, r.time);
+
+            try {
+                PrintWriter writer = new PrintWriter("optimal-search.txt", "UTF-8");
+                for (Result r : results) {
+                    writer.printf("(size: %d)(threads: %d)(time: %fs)\n",
+                            r.size, r.threads, r.time);
+                }
+                writer.close();
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
             }
+
+            SwingUtilities.invokeLater(new Runnable() {
+                @Override
+                public void run() {
+                    label.setText("Saved test results to optimal-search.txt");
+                }
+            });
+
             return;
         }
 
@@ -131,7 +152,7 @@ public class OptimalSearch {
                 public void found(Integer integer) {
                     super.found(integer);
                     doneTests++;
-                    results.add(new Result(length, threads, elapsed()));
+                    results.add(new Result(length, 1, elapsed()));
                     cs.start();
                 }
             }.start();
