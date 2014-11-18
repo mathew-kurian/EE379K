@@ -62,7 +62,7 @@ public class GiftWrapping extends ConvexHull {
          *  4. degreeOffset = 90.0 / (threads - 4 + 1) =
          *                    90.0 / (threads - 4 + 1) =
          *                    90.0 / (threads - 3) =
-         *                    45;.0
+         *                    45.0
          */
         double degreeOffset = 90.0 / (threads - 3);
 

@@ -68,7 +68,7 @@ public abstract class ConvexHull implements Runnable {
 
     protected void finish() {
         double duration = ((double)(System.nanoTime() - startTime)) / 1000000000.0;
-        duration = Math.round(duration * 100.0) / 100.0;
+        duration = Math.round(duration * 10000.0) / 10000.0;
         pointCloud.setField("Duration (s)", duration);
         pointCloud.toast("Completed!");
         active = false;
