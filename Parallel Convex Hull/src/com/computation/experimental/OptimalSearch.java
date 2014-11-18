@@ -92,7 +92,7 @@ public class OptimalSearch {
             Collections.sort(results);
             for (Result r : results) {
                 System.out.printf("(size: %d)(threads: %d)(time: %fs)\n",
-                        r.size, r.threads, r.toString());
+                        r.size, r.threads, r.time);
             }
             return;
         }
