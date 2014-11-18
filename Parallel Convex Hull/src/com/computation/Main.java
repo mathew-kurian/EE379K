@@ -15,7 +15,8 @@ public class Main {
 
         UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 
-        Point2DCloud.DPI_SCALING = 2; /* Set display scaling */
+        OptimalSearch.DPI_SCALING =
+                Point2DCloud.DPI_SCALING = 2; /* Set display scaling */
 
         OptimalSearch optimalSearch = new OptimalSearch();
         optimalSearch.find();
