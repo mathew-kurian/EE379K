@@ -15,12 +15,12 @@ import java.util.Random;
  */
 public class OptimalThreadCountFinder {
 
-    static final int MIN_SIZE = 20000;
-    static final int MAX_SIZE = 2500000;
-    static final int OFFSET_SIZE = 100000;
-    static final int MIN_THREADS = 10;
+    static final int MIN_SIZE = 1;
+    static final int MAX_SIZE = 100000;
+    static final int OFFSET_SIZE = 100;
+    static final int MIN_THREADS = 2;
     static final int MAX_THREADS = 20;
-    static final int OFFSET_THREADS = 1;
+    static final int OFFSET_THREADS = 2;
 
     public static int DPI_SCALING = 2;
 

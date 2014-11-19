@@ -119,6 +119,11 @@ public class GiftWrapping extends ConvexHull {
 
                 // Update threads count
                 pointCloud.setField("Wrap threads", currThreadCount);
+
+                if(currThreadCount == 0){
+                    pointCloud.toast("@Kapil, the threads that started already finished doing the whole thing!");
+                    finish();
+                }
             }
 
             if (dir == 3) {
