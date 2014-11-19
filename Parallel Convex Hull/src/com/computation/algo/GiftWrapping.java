@@ -8,6 +8,8 @@ import com.computation.common.Utils;
 import java.awt.*;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.BrokenBarrierException;
+import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -107,7 +109,11 @@ public class GiftWrapping extends ConvexHull {
             if (edgePoint.getColor() != Point2D.VISITED) {
                 edgePoint.setColor(Point2D.VISITED);
                 executorService.execute(new DirectionSet(point2Ds, index, color, threadCount));
-            } else {
+            }
+//            else {
+//                threadCount.decrementAndGet();
+//            }
+            else {
                 /**
                  * @Kapil. We reduce the extra threads here. Use the extra
                  * threads to optimize the searching
@@ -142,60 +148,70 @@ public class GiftWrapping extends ConvexHull {
         private List<Point2D> point2Ds;
         private Color color;
         private AtomicInteger threads;
+        private CyclicBarrier cyclicBarrier;
 
-        public DirectionSet(List<Point2D> point2Ds, int edge, Color color, AtomicInteger threads) {
+        public DirectionSet(List<Point2D> point2Ds, int edge, Color color, AtomicInteger threads, CyclicBarrier cyclicBarrier) {
             this.edge = edge;
             this.point2Ds = point2Ds;
             this.color = color;
             this.threads = threads;
+            this.cyclicBarrier = cyclicBarrier;
         }
 
         @Override
         public void run() {
-            int p, q;
-            p = edge;
+            try {
+                cyclicBarrier.await();
+                int p, q;
+                p = edge;
 
-            do {
+                do {
 
-                /**
-                 * Mark the point as visited; if we see this again in
-                 * another thread, that thread knows they are done
-                 */
-                point2Ds.get(p).setColor(Point2D.VISITED);
+                    /**
+                     * Mark the point as visited; if we see this again in
+                     * another thread, that thread knows they are done
+                     */
+                    point2Ds.get(p).setColor(Point2D.VISITED);
 
-                //search for q such that it is CCW for all other i
-                q = (p + 1) % pointCount;
-                for (int i = 0; i < pointCount; i++) {
-                    if (Utils.CCW(point2Ds.get(p), point2Ds.get(i), point2Ds.get(q)) == 2) {
-                        q = i;
+                    //search for q such that it is CCW for all other i
+                    q = (p + 1) % pointCount;
+                    for (int i = 0; i < pointCount; i++) {
+                        if (Utils.CCW(point2Ds.get(p), point2Ds.get(i), point2Ds.get(q)) == 2) {
+                            q = i;
+                        }
                     }
+
+                    // Add q as the next point from p
+                    hullArray.getAndSet(p, q);
+
+                    // Add edge
+                    pointCloud.addEdge(new Edge(point2Ds.get(p), point2Ds.get(q), color));
+
+                    // Wait a while so you can see it
+                    delay();
+
+                    // Start from q next time
+                    p = q;
+
                 }
+                /**
+                 * Keep going until you hit a point which has been visited
+                 */
+                while (point2Ds.get(p).getColor() == Point2D.UNVISITED);
 
-                // Add q as the next point from p
-                hullArray.getAndSet(p, q);
-
-                // Add edge
-                pointCloud.addEdge(new Edge(point2Ds.get(p), point2Ds.get(q), color));
-
-                // Wait a while so you can see it
-                delay();
-
-                // Start from q next time
-                p = q;
-
-            }
-            /**
-             * Keep going until you hit a point which has been visited
-             */
-            while (point2Ds.get(p).getColor() == Point2D.UNVISITED);
-
-            if (threads.decrementAndGet() == 0) {
-                finish();
+                if (threads.decrementAndGet() == 0) {
+                    finish();
+                }
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            } catch (BrokenBarrierException e) {
+                e.printStackTrace();
             }
         }
-
-
     }
+
+
+
 
 
 }
