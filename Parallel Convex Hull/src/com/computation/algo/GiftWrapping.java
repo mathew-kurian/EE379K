@@ -6,6 +6,7 @@ import com.computation.common.Point2D;
 import com.computation.common.Utils;
 
 import java.awt.*;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.BrokenBarrierException;
@@ -41,6 +42,9 @@ public class GiftWrapping extends ConvexHull {
         int[] next = new int[pointCount];
         Arrays.fill(next, -1);
         this.hullArray = new AtomicIntegerArray(next);
+
+        //List of threads
+        ArrayList<DirectionSet> allDirectionSets = new ArrayList<DirectionSet>();
 
         // Searching threads
         int searchThreads = 0;
@@ -108,12 +112,15 @@ public class GiftWrapping extends ConvexHull {
 
             if (edgePoint.getColor() != Point2D.VISITED) {
                 edgePoint.setColor(Point2D.VISITED);
-                executorService.execute(new DirectionSet(point2Ds, index, color, threadCount));
-            }
-//            else {
-//                threadCount.decrementAndGet();
-//            }
-            else {
+
+                //executorService.execute(new DirectionSet(point2Ds, index, color, threadCount));
+
+                //String threadName = "Thread " + i;
+                //allThreads.add(new Thread(new DirectionSet(point2Ds, index, color, threadCount),threadName));
+
+                allDirectionSets.add(new DirectionSet(point2Ds,index,color,threadCount));
+
+            } else {
                 /**
                  * @Kapil. We reduce the extra threads here. Use the extra
                  * threads to optimize the searching
@@ -125,6 +132,11 @@ public class GiftWrapping extends ConvexHull {
 
                 // Update threads count
                 pointCloud.setField("Wrap threads", currThreadCount);
+
+                /*if(currThreadCount == 0){
+                    pointCloud.toast("@Kapil, the threads that started already finished doing the whole thing!");
+                    finish();
+                }*/
             }
 
             if (dir == 3) {
@@ -132,6 +144,24 @@ public class GiftWrapping extends ConvexHull {
                 degree += degreeOffset;
             }
         }
+
+        //initialize cyclic barrier, used so all threads can start once initialized
+        CyclicBarrier cyclicBarrier = new CyclicBarrier(allDirectionSets.size(), new Runnable(){
+            @Override
+            public void run(){
+                System.out.println("all threads have reached the barrier, start the algorithm");
+            }
+        });
+
+
+        //System.out.println(allThreads.size() + " threads are about to start");
+        for(DirectionSet ds: allDirectionSets){
+            //System.out.println("Starting " + t.getName());
+            ds.setCyclicBarrier(cyclicBarrier);
+            Thread t = new Thread(ds);
+            t.start();
+        }
+
 
         //displaying results
 //        int a = leftMost;
@@ -150,18 +180,25 @@ public class GiftWrapping extends ConvexHull {
         private AtomicInteger threads;
         private CyclicBarrier cyclicBarrier;
 
-        public DirectionSet(List<Point2D> point2Ds, int edge, Color color, AtomicInteger threads, CyclicBarrier cyclicBarrier) {
+        public DirectionSet(List<Point2D> point2Ds, int edge, Color color, AtomicInteger threads) {
             this.edge = edge;
             this.point2Ds = point2Ds;
             this.color = color;
             this.threads = threads;
+            this.cyclicBarrier = new CyclicBarrier(1);
+        }
+
+        public void setCyclicBarrier(CyclicBarrier cyclicBarrier){
             this.cyclicBarrier = cyclicBarrier;
         }
 
         @Override
         public void run() {
             try {
+                System.out.println(Thread.currentThread().getName()+"waiting on other threads");
                 cyclicBarrier.await();
+                System.out.println(Thread.currentThread().getName()+"has crossed the barrier");
+
                 int p, q;
                 p = edge;
 
@@ -208,10 +245,9 @@ public class GiftWrapping extends ConvexHull {
                 e.printStackTrace();
             }
         }
+
+
     }
-
-
-
 
 
 }
