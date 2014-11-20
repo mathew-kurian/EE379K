@@ -1,8 +1,9 @@
 package com.computation.common.concurrent;
 
+import com.computation.common.Console;
+
 import java.util.Collection;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -12,6 +13,7 @@ import java.util.concurrent.locks.ReentrantLock;
 
 public abstract class Search<T, O extends Collection<T>> {
 
+    private final static Console console = Console.getInstance(Search.class);
     protected final ExecutorService executorService;
 
     protected O data;
@@ -25,56 +27,60 @@ public abstract class Search<T, O extends Collection<T>> {
         this.lock = new ReentrantLock();
     }
 
-    public Lock getLock(){
+    public Lock getLock() {
         return lock;
     }
 
-    public  void setAvailableThreads(int availableThreads){
+    public void setAvailableThreads(int availableThreads) {
         this.availableThreads = availableThreads;
     }
 
-    public final Reference<T> find(){
+    public final Reference<T> find() {
 
         int size = data.size();
         int offset = size / availableThreads;
 
         Reference<T> ref = getReferenceInstance();
-        AtomicInteger atomicCount = new AtomicInteger(availableThreads);
+        Reference<Integer> threadCount = new Reference<Integer>(availableThreads);
 
-        if(availableThreads == 0){
+        if (availableThreads == 0) {
             // Execute directly on main thread
             new Subset(0, size,
-                    ref, atomicCount).run();
-            return ref;
-        }
-
-        for (int i = 0; i < size; i += offset) {
-            executorService.execute(new Subset(i, Math.min(i + offset, size),
-                    ref, atomicCount));
-        }
-
-        synchronized (this) {
-            try {
-                this.wait();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+                    ref, threadCount).run();
+        } else {
+            for (int i = 0; i < size; i += offset) {
+                executorService.execute(new Subset(i, Math.min(i + offset, size),
+                        ref, threadCount));
             }
         }
 
-       return ref;
+        synchronized (threadCount) {
+            if (threadCount.get() > 0) {
+                try {
+                    threadCount.wait();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
+        console.log("Finished");
+
+        return ref;
     }
 
     protected abstract Reference<T> getReferenceInstance();
+
     protected abstract void onSearch(int start, int end, Reference<T> ref);
 
     private class Subset implements Runnable {
         private final int start;
         private final int end;
         private final Reference<T> ref;
-        private final AtomicInteger threadCount;
+        private final Reference<Integer> threadCount;
 
         public Subset(int start, int end, Reference<T> ref,
-                      AtomicInteger threadCount) {
+                      Reference<Integer> threadCount) {
             this.start = start;
             this.end = end;
             this.ref = ref;
@@ -86,9 +92,12 @@ public abstract class Search<T, O extends Collection<T>> {
 
             onSearch(start, end, ref);
 
-            if (threadCount.decrementAndGet() == 0) {
-                synchronized (Search.this) {
-                    Search.this.notify();
+            synchronized (threadCount) {
+                int currThreadCount = threadCount.get() - 1;
+                threadCount.update(currThreadCount);
+
+                if (currThreadCount <= 0) {
+                    threadCount.notify();
                 }
             }
         }

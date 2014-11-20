@@ -56,6 +56,7 @@ public class AngleBetween extends Search<Point2D, List<Point2D>> {
         }
 
         synchronized (exRef){
+            // System.out.println("Thread: " + Thread.currentThread().getId() + "maxAngle: " + maxAngle + " > " + exRef.getAngle());
             if(maxAngle > exRef.getAngle()){
                 exRef.setAngle(maxAngle);
                 exRef.setIndex(q);
@@ -65,7 +66,7 @@ public class AngleBetween extends Search<Point2D, List<Point2D>> {
 
     public class CCWReference extends Reference<Point2D> {
 
-        private int index = -1;
+        private volatile int index = -1;
 
         public double getAngle() {
             return angle;
@@ -75,7 +76,7 @@ public class AngleBetween extends Search<Point2D, List<Point2D>> {
             this.angle = angle;
         }
 
-        private double angle = Double.MIN_VALUE;
+        private volatile double angle = Double.MIN_VALUE;
 
         public CCWReference(Point2D point2D) {
             super(point2D);
