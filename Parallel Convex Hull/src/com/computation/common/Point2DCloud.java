@@ -65,7 +65,7 @@ public class Point2DCloud {
                     frame.getContentPane().add(new JScrollPane(props), BorderLayout.EAST);
                     frame.getContentPane().add(buttons, BorderLayout.SOUTH);
                     frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-                    frame.setResizable(false);
+                    // frame.setResizable(false);
                 }
             });
         } catch (InterruptedException e) {
@@ -99,6 +99,7 @@ public class Point2DCloud {
                 });
 
                 buttons.add(jButton);
+                frame.pack();
             }
         });
     }
@@ -227,8 +228,9 @@ public class Point2DCloud {
 
             for (Point2D p : point2Ds) {
                 g2d.setColor(p.getColor());
-                int mlp = p.getColor() == Point2D.VISITED ? 2 : 1;
+                int mlp = p.getColor() != Point2D.UNVISITED ? 2 : 1;
                 g2d.fillOval(p.x - DPI_SCALING * 3 * mlp, p.y - DPI_SCALING * 3 * mlp, DPI_SCALING * 6 * mlp, DPI_SCALING * 6 * mlp);
+                g2d.drawString(p.text, p.x + 10, p.y);
             }
         }
 

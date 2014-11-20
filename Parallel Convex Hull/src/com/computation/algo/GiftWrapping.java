@@ -10,7 +10,9 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * Created by kgowru on 11/12/14.
@@ -22,7 +24,8 @@ public class GiftWrapping extends ConvexHull {
     private Extrema extrema;
     private AngleBetween angleBetween;
     private volatile int searchCount;
-    private Lock step;
+    private Lock debugStep;
+    private Condition debugStepCondition;
 
     public GiftWrapping(int points, int width, int height, int threads) {
         super(points, width, height, threads);
@@ -47,6 +50,9 @@ public class GiftWrapping extends ConvexHull {
 
         // Set search count
         this.searchCount = 0;
+
+        this.debugStep = new ReentrantLock();
+        this.debugStepCondition = debugStep.newCondition();
 
         // Concurrent CCW
         angleBetween = new AngleBetween(executorService, 0, points);
@@ -122,6 +128,19 @@ public class GiftWrapping extends ConvexHull {
             }
         }
 
+        if(debugStepThrough) {
+            pointCloud.addButton("Step", new Runnable() {
+                @Override
+                public void run() {
+                    debugStep.lock();
+                    debugStepCondition.signal();
+                    debugStep.unlock();
+                }
+            });
+        }
+
+        pointCloud.draw();
+
         synchronized (this) {
             try {
                 wait();
@@ -157,6 +176,17 @@ public class GiftWrapping extends ConvexHull {
             Point2D pivPoint, refPoint = null;
 
             do {
+
+                if(debugStepThrough) {
+                    debugStep.lock();
+
+                    try {
+                        debugStepCondition.await();
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+
                 performLinear = true;
                 pivPoint = points.get(pivPointIndex);
 
@@ -187,6 +217,9 @@ public class GiftWrapping extends ConvexHull {
                             // Get next
                             refPointIndex = ((AngleBetween.CCWReference) angleBetween.find()).getIndex();
                             refPoint = points.get(refPointIndex);
+
+                            refPoint.text = refPoint.text + "FOUND";
+                            pointCloud.draw();
 
                             // Skip linear
                             performLinear = false;
@@ -229,6 +262,10 @@ public class GiftWrapping extends ConvexHull {
 
                 // Start from q next time
                 pivPointIndex = refPointIndex;
+
+                if(debugStepThrough){
+                    debugStep.unlock();
+                }
             }
             while (points.get(pivPointIndex).getColor() == Point2D.UNVISITED);
 
