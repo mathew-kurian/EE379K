@@ -22,6 +22,7 @@ public class GiftWrapping extends ConvexHull {
     private Extrema extrema;
     private AngleBetween angleBetween;
     private volatile int searchCount;
+    private Lock step;
 
     public GiftWrapping(int points, int width, int height, int threads) {
         super(points, width, height, threads);
@@ -156,85 +157,78 @@ public class GiftWrapping extends ConvexHull {
             Point2D pivPoint, refPoint = null;
 
             do {
+                performLinear = true;
+                pivPoint = points.get(pivPointIndex);
 
-                synchronized (GiftWrapping.this) {
+                /**
+                 * Mark the point as visited; if we see this again in
+                 * another thread, that thread knows they are done
+                 */
+                pivPoint.setColor(Point2D.VISITED);
 
-                    performLinear = true;
-                    pivPoint = points.get(pivPointIndex);
+                //search for q such that it is ccw for all other i
+                refPointIndex = (pivPointIndex + 1) % pointCount;
 
-                    /**
-                     * Mark the point as visited; if we see this again in
-                     * another thread, that thread knows they are done
-                     */
-                    pivPoint.setColor(Point2D.VISITED);
+                if (!firstSearch && searchCount > 1) {
 
-                    //search for q such that it is ccw for all other i
-                    refPointIndex = (pivPointIndex + 1) % pointCount;
+                    Lock lock = angleBetween.getLock();
 
-                    if (!firstSearch && searchCount > 1) {
+                    if (lock.tryLock()) {
 
-                        Lock lock = angleBetween.getLock();
-
-                        if (lock.tryLock()) {
-
-                            try {
-                                if (debug) {
-                                    console.log("Performing concurrent search");
-                                }
-
-                                angleBetween.setAvailableThreads(searchCount);
-                                angleBetween.setCenter(pivPointIndex);
-                                angleBetween.setPrevious(lastPivPointIndex);
-
-                                // Get next
-                                refPointIndex = ((AngleBetween.CCWReference) angleBetween.find()).getIndex();
-                                refPoint = points.get(refPointIndex);
-                                refPoint.text = "Parallel";
-
-                                // Skip linear
-                                performLinear = false;
-
-                            } finally {
-                                lock.unlock();
+                        try {
+                            if (debug) {
+                                console.log("Performing concurrent search");
                             }
+
+                            angleBetween.setAvailableThreads(searchCount);
+                            angleBetween.setCenter(pivPointIndex);
+                            angleBetween.setPrevious(lastPivPointIndex);
+
+                            // Get next
+                            refPointIndex = ((AngleBetween.CCWReference) angleBetween.find()).getIndex();
+                            refPoint = points.get(refPointIndex);
+
+                            // Skip linear
+                            performLinear = false;
+
+                        } finally {
+                            lock.unlock();
                         }
                     }
-
-                    if (performLinear) {
-
-                        if (debug) {
-                            console.log("Performing linear search");
-                        }
-
-                        pivPoint = points.get(pivPointIndex);
-                        refPoint = points.get(refPointIndex);
-
-                        for (int currPointIndex = 0; currPointIndex < pointCount; currPointIndex++) {
-                            Point2D currPoint = points.get(currPointIndex);
-                            if (Utils.ccw(pivPoint, currPoint, refPoint) == 2) {
-                                refPoint = currPoint;
-                                refPointIndex = currPointIndex;
-                                refPoint.text = "Linear";
-                            }
-                        }
-
-                        firstSearch = false;
-                    }
-
-
-                    // Add edge
-                    pointCloud.addEdge(new Edge(pivPoint, refPoint, color));
-
-                    // Wait a while so you can see it
-                    delay();
-
-                    // Last pivot
-                    lastPivPointIndex = pivPointIndex;
-
-                    // Start from q next time
-                    pivPointIndex = refPointIndex;
-
                 }
+
+                if (performLinear) {
+
+                    if (debug) {
+                        console.log("Performing linear search");
+                    }
+
+                    pivPoint = points.get(pivPointIndex);
+                    refPoint = points.get(refPointIndex);
+
+                    for (int currPointIndex = 0; currPointIndex < pointCount; currPointIndex++) {
+                        Point2D currPoint = points.get(currPointIndex);
+                        if (Utils.ccw(pivPoint, currPoint, refPoint) == 2) {
+                            refPoint = currPoint;
+                            refPointIndex = currPointIndex;
+                        }
+                    }
+
+                    firstSearch = false;
+                }
+
+
+                // Add edge
+                pointCloud.addEdge(new Edge(pivPoint, refPoint, color));
+
+                // Wait a while so you can see it
+                delay();
+
+                // Last pivot
+                lastPivPointIndex = pivPointIndex;
+
+                // Start from q next time
+                pivPointIndex = refPointIndex;
             }
             while (points.get(pivPointIndex).getColor() == Point2D.UNVISITED);
 
