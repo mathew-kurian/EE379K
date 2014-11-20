@@ -40,9 +40,9 @@ public class PointLeftOf extends Search<Point2D, List<Point2D>> {
         for (int i = start; i < end; i++) {
             Point2D point = data.get(i);
             if (Utils.isPointLeftOf(a, b, point)) {
-                left.add(point);
+                localLeft.add(point);
             } else {
-                right.add(point);
+                localRight.add(point);
             }
         }
 
