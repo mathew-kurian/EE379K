@@ -265,6 +265,7 @@ public class GiftWrapping extends ConvexHull {
 
                 if(debugStepThrough){
                     debugStep.unlock();
+
                 }
             }
             while (points.get(pivPointIndex).getColor() == Point2D.UNVISITED);
@@ -274,6 +275,8 @@ public class GiftWrapping extends ConvexHull {
                     GiftWrapping.this.notify();
                 }
             }
+
+            searchCount++;
         }
     }
 }

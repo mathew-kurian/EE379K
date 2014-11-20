@@ -43,14 +43,11 @@ public class AngleBetween extends Search<Point2D, List<Point2D>> {
 
         Point2D pivPoint = data.get(pivot);
         Point2D nexPoint = data.get(next);
-        Set<Point2D> orig = new HashSet<Point2D>();
-
-        orig.add(pivPoint);
-        orig.add(nexPoint);
 
         for (int i = start; i < end; i++) {
             Point2D currPoint = data.get(i);
-            if(orig.contains(currPoint)) continue;
+            if(nexPoint.equals(currPoint) ||
+                    pivPoint.equals(currPoint)) continue;
             double pot = Utils.angleBetween(pivPoint, nexPoint, currPoint);
             if (pot > maxAngle) {
                 maxAngle = pot;
