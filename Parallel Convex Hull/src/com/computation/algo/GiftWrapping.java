@@ -205,7 +205,7 @@ public class GiftWrapping extends ConvexHull {
                  */
                 pivPoint.setColor(Point2D.VISITED);
 
-                //search for q such that it is ccw for all other i
+                //search for q such that it is ccwQuant for all other i
                 refPointIndex = (pivPointIndex + 1) % pointCount;
 
                 if (!firstSearch && searchCount > 1) {

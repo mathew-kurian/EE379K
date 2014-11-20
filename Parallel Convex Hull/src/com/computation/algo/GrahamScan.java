@@ -3,6 +3,7 @@ package com.computation.algo;
 import com.computation.common.ConvexHull;
 import com.computation.common.Edge;
 import com.computation.common.Point2D;
+import com.computation.common.Utils;
 
 import java.util.Collections;
 import java.util.Comparator;
@@ -13,10 +14,6 @@ public class GrahamScan extends ConvexHull {
     public GrahamScan(int points, int width, int height, int threads,
                       boolean debug, int animationDelay) {
         super(points, width, height, threads, debug, animationDelay);
-    }
-
-    int ccw(Point2D p1, Point2D p2, Point2D p3) {
-        return (p2.x - p1.x) * (p3.y - p1.y) - (p2.y - p1.y) * (p3.x - p1.x);
     }
 
     @Override
@@ -72,8 +69,8 @@ public class GrahamScan extends ConvexHull {
                 }
                 // both above or below
                 else {
-                    // Note: ccw() recomputes dx1, dy1, dx2, and dy2
-                    return -ccw(firstPoint, q1, q2);
+                    // Note: ccwQuant() recomputes dx1, dy1, dx2, and dy2
+                    return -Utils.ccwQuant(firstPoint, q1, q2);
                 }
             }
         });
@@ -96,7 +93,7 @@ public class GrahamScan extends ConvexHull {
         // find index k2 of first point not collinear with points[0] and points[k1]
         int k2;
         for (k2 = k1 + 1; k2 < points.size(); k2++) {
-            if (ccw(points.get(0), points.get(k1), points.get(k2)) != 0) {
+            if (Utils.ccwQuant(points.get(0), points.get(k1), points.get(k2)) != 0) {
                 break;
             }
         }
@@ -107,7 +104,7 @@ public class GrahamScan extends ConvexHull {
         for (int i = k2; i < points.size(); i++) {
             Point2D top = stack.pop();
 
-            while (ccw(stack.peek(), top, points.get(i)) <= 0) {
+            while (Utils.ccwQuant(stack.peek(), top, points.get(i)) <= 0) {
                 top = stack.pop();
             }
 
