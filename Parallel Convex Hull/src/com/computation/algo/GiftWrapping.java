@@ -28,6 +28,7 @@ public class GiftWrapping extends ConvexHull {
     private Condition debugStepCondition;
     private Reference<Integer> threadCount;
 
+    private final Object lock = new Object();
     public GiftWrapping(int points, int width, int height, int threads) {
         super(points, width, height, threads);
     }
@@ -221,14 +222,14 @@ public class GiftWrapping extends ConvexHull {
                             angleBetween.setCenter(pivPointIndex);
                             angleBetween.setPrevious(lastPivPointIndex);
 
-                            pivPoint.text = "Parallel";
+                            pivPoint.debugText = "Parallel";
                             // Get next
                             refPointIndex = ((AngleBetween.CCWReference) angleBetween.find()).getIndex();
                             refPoint = points.get(refPointIndex);
                             //refPoint.setColor(Color.RED);
 
                             console.log("SearchThreadCount: " + searchCount);
-                            refPoint.text = refPoint.text + "FOUND";
+                            refPoint.debugText = refPoint.debugText + "FOUND";
                             pointCloud.draw();
 
                             // Skip linear

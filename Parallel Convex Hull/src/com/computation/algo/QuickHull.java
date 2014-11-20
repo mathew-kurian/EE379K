@@ -6,19 +6,20 @@ import com.computation.common.Point2D;
 import com.computation.common.Utils;
 import com.computation.common.concurrent.Extrema;
 import com.computation.common.concurrent.PointLeftOf;
+import com.computation.common.concurrent.Reference;
 
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.atomic.AtomicInteger;
 
+@SuppressWarnings("unused")
 public class QuickHull extends ConvexHull {
 
     private ExecutorService executorService;
-    private AtomicInteger subsetStartCount;
-    private AtomicInteger subsetFinishCount;
-    private PointLeftOf pointLeftOf;
-    private Extrema extrema;
+    private Reference<Integer> subsetStartCount;
+    private Reference<Integer> subsetFinishCount;
+
+    private final Object lock = new Object();
 
     public QuickHull(int points, int width, int height, int threads) {
         super(points, width, height, threads);
@@ -35,9 +36,11 @@ public class QuickHull extends ConvexHull {
 
         // Start
         this.executorService = Executors.newFixedThreadPool(threads);
-        this.subsetStartCount = new AtomicInteger(0);
-        this.subsetFinishCount = new AtomicInteger(0);
-        this.extrema = new Extrema(executorService, threads, points, null, 0);
+        this.subsetStartCount = new Reference<Integer>(0);
+        this.subsetFinishCount = new Reference<Integer>(0);
+
+        // Find start points
+        Extrema extrema = new Extrema(executorService, threads, points, null, 0);
 
         // Set some fields
         pointCloud.setField("ThreadPool", true);
@@ -61,7 +64,7 @@ public class QuickHull extends ConvexHull {
         List<Point2D> right = new ArrayList<Point2D>();
 
         // Create multithreaded searcher
-        this.pointLeftOf = new PointLeftOf(executorService, threads, points, left, right, p1, p2);
+        PointLeftOf pointLeftOf = new PointLeftOf(executorService, threads, points, left, right, p1, p2);
 
         // Search
         pointLeftOf.find();
@@ -73,15 +76,21 @@ public class QuickHull extends ConvexHull {
             e.printStackTrace();
         }
 
-        synchronized (QuickHull.this){
-            try {
-                wait();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+        synchronized (lock){
+            if(!isFinished()) {
+                try {
+                    lock.wait();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
             }
         }
 
         executorService.shutdown();
+    }
+
+    private boolean isFinished(){
+        return subsetStartCount.get().equals(subsetFinishCount.get());
     }
 
     private class Subset implements Runnable {
@@ -95,7 +104,13 @@ public class QuickHull extends ConvexHull {
             this.b = b;
             this.points = points;
 
-            int subsets = subsetStartCount.incrementAndGet();
+            int subsets;
+
+            synchronized (lock){
+                subsets = subsetStartCount.get() + 1;
+                subsetStartCount.update(subsets);
+            }
+
             pointCloud.setField("Subsets", subsets);
         }
 
@@ -114,9 +129,9 @@ public class QuickHull extends ConvexHull {
             }
 
             if (max == null) {
-                if (subsetStartCount.get() == subsetFinishCount.incrementAndGet()) {
-                    synchronized (QuickHull.this){
-                        QuickHull.this.notify();
+                synchronized (lock){
+                    if(isFinished()) {
+                        lock.notify();
                     }
                 }
                 return;
@@ -150,7 +165,9 @@ public class QuickHull extends ConvexHull {
             } catch (Exception e) {
                 e.printStackTrace();
             } finally {
-                subsetFinishCount.incrementAndGet();
+                synchronized (lock) {
+                    subsetFinishCount.update(subsetFinishCount.get() + 1);
+                }
             }
         }
     }

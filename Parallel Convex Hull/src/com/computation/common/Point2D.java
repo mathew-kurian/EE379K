@@ -9,7 +9,7 @@ public class Point2D extends java.awt.Point {
 
     private volatile Color color = UNVISITED;
 
-    public volatile String text = "";
+    public volatile String debugText = "";
 
     public Point2D(int a, int i) {
         super(a, i);

@@ -1,10 +1,9 @@
 package com.computation;
 
-import com.computation.algo.GiftWrapping;
+import com.computation.algo.GrahamScan;
+import com.computation.algo.QuickHull;
 import com.computation.common.ConvexHull;
-import com.computation.common.Point2D;
 import com.computation.common.Point2DCloud;
-import com.computation.common.Utils;
 import com.computation.experimental.OptimalThreadCountFinder;
 
 import javax.swing.*;
@@ -18,7 +17,7 @@ public class Main {
         UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 
         OptimalThreadCountFinder.DPI_SCALING =
-                Point2DCloud.DPI_SCALING = 1; /* Set display scaling */
+                Point2DCloud.DPI_SCALING = 2; /* Set display scaling */
 
 //        OptimalThreadCountFinder optimalThreadCountFinder = new OptimalThreadCountFinder();
 //        optimalThreadCountFinder.find();
@@ -29,7 +28,7 @@ public class Main {
 
         //Kapil's Concurrent Gift Wrapping Implemntation (max at 4 availableThreads)
 
-        ConvexHull convexHull = new GiftWrapping(1000, 1000, 1000, 8, true,0);
+        ConvexHull convexHull = new GrahamScan(1000, 1000, 1000, 8, true, 0);
         convexHull.show();
 
         //ConvexHull convexHull = new GrahamScan(100, 800, 800, 1, true);
