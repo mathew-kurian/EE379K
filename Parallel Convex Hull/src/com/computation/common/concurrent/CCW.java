@@ -37,16 +37,23 @@ public class CCW extends Search<Point2D> {
     protected void onSearch(int start, int end, Reference ref) {
         CCWReference exRef = (CCWReference) ref;
         int q = Integer.MIN_VALUE;
+        double maxAngle = Double.MIN_VALUE;
 
-        for (int i = end - 1; i >= start; i--) {
-            if (Utils.ccw(data.get(pivot), data.get(i), data.get(next)) == 2) {
+        Point2D pivPoint = data.get(pivot);
+        Point2D nexPoint = data.get(next);
+
+        for (int i = start; i < end; i++) {
+            Point2D currPoint = data.get(i);
+            double pot = Utils.angleBetween(pivPoint, nexPoint, currPoint);
+            if (pot > maxAngle) {
+                maxAngle = pot;
                 q = i;
-                break;
             }
         }
 
         synchronized (exRef){
-            if(q > exRef.getIndex()){
+            if(maxAngle > exRef.getAngle()){
+                exRef.setAngle(maxAngle);
                 exRef.setIndex(q);
             }
         }
@@ -55,6 +62,16 @@ public class CCW extends Search<Point2D> {
     public class CCWReference extends Reference<Point2D> {
 
         private int index = -1;
+
+        public double getAngle() {
+            return angle;
+        }
+
+        public void setAngle(double angle) {
+            this.angle = angle;
+        }
+
+        private double angle = Double.MIN_VALUE;
 
         public CCWReference(Point2D point2D) {
             super(point2D);

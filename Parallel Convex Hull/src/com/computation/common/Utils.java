@@ -76,6 +76,14 @@ public class Utils {
         return (val > 0) ? 1 : 2; // clock or counterclock wise
     }
 
+
+    public static int ccwQuant(Point2D p, Point2D q, Point2D r) {
+        int val = (q.y - p.y) * (r.x - q.x) -
+                (q.x - p.x) * (r.y - q.y);
+
+        return val;
+    }
+
     public static Color[] getColorPalette(int n) {
         Color[] cols = new Color[n];
         for (int i = 0; i < n; i++) {
