@@ -9,6 +9,7 @@ public abstract class ConvexHull implements Runnable {
     protected final int threads;
     protected final List<Point2D> points;
     protected boolean debug = true;
+    protected boolean debugStepThrough = false;
     protected long debugFrameDelay = 1000;
     private boolean active = false;
     private long startTime;
@@ -26,7 +27,8 @@ public abstract class ConvexHull implements Runnable {
         this.pointCount = pointCount;
         this.threads = threads;
         this.debug = debug;
-        this.debugFrameDelay = animationDelay;
+        this.debugStepThrough = animationDelay == Integer.MAX_VALUE;
+        this.debugFrameDelay = debugStepThrough ? 0 : animationDelay;
         this.points = this.pointCloud.getPoints();
     }
 

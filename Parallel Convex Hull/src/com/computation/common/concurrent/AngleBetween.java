@@ -3,7 +3,9 @@ package com.computation.common.concurrent;
 import com.computation.common.Point2D;
 import com.computation.common.Utils;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.ExecutorService;
 
 /**
@@ -41,13 +43,17 @@ public class AngleBetween extends Search<Point2D, List<Point2D>> {
 
         Point2D pivPoint = data.get(pivot);
         Point2D nexPoint = data.get(next);
+        Set<Point2D> orig = new HashSet<Point2D>();
 
-        for (int i = start;i != pivot && i != next && i < end; i++) {
+        orig.add(pivPoint);
+        orig.add(nexPoint);
+
+        for (int i = start;i < end; i++) {
             Point2D currPoint = data.get(i);
-            double currAngle = Utils.angleBetween(pivPoint, nexPoint, currPoint);
-            //double currAngle = pivPoint.
-            if (currAngle > maxAngle) {
-                maxAngle = currAngle;
+            if(orig.contains(currPoint)) continue;
+            double pot = Utils.angleBetween(pivPoint, nexPoint, currPoint);
+            if (pot > maxAngle) {
+                maxAngle = pot;
                 q = i;
             }
         }

@@ -18,7 +18,7 @@ public class Main {
         UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 
         OptimalThreadCountFinder.DPI_SCALING =
-                Point2DCloud.DPI_SCALING = 2; /* Set display scaling */
+                Point2DCloud.DPI_SCALING = 1; /* Set display scaling */
 
 //        OptimalThreadCountFinder optimalThreadCountFinder = new OptimalThreadCountFinder();
 //        optimalThreadCountFinder.find();
@@ -28,10 +28,12 @@ public class Main {
 //        convexHull.show();
 
         //Kapil's Concurrent Gift Wrapping Implemntation (max at 4 availableThreads)
-       ConvexHull convexHull = new GiftWrapping(100, 1000, 1000, 8, true);
-       convexHull.show();
 
 //        System.out.println(Utils.angleBetween(new Point2D(5,0), new Point2D(5,0), new Point2D(-5,-3)));
+
+        ConvexHull convexHull = new GiftWrapping(25000, 1000, 1000, 8, true,0);
+
+        convexHull.show();
 
         //ConvexHull convexHull = new GrahamScan(100, 800, 800, 1, true);
         //convexHull.show();
