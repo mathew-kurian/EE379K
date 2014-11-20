@@ -54,6 +54,7 @@ public abstract class ConvexHull implements Runnable {
     public void run() {
         if (!active) {
             active = true;
+            pointCloud.enableButton("Start", false);
             startTime = System.nanoTime();
             findHull();
             double duration = ((double) (System.nanoTime() - startTime)) / 1000000000.0;

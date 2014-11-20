@@ -64,8 +64,6 @@ public abstract class Search<T, O extends Collection<T>> {
             }
         }
 
-        console.log("Finished");
-
         return ref;
     }
 

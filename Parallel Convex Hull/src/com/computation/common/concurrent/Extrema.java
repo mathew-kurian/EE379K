@@ -15,7 +15,7 @@ public class Extrema extends Search<Point2D, List<Point2D>> {
 
     public class ExtremaReference extends Reference<Point2D> {
 
-        private int index = -1;
+        private volatile int index = -1;
 
         public ExtremaReference(Point2D point2D) {
             super(point2D);

@@ -1,31 +1,34 @@
 package com.computation.algo;
 
-import com.computation.common.ConvexHull;
-import com.computation.common.Edge;
-import com.computation.common.Point2D;
-import com.computation.common.Utils;
+import com.computation.common.*;
 import com.computation.common.concurrent.Extrema;
 import com.computation.common.concurrent.PointLeftOf;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.atomic.AtomicInteger;
 
+@SuppressWarnings("unused")
 public class QuickHull extends ConvexHull {
 
+    private static final Console console = Console.getInstance(QuickHull.class);
     private ExecutorService executorService;
     private AtomicInteger subsetStartCount;
     private AtomicInteger subsetFinishCount;
-    private PointLeftOf pointLeftOf;
-    private Extrema extrema;
+
+    private final Object lock = new Object();
 
     public QuickHull(int points, int width, int height, int threads) {
         super(points, width, height, threads);
     }
+
     public QuickHull(int points, int width, int height, int threads, boolean debug) {
         super(points, width, height, threads, debug);
     }
+
     public QuickHull(int points, int width, int height, int threads, boolean debug, int animationDelay) {
         super(points, width, height, threads, debug, animationDelay);
     }
@@ -37,7 +40,9 @@ public class QuickHull extends ConvexHull {
         this.executorService = Executors.newFixedThreadPool(threads);
         this.subsetStartCount = new AtomicInteger(0);
         this.subsetFinishCount = new AtomicInteger(0);
-        this.extrema = new Extrema(executorService, threads, points, null, 0);
+
+        // Find start points
+        Extrema extrema = new Extrema(executorService, threads, points, null, 0);
 
         // Set some fields
         pointCloud.setField("ThreadPool", true);
@@ -61,23 +66,24 @@ public class QuickHull extends ConvexHull {
         List<Point2D> right = new ArrayList<Point2D>();
 
         // Create multithreaded searcher
-        this.pointLeftOf = new PointLeftOf(executorService, threads, points, left, right, p1, p2);
+        PointLeftOf pointLeftOf = new PointLeftOf(executorService, threads, points, left, right, p1, p2);
 
         // Search
         pointLeftOf.find();
 
-        try {
-            executorService.execute(new Subset(left, p1, p2));
-            executorService.execute(new Subset(right, p2, p1));
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        subsetStartCount.incrementAndGet();
+        subsetStartCount.incrementAndGet();
 
-        synchronized (QuickHull.this){
-            try {
-                wait();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+        executorService.execute(new Subset(left, p1, p2));
+        executorService.execute(new Subset(right, p2, p1));
+
+        if (subsetStartCount.get() != subsetFinishCount.get()) {
+            synchronized (lock) {
+                try {
+                    lock.wait();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
             }
         }
 
@@ -95,8 +101,9 @@ public class QuickHull extends ConvexHull {
             this.b = b;
             this.points = points;
 
-            int subsets = subsetStartCount.incrementAndGet();
-            pointCloud.setField("Subsets", subsets);
+            if(debug) {
+                pointCloud.setField("Subsets", subsetStartCount.get());
+            }
         }
 
         @Override
@@ -115,8 +122,8 @@ public class QuickHull extends ConvexHull {
 
             if (max == null) {
                 if (subsetStartCount.get() == subsetFinishCount.incrementAndGet()) {
-                    synchronized (QuickHull.this){
-                        QuickHull.this.notify();
+                    synchronized (lock) {
+                        lock.notify();
                     }
                 }
                 return;
@@ -144,13 +151,15 @@ public class QuickHull extends ConvexHull {
                 }
             }
 
+            subsetFinishCount.incrementAndGet();
+            subsetStartCount.incrementAndGet();
+            subsetStartCount.incrementAndGet();
+
             try {
                 executorService.execute(new Subset(left, a, max));
                 executorService.execute(new Subset(right, max, b));
-            } catch (Exception e) {
-                e.printStackTrace();
-            } finally {
-                subsetFinishCount.incrementAndGet();
+            } catch (RejectedExecutionException e) {
+                console.err("Force shutdown detected");
             }
         }
     }

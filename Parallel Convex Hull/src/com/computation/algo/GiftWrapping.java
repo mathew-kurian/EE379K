@@ -28,6 +28,8 @@ public class GiftWrapping extends ConvexHull {
     private Condition debugStepCondition;
     private Reference<Integer> threadCount;
 
+    private final Object lock = new Object();
+
     public GiftWrapping(int points, int width, int height, int threads) {
         super(points, width, height, threads);
     }
@@ -52,8 +54,10 @@ public class GiftWrapping extends ConvexHull {
         // Set search count
         this.searchCount = 0;
 
-        this.debugStep = new ReentrantLock();
-        this.debugStepCondition = debugStep.newCondition();
+        if (debugStepThrough) {
+            this.debugStep = new ReentrantLock();
+            this.debugStepCondition = debugStep.newCondition();
+        }
 
         // Thread count
         this.threadCount = new Reference<Integer>(threads);
@@ -204,7 +208,7 @@ public class GiftWrapping extends ConvexHull {
                  */
                 pivPoint.setColor(Point2D.VISITED);
 
-                //search for q such that it is ccw for all other i
+                //search for q such that it is ccwQuant for all other i
                 refPointIndex = (pivPointIndex + 1) % pointCount;
 
                 if (!firstSearch && searchCount > 1) {
@@ -217,19 +221,14 @@ public class GiftWrapping extends ConvexHull {
                             if (debug) {
                                 console.log("Performing concurrent search");
                             }
+
                             angleBetween.setAvailableThreads(searchCount);
                             angleBetween.setCenter(pivPointIndex);
                             angleBetween.setPrevious(lastPivPointIndex);
 
-                            pivPoint.text = "Parallel";
                             // Get next
                             refPointIndex = ((AngleBetween.CCWReference) angleBetween.find()).getIndex();
                             refPoint = points.get(refPointIndex);
-                            //refPoint.setColor(Color.RED);
-
-                            console.log("SearchThreadCount: " + searchCount);
-                            refPoint.text = refPoint.text + "FOUND";
-                            pointCloud.draw();
 
                             // Skip linear
                             performLinear = false;
@@ -258,7 +257,6 @@ public class GiftWrapping extends ConvexHull {
 
                     firstSearch = false;
                 }
-
 
                 // Add edge
                 pointCloud.addEdge(new Edge(pivPoint, refPoint, color));
@@ -289,11 +287,12 @@ public class GiftWrapping extends ConvexHull {
             }
 
             // Update availableThreads count
-            pointCloud.setField("Wrap Threads", currThreadCount);
-            pointCloud.setField("Search Threads", searchCount + 1);
-
+            if(debug) {
+                pointCloud.setField("Wrap Threads", currThreadCount);
+                pointCloud.setField("Search Threads", searchCount + 1);
+            }
+            
             searchCount++;
-
         }
     }
 }

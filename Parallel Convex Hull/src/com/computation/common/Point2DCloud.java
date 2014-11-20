@@ -18,7 +18,8 @@ public class Point2DCloud {
     private JTable props;
     private List<Point2D> point2Ds;
     private Set<Edge> polygon;
-    private HashMap<String, Integer> fields;
+    private HashMap<String, Integer> fieldsMap;
+    private HashMap<String, JButton> buttonsMap;
     private DefaultTableModel model;
     private JPanel buttons;
     private boolean drawEnabled;
@@ -41,11 +42,12 @@ public class Point2DCloud {
                     buttons = new JPanel();
                     panel = new PointPanel();
                     frame = new JFrame();
-                    fields = new HashMap<String, Integer>();
+                    fieldsMap = new HashMap<String, Integer>();
                     polygon = new HashSet<Edge>();
                     point2Ds = Utils.generateRandomPoints(count, width, height, 50);
                     props = new JTable(model);
 
+                    buttonsMap = new HashMap<String, JButton>();
                     buttons.setLayout(new FlowLayout(FlowLayout.CENTER));
 
                     model.addColumn("Property");
@@ -98,8 +100,21 @@ public class Point2DCloud {
                     }
                 });
 
+                buttonsMap.put(name, jButton);
+
                 buttons.add(jButton);
                 frame.pack();
+            }
+        });
+    }
+
+    public void enableButton(final String name, final boolean e){
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                if(buttonsMap.containsKey(name)) {
+                    buttonsMap.get(name).setEnabled(e);
+                }
             }
         });
     }
@@ -109,12 +124,12 @@ public class Point2DCloud {
             @Override
             public void run() {
                 int row;
-                if (fields.containsKey(key)) {
-                    row = fields.get(key);
+                if (fieldsMap.containsKey(key)) {
+                    row = fieldsMap.get(key);
                     model.removeRow(row);
                 } else {
                     row = model.getRowCount();
-                    fields.put(key, row);
+                    fieldsMap.put(key, row);
                 }
 
                 model.insertRow(row, new String[]{key, value + ""});
@@ -230,7 +245,7 @@ public class Point2DCloud {
                 g2d.setColor(p.getColor());
                 int mlp = p.getColor() != Point2D.UNVISITED ? 2 : 1;
                 g2d.fillOval(p.x - DPI_SCALING * 3 * mlp, p.y - DPI_SCALING * 3 * mlp, DPI_SCALING * 6 * mlp, DPI_SCALING * 6 * mlp);
-                g2d.drawString(p.text, p.x + 10, p.y);
+                g2d.drawString(p.debugText, p.x + 10, p.y);
             }
         }
 
