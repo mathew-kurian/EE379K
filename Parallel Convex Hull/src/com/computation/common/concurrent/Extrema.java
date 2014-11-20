@@ -11,7 +11,7 @@ import java.util.concurrent.ExecutorService;
  * Created by mwkurian on 11/19/2014.
  */
 
-public class Extrema extends Search<Point2D> {
+public class Extrema extends Search<Point2D, List<Point2D>> {
 
     public class ExtremaReference extends Reference<Point2D> {
 

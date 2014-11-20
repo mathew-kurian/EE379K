@@ -9,7 +9,7 @@ import java.util.concurrent.ExecutorService;
 /**
  * Created by mwkurian on 11/19/2014.
  */
-public class CCW extends Search<Point2D> {
+public class CCW extends Search<Point2D, List<Point2D>> {
 
     private volatile int pivot;
     private volatile int next;
