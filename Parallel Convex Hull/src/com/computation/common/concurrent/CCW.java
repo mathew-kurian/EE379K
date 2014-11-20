@@ -13,11 +13,9 @@ public class CCW extends Search<Point2D> {
 
     private volatile int pivot;
     private volatile int next;
-    private volatile int threadTurn;
 
     public CCW(ExecutorService executorService, int availableThreads, List<Point2D> data) {
         super(executorService, availableThreads, data);
-        this.threadTurn = 0;
     }
 
     @Override
@@ -33,16 +31,6 @@ public class CCW extends Search<Point2D> {
 
     public void setNext(int next) {
         this.next = next;
-    }
-
-    public int getThreadTurn(){
-        return threadTurn;
-    }
-
-    public void nextThread() {
-        if(availableThreads > 0) {
-            threadTurn = ++threadTurn % availableThreads;
-        }
     }
 
     @Override

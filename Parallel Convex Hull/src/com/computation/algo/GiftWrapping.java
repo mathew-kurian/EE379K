@@ -90,7 +90,6 @@ public class GiftWrapping extends ConvexHull {
             }
         }
 
-        int priority = 0;
         int paletteIndex = 0;
         int maxSubsetCount = extremas.size();
         Color[] palette = Utils.getColorPalette(maxSubsetCount);
@@ -103,7 +102,7 @@ public class GiftWrapping extends ConvexHull {
             Point2D point = points.get(pointIndex);
             if (point.getColor() != Point2D.VISITED) {
                 point.setColor(Point2D.VISITED);
-                executorService.execute(new Subset(pointIndex, palette[paletteIndex++], threadCount, priority++));
+                executorService.execute(new Subset(pointIndex, palette[paletteIndex++], threadCount));
             } else {
                 /**
                  * @Kapil. We reduce the extra availableThreads here. Use the extra
@@ -139,15 +138,12 @@ public class GiftWrapping extends ConvexHull {
 
         private Color color;
         private AtomicInteger active;
-        private int id = 0;
         private int edge;
 
-        public Subset(int edge, Color color, AtomicInteger active,
-                      int id) {
+        public Subset(int edge, Color color, AtomicInteger active) {
             this.edge = edge;
             this.color = color;
             this.active = active;
-            this.id = id;
         }
 
         @Override
@@ -155,8 +151,12 @@ public class GiftWrapping extends ConvexHull {
 
             int p = edge;
             int q;
+            boolean performLinear;
 
             do {
+
+                performLinear = true;
+
                 /**
                  * Mark the point as visited; if we see this again in
                  * another thread, that thread knows they are done
@@ -166,27 +166,35 @@ public class GiftWrapping extends ConvexHull {
                 //search for q such that it is ccw for all other i
                 q = (p + 1) % pointCount;
 
-                if (ccw.getThreadTurn() == id
-                        && searchCount > 1 && false) {
+                if (searchCount > 0) {
 
-                    if (debug) {
-                        console.log("Thread " + id + " performing concurrent search");
+                    if(ccw.getLock().tryLock()) {
+
+                        try {
+                            if (debug) {
+                                console.log("Performing concurrent search");
+                            }
+
+                            ccw.setAvailableThreads(searchCount);
+                            ccw.setPivot(p);
+                            ccw.setNext(q);
+
+                            // Get next
+                            q = ((CCW.CCWReference) ccw.find()).getIndex();
+
+                            // Skip linear
+                            performLinear = false;
+
+                        } finally {
+                            ccw.getLock().unlock();
+                        }
                     }
+                }
 
-                    ccw.setAvailableThreads(searchCount);
-                    ccw.setPivot(p);
-                    ccw.setNext(q);
-
-                    // Get next
-                    q = ((CCW.CCWReference) ccw.find()).getIndex();
-
-                    // Give the next thread the priority
-                    ccw.nextThread();
-
-                } else {
+                if(performLinear){
 
                     if (debug) {
-                        console.log("Thread " + id + " performing linear search");
+                        console.log("Performing linear search");
                     }
 
                     for (int i = 0; i < pointCount; i++) {
@@ -211,8 +219,6 @@ public class GiftWrapping extends ConvexHull {
                 synchronized (GiftWrapping.this){
                     GiftWrapping.this.notify();
                 }
-            } else if (ccw.getThreadTurn() == id) {
-                ccw.nextThread();
             }
         }
     }

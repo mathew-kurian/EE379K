@@ -1,8 +1,11 @@
 package com.computation.common.concurrent;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * Created by mwkurian on 11/19/2014.
@@ -13,11 +16,17 @@ public abstract class Search<T> {
     protected final ExecutorService executorService;
     protected final List<T> data;
     protected int availableThreads;
+    protected Lock lock;
 
     public Search(ExecutorService executorService, int availableThreads, List<T> data) {
         this.executorService = executorService;
         this.data = data;
         this.availableThreads = availableThreads;
+        this.lock = new ReentrantLock();
+    }
+
+    public Lock getLock(){
+        return lock;
     }
 
     public  void setAvailableThreads(int availableThreads){
