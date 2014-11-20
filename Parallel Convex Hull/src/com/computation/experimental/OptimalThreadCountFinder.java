@@ -101,7 +101,7 @@ public class OptimalThreadCountFinder {
                 int lastSize = -1;
                 for (Result r : results) {
                     if (lastSize != r.size) {
-                        writer.printf("For size (%15d), use threads (%15d). Completed in %4.5fs.\n",
+                        writer.printf("For size (%15d), use availableThreads (%15d). Completed in %4.5fs.\n",
                                 r.size, r.threads, r.time);
                         lastSize = r.size;
                     }

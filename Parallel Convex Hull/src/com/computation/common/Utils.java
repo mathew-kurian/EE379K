@@ -18,62 +18,34 @@ public class Utils {
         return point2Ds;
     }
 
-    public static Point2D findMax(List<Point2D> point2Ds, Direction dir, double degrees) {
-        Point2D p = null;
-        double val;
+    public static Point2D findMax(List<Point2D> point2Ds, Direction dir, double rads) {
+        return findMax(point2Ds, 0, point2Ds.size(), dir, rads);
+    }
 
-        switch (dir) {
-            case NORTH:
-                val = Integer.MAX_VALUE;
-                for (Point2D point2D : point2Ds) {
-                    double y = rotateY(point2D, degrees);
-                    if (y < val) {
-                        p = point2D;
-                        val = y;
-                    }
-                }
-                break;
-            case SOUTH:
-                val = Integer.MIN_VALUE;
-                for (Point2D point2D : point2Ds) {
-                    double y = rotateY(point2D, degrees);
-                    if (y > val) {
-                        p = point2D;
-                        val = y;
-                    }
-                }
-                break;
-            case EAST:
-                val = Integer.MIN_VALUE;
-                for (Point2D point2D : point2Ds) {
-                    double x = rotateX(point2D, degrees);
-                    if (x > val) {
-                        p = point2D;
-                        val = x;
-                    }
-                }
-                break;
-            case WEST:
-                val = Integer.MAX_VALUE;
-                for (Point2D point2D : point2Ds) {
-                    double x = rotateX(point2D, degrees);
-                    if (x < val) {
-                        p = point2D;
-                        val = x;
-                    }
-                }
-                break;
+    public static Point2D findMax(List<Point2D> point2Ds, int start, int end, Direction dir, double rads) {
+
+        Point2D p = null;
+        double maxY = Integer.MIN_VALUE;
+        rads += dir.getRadianOffset();
+
+        for (int i = start; i < end; i++) {
+            Point2D point2D = point2Ds.get(i);
+            double y = rotateY(point2D, rads);
+            if (y > maxY) {
+                p = point2D;
+                maxY = y;
+            }
         }
 
         return p;
     }
 
-    public static double rotateY(Point2D point2D, double degrees) {
-        return -Math.sin(degrees) * point2D.x + Math.cos(degrees) * point2D.y;
+    public static double rotateY(Point2D point2D, double rads) {
+        return -Math.sin(rads) * point2D.x + Math.cos(rads) * point2D.y;
     }
 
-    public static double rotateX(Point2D point2D, double degrees) {
-        return Math.cos(degrees) * point2D.x + Math.sin(degrees) * point2D.y;
+    public static double rotateX(Point2D point2D, double rads) {
+        return Math.cos(rads) * point2D.x + Math.sin(rads) * point2D.y;
     }
 
     public static boolean isPointLeftOf(Point2D line1, Point2D line2, Point2D point2D) {
@@ -96,7 +68,7 @@ public class Utils {
     //finds orientation of triplet (p,q,r)
     //true --> p-r is counterclockwise from p-q
     //false --> if not
-    public static int CCW(Point2D p, Point2D q, Point2D r) {
+    public static int ccw(Point2D p, Point2D q, Point2D r) {
         int val = (q.y - p.y) * (r.x - q.x) -
                 (q.x - p.x) * (r.y - q.y);
 
@@ -113,6 +85,16 @@ public class Utils {
     }
 
     public static enum Direction {
-        NORTH, SOUTH, EAST, WEST
+        NORTH(Math.PI), SOUTH(0), EAST(Math.PI  * 3 / 2), WEST(Math.PI / 2);
+
+        private final double rads;
+
+        Direction(double rads) {
+            this.rads = rads;
+        }
+
+        public double getRadianOffset() {
+            return rads;
+        }
     }
 }

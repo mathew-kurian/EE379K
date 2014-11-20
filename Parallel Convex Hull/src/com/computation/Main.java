@@ -22,11 +22,11 @@ public class Main {
 //        optimalThreadCountFinder.find();
 
         //Mathew's Concurrent Quick Hull Implementation
-//        ConvexHull convexHull = new QuickHull(/* pointCount */ 100, /* width */ 800, /* height */ 600, /* threadCount */ 10);
+//        ConvexHull convexHull = new QuickHull(/* pointCount */ 100, /* width */ 800, /* height */ 600, /* availableThreads */ 10);
 //        convexHull.show();
 
-        //Kapil's Concurrent Gift Wrapping Implemntation (max at 4 threads)
-        ConvexHull convexHull = new GiftWrapping(10000, 500, 500, 15, true, 0);
+        //Kapil's Concurrent Gift Wrapping Implemntation (max at 4 availableThreads)
+        ConvexHull convexHull = new GiftWrapping(60, 800, 600, 8, true);
         convexHull.show();
     }
 }

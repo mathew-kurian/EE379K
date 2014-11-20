@@ -6,7 +6,6 @@ import com.computation.common.Point2D;
 import com.computation.common.Utils;
 
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -29,7 +28,7 @@ public class QuickHull extends ConvexHull {
     }
 
     @Override
-    protected void findHull(int threads) {
+    protected void findHull() {
 
         // Start
         this.executorService = Executors.newFixedThreadPool(threads);
@@ -39,11 +38,8 @@ public class QuickHull extends ConvexHull {
         // Set some fields
         pointCloud.setField("ThreadPool", true);
 
-        // Get pointCount
-        List<Point2D> point2Ds = pointCloud.getPoints();
-
-        Point2D p1 = Utils.findMax(point2Ds, Utils.Direction.NORTH, 0);
-        Point2D p2 = Utils.findMax(point2Ds, Utils.Direction.SOUTH, 0);
+        Point2D p1 = Utils.findMax(points, Utils.Direction.NORTH, 0);
+        Point2D p2 = Utils.findMax(points, Utils.Direction.SOUTH, 0);
 
         p1.setColor(Point2D.VISITED);
         p2.setColor(Point2D.VISITED);
@@ -52,12 +48,12 @@ public class QuickHull extends ConvexHull {
         HashSet<Point2D> left = new HashSet<Point2D>();
         HashSet<Point2D> right = new HashSet<Point2D>();
 
-        point2Ds.remove(p1);
-        point2Ds.remove(p2);
+        points.remove(p1);
+        points.remove(p2);
 
         pointCloud.addEdge(new Edge(p1, p2));
 
-        for (Point2D point2D : point2Ds) {
+        for (Point2D point2D : points) {
             if (Utils.isPointLeftOf(p1, p2, point2D)) {
                 left.add(point2D);
             } else {
@@ -71,18 +67,28 @@ public class QuickHull extends ConvexHull {
         } catch (Exception e) {
             e.printStackTrace();
         }
+
+        synchronized (QuickHull.this){
+            try {
+                wait();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+
+        executorService.shutdown();
     }
 
     private class Subset implements Runnable {
 
         private final Point2D a;
         private final Point2D b;
-        private final Set<Point2D> point2Ds;
+        private final Set<Point2D> points;
 
-        public Subset(Set<Point2D> point2Ds, Point2D a, Point2D b) {
+        public Subset(Set<Point2D> points, Point2D a, Point2D b) {
             this.a = a;
             this.b = b;
-            this.point2Ds = point2Ds;
+            this.points = points;
 
             int subsets = subsetStartCount.incrementAndGet();
             pointCloud.setField("Subsets", subsets);
@@ -94,7 +100,7 @@ public class QuickHull extends ConvexHull {
             int dist = Integer.MIN_VALUE;
 
             // Thread this later
-            for (Point2D p : point2Ds) {
+            for (Point2D p : points) {
                 int d = Utils.distance(a, b, p);
                 if (d > dist) {
                     dist = d;
@@ -104,12 +110,14 @@ public class QuickHull extends ConvexHull {
 
             if (max == null) {
                 if (subsetStartCount.get() == subsetFinishCount.incrementAndGet()) {
-                    finish();
+                    synchronized (QuickHull.this){
+                        QuickHull.this.notify();
+                    }
                 }
                 return;
             }
 
-            point2Ds.remove(max);
+            points.remove(max);
 
             max.setColor(Point2D.VISITED);
 
@@ -123,7 +131,7 @@ public class QuickHull extends ConvexHull {
             HashSet<Point2D> left = new HashSet<Point2D>();
             HashSet<Point2D> right = new HashSet<Point2D>();
 
-            for (Point2D point2D : point2Ds) {
+            for (Point2D point2D : points) {
                 if (Utils.isPointLeftOf(a, max, point2D)) {
                     left.add(point2D);
                 } else if (!Utils.isPointLeftOf(b, max, point2D)) {
