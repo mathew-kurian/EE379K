@@ -9,12 +9,12 @@ import java.util.concurrent.ExecutorService;
 /**
  * Created by mwkurian on 11/19/2014.
  */
-public class CCW extends Search<Point2D, List<Point2D>> {
+public class AngleBetween extends Search<Point2D, List<Point2D>> {
 
     private volatile int pivot;
     private volatile int next;
 
-    public CCW(ExecutorService executorService, int availableThreads, List<Point2D> data) {
+    public AngleBetween(ExecutorService executorService, int availableThreads, List<Point2D> data) {
         super(executorService, availableThreads, data);
     }
 
@@ -25,11 +25,11 @@ public class CCW extends Search<Point2D, List<Point2D>> {
         return cf;
     }
 
-    public void setPivot(int pivot) {
+    public void setCenter(int pivot) {
         this.pivot = pivot;
     }
 
-    public void setNext(int next) {
+    public void setPrevious(int next) {
         this.next = next;
     }
 

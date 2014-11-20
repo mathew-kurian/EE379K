@@ -1,7 +1,7 @@
 package com.computation.algo;
 
 import com.computation.common.*;
-import com.computation.common.concurrent.CCW;
+import com.computation.common.concurrent.AngleBetween;
 import com.computation.common.concurrent.Extrema;
 
 import java.awt.*;
@@ -20,7 +20,7 @@ public class GiftWrapping extends ConvexHull {
     private static final Console console = Console.getInstance(GiftWrapping.class);
     private ExecutorService executorService;
     private Extrema extrema;
-    private CCW ccw;
+    private AngleBetween angleBetween;
     private volatile int searchCount;
 
     public GiftWrapping(int points, int width, int height, int threads) {
@@ -48,7 +48,7 @@ public class GiftWrapping extends ConvexHull {
         this.searchCount = 0;
 
         // Concurrent CCW
-        ccw = new CCW(executorService, 0, points);
+        angleBetween = new AngleBetween(executorService, 0, points);
 
         double radOffset = (Math.PI / 2) / (threads - 3);
         int index = 0;
@@ -151,6 +151,7 @@ public class GiftWrapping extends ConvexHull {
 
             int pivPointIndex = edge;
             int refPointIndex;
+            int lastPivPointIndex = 0;
             boolean performLinear;
             Point2D pivPoint, refPoint = null;
 
@@ -168,10 +169,9 @@ public class GiftWrapping extends ConvexHull {
                 //search for q such that it is ccw for all other i
                 refPointIndex = (pivPointIndex + 1) % pointCount;
 
-
                 if (!firstSearch && searchCount > 1) {
 
-                    Lock lock = ccw.getLock();
+                    Lock lock = angleBetween.getLock();
 
                     if(lock.tryLock()) {
 
@@ -180,12 +180,12 @@ public class GiftWrapping extends ConvexHull {
                                 console.log("Performing concurrent search");
                             }
 
-                            ccw.setAvailableThreads(searchCount);
-                            ccw.setPivot(pivPointIndex);
-                            ccw.setNext(refPointIndex);
+                            angleBetween.setAvailableThreads(searchCount);
+                            angleBetween.setCenter(pivPointIndex);
+                            angleBetween.setPrevious(lastPivPointIndex);
 
                             // Get next
-                            refPointIndex = ((CCW.CCWReference) ccw.find()).getIndex();
+                            refPointIndex = ((AngleBetween.CCWReference) angleBetween.find()).getIndex();
                             refPoint = points.get(refPointIndex);
 
                             // Skip linear
@@ -223,6 +223,9 @@ public class GiftWrapping extends ConvexHull {
 
                 // Wait a while so you can see it
                 delay();
+
+                // Last pivot
+                lastPivPointIndex = pivPointIndex;
 
                 // Start from q next time
                 pivPointIndex = refPointIndex;
