@@ -264,15 +264,25 @@ public class GiftWrapping extends ConvexHull {
 
                 if(debugStepThrough){
                     debugStep.unlock();
+
                 }
             }
             while (points.get(pivPointIndex).getColor() == Point2D.UNVISITED);
 
-            if (active.decrementAndGet() == 0) {
+            int currThreadCount = active.decrementAndGet();
+
+            if (currThreadCount == 0) {
                 synchronized (GiftWrapping.this) {
                     GiftWrapping.this.notify();
                 }
             }
+
+            // Update availableThreads count
+            pointCloud.setField("Wrap Threads", currThreadCount);
+            pointCloud.setField("Search Threads", searchCount + 1);
+
+            searchCount++;
+
         }
     }
 }

@@ -25,14 +25,11 @@ public class Main {
 
         //Mathew's Concurrent Quick Hull Implementation
 //        ConvexHull convexHull = new QuickHull(/* pointCount */ 100, /* width */ 800, /* height */ 600, /* availableThreads */ 10);
-//        convexHull.show();
+//        convexHull.show(\);
 
         //Kapil's Concurrent Gift Wrapping Implemntation (max at 4 availableThreads)
 
-//        System.out.println(Utils.angleBetween(new Point2D(5,0), new Point2D(5,0), new Point2D(-5,-3)));
-
-        ConvexHull convexHull = new GiftWrapping(25000, 1000, 1000, 8, true,0);
-
+        ConvexHull convexHull = new GiftWrapping(1000, 1000, 1000, 8, true, 0);
         convexHull.show();
 
         //ConvexHull convexHull = new GrahamScan(100, 800, 800, 1, true);
