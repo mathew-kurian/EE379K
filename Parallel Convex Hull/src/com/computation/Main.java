@@ -1,6 +1,7 @@
 package com.computation;
 
 import com.computation.algo.GiftWrapping;
+import com.computation.algo.GrahamScan;
 import com.computation.common.ConvexHull;
 import com.computation.common.Point2DCloud;
 import com.computation.experimental.OptimalThreadCountFinder;
@@ -26,7 +27,10 @@ public class Main {
 //        convexHull.show();
 
         //Kapil's Concurrent Gift Wrapping Implemntation (max at 4 availableThreads)
-        ConvexHull convexHull = new GiftWrapping(60, 800, 600, 8, true);
+        ConvexHull convexHull = new GiftWrapping(100, 800, 600, 8, true);
         convexHull.show();
+
+        //ConvexHull convexHull = new GrahamScan(100, 800, 800, 1, true);
+        //convexHull.show();
     }
 }

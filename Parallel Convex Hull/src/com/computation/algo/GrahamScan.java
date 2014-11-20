@@ -12,6 +12,9 @@ import com.computation.common.Utils;
 
 public class GrahamScan extends ConvexHull
 {
+    public GrahamScan(int points, int width, int height, int threads, boolean debug) {
+        super(points, width, height, threads, debug);
+    }
 
 	public GrahamScan(int points, int width, int height, int threads, boolean debug, int animationDelay) 
 	{

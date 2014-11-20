@@ -53,8 +53,14 @@ public class Utils {
     }
 
     public static double angleBetween(Point2D center, Point2D current, Point2D previous) {
-        return Math.toDegrees(Math.atan2(current.x - center.x, current.y - center.y) -
+        Double degrees = Math.toDegrees(Math.atan2(current.x - center.x, current.y - center.y) -
                 Math.atan2(previous.x - center.x, previous.y - center.y));
+
+        if(Math.abs(degrees)> 180) {
+            return 360-Math.abs(degrees);
+        } else{
+            return Math.abs(degrees);
+        }
     }
 
     public static int distance(Point2D line1, Point2D line2, Point2D p) {

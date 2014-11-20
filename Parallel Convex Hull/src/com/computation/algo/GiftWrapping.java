@@ -137,25 +137,27 @@ public class GiftWrapping extends ConvexHull {
         private Color color;
         private AtomicInteger active;
         private int edge;
+        private boolean firstSearch;
 
         public Subset(int edge, Color color, AtomicInteger active) {
             this.edge = edge;
             this.color = color;
             this.active = active;
+            this.firstSearch = true;
         }
 
         @Override
         public void run() {
 
-            int p = edge;
-            int q;
+            int pivPointIndex = edge;
+            int refPointIndex;
             boolean performLinear;
-            Point2D pivPoint = null, nexPoint = null;
+            Point2D pivPoint, refPoint = null;
 
             do {
 
                 performLinear = true;
-                pivPoint = points.get(p);
+                pivPoint = points.get(pivPointIndex);
 
                 /**
                  * Mark the point as visited; if we see this again in
@@ -164,9 +166,10 @@ public class GiftWrapping extends ConvexHull {
                 pivPoint.setColor(Point2D.VISITED);
 
                 //search for q such that it is ccw for all other i
-                q = (p + 1) % pointCount;
+                refPointIndex = (pivPointIndex + 1) % pointCount;
 
-                if (searchCount > 1) {
+
+                if (!firstSearch && searchCount > 1) {
 
                     Lock lock = ccw.getLock();
 
@@ -178,12 +181,12 @@ public class GiftWrapping extends ConvexHull {
                             }
 
                             ccw.setAvailableThreads(searchCount);
-                            ccw.setPivot(p);
-                            ccw.setNext(q);
+                            ccw.setPivot(pivPointIndex);
+                            ccw.setNext(refPointIndex);
 
                             // Get next
-                            q = ((CCW.CCWReference) ccw.find()).getIndex();
-                            nexPoint = points.get(q);
+                            refPointIndex = ((CCW.CCWReference) ccw.find()).getIndex();
+                            refPoint = points.get(refPointIndex);
 
                             // Skip linear
                             performLinear = false;
@@ -200,28 +203,31 @@ public class GiftWrapping extends ConvexHull {
                         console.log("Performing linear search");
                     }
 
-                    pivPoint = points.get(p);
-                    nexPoint = points.get(q);
+                    pivPoint = points.get(pivPointIndex);
+                    refPoint = points.get(refPointIndex);
 
-                    for (int i = 0; i < pointCount; i++) {
-                        Point2D currPoint = points.get(i);
-                        if (Utils.ccw(pivPoint, currPoint,nexPoint) == 2) {
-                            nexPoint = currPoint;
-                            q = i;
+                    for (int currPointIndex = 0; currPointIndex < pointCount; currPointIndex++) {
+                        Point2D currPoint = points.get(currPointIndex);
+                        if (Utils.ccw(pivPoint, currPoint,refPoint) == 2) {
+                            refPoint = currPoint;
+                            refPointIndex = currPointIndex;
                         }
                     }
+
+                    firstSearch = false;
                 }
 
+
                 // Add edge
-                pointCloud.addEdge(new Edge(pivPoint, nexPoint, color));
+                pointCloud.addEdge(new Edge(pivPoint, refPoint, color));
 
                 // Wait a while so you can see it
                 delay();
 
                 // Start from q next time
-                p = q;
+                pivPointIndex = refPointIndex;
 
-            } while (points.get(p).getColor() == Point2D.UNVISITED);
+            } while (points.get(pivPointIndex).getColor() == Point2D.UNVISITED);
 
             if (active.decrementAndGet() == 0) {
                 synchronized (GiftWrapping.this){
