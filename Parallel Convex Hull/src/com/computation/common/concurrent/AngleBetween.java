@@ -44,9 +44,9 @@ public class AngleBetween extends Search<Point2D, List<Point2D>> {
 
         for (int i = start; i < end; i++) {
             Point2D currPoint = data.get(i);
-            double pot = Utils.angleBetween(pivPoint, nexPoint, currPoint);
-            if (pot > maxAngle) {
-                maxAngle = pot;
+            double currAngle = Utils.angleBetween(pivPoint, nexPoint, currPoint);
+            if (currAngle > maxAngle) {
+                maxAngle = currAngle;
                 q = i;
             }
         }

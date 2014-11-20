@@ -55,10 +55,10 @@ public class Utils {
     public static double angleBetween(Point2D center, Point2D current, Point2D previous) {
         Double degrees = Math.toDegrees(Math.atan2(current.x - center.x, current.y - center.y) -
                 Math.atan2(previous.x - center.x, previous.y - center.y));
-
-        if(Math.abs(degrees)> 180) {
-            return 360-Math.abs(degrees);
-        } else{
+        System.out.println(Math.abs(degrees));
+        if (Math.abs(degrees) > 180) {
+            return 360 - Math.abs(degrees);
+        } else {
             return Math.abs(degrees);
         }
     }
@@ -99,7 +99,7 @@ public class Utils {
     }
 
     public static enum Direction {
-        NORTH(Math.PI), SOUTH(0), EAST(Math.PI  * 3 / 2), WEST(Math.PI / 2);
+        NORTH(Math.PI), SOUTH(0), EAST(Math.PI * 3 / 2), WEST(Math.PI / 2);
 
         private final double rads;
 

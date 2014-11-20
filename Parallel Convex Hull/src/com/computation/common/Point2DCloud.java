@@ -229,6 +229,7 @@ public class Point2DCloud {
                 g2d.setColor(p.getColor());
                 int mlp = p.getColor() == Point2D.VISITED ? 2 : 1;
                 g2d.fillOval(p.x - DPI_SCALING * 3 * mlp, p.y - DPI_SCALING * 3 * mlp, DPI_SCALING * 6 * mlp, DPI_SCALING * 6 * mlp);
+                g2d.drawString(p.text, p.x + 10, p.y + 10);
             }
         }
 
