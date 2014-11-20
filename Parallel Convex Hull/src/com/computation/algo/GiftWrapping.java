@@ -287,9 +287,11 @@ public class GiftWrapping extends ConvexHull {
             }
 
             // Update availableThreads count
-            pointCloud.setField("Wrap Threads", currThreadCount);
-            pointCloud.setField("Search Threads", searchCount + 1);
-
+            if(debug) {
+                pointCloud.setField("Wrap Threads", currThreadCount);
+                pointCloud.setField("Search Threads", searchCount + 1);
+            }
+            
             searchCount++;
         }
     }
