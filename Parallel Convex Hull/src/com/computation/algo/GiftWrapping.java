@@ -3,13 +3,13 @@ package com.computation.algo;
 import com.computation.common.*;
 import com.computation.common.concurrent.AngleBetween;
 import com.computation.common.concurrent.Extrema;
+import com.computation.common.concurrent.Reference;
 
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -26,6 +26,7 @@ public class GiftWrapping extends ConvexHull {
     private volatile int searchCount;
     private Lock debugStep;
     private Condition debugStepCondition;
+    private Reference<Integer> threadCount;
 
     public GiftWrapping(int points, int width, int height, int threads) {
         super(points, width, height, threads);
@@ -53,6 +54,9 @@ public class GiftWrapping extends ConvexHull {
 
         this.debugStep = new ReentrantLock();
         this.debugStepCondition = debugStep.newCondition();
+
+        // Thread count
+        this.threadCount = new Reference<Integer>(threads);
 
         // Concurrent CCW
         angleBetween = new AngleBetween(executorService, 0, points);
@@ -101,7 +105,6 @@ public class GiftWrapping extends ConvexHull {
         int paletteIndex = 0;
         int maxSubsetCount = extremas.size();
         Color[] palette = Utils.getColorPalette(maxSubsetCount);
-        AtomicInteger threadCount = new AtomicInteger(maxSubsetCount);
 
         pointCloud.setField("Wrap Threads", maxSubsetCount);
         pointCloud.setField("Search Threads", 0);
@@ -110,10 +113,15 @@ public class GiftWrapping extends ConvexHull {
             Point2D point = points.get(pointIndex);
             if (point.getColor() != Point2D.VISITED) {
                 point.setColor(Point2D.VISITED);
-                executorService.execute(new Subset(pointIndex, palette[paletteIndex++], threadCount));
+                executorService.execute(new Subset(pointIndex, palette[paletteIndex++]));
             } else {
 
-                int currThreadCount = threadCount.decrementAndGet();
+                int currThreadCount = 0;
+
+                synchronized (threadCount) {
+                    currThreadCount = threadCount.get() - 1;
+                    threadCount.update(currThreadCount);
+                }
 
                 if (debug) {
                     console.log("Adding search thread");
@@ -128,7 +136,7 @@ public class GiftWrapping extends ConvexHull {
             }
         }
 
-        if(debugStepThrough) {
+        if (debugStepThrough) {
             pointCloud.addButton("Step", new Runnable() {
                 @Override
                 public void run() {
@@ -141,11 +149,13 @@ public class GiftWrapping extends ConvexHull {
 
         pointCloud.draw();
 
-        synchronized (this) {
-            try {
-                wait();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+        synchronized (threadCount) {
+            if (threadCount.get() > 0) {
+                try {
+                    threadCount.wait();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
             }
         }
 
@@ -155,15 +165,13 @@ public class GiftWrapping extends ConvexHull {
     private class Subset implements Runnable {
 
         private Color color;
-        private AtomicInteger active;
         private int edge;
-        private boolean firstSearch = true;
+        private boolean firstSearch;
 
-        public Subset(int edge, Color color, AtomicInteger active) {
+        public Subset(int edge, Color color) {
             this.edge = edge;
             this.color = color;
-            this.active = active;
-           // this.firstSearch = true;
+            this.firstSearch = true;
         }
 
         @Override
@@ -177,7 +185,7 @@ public class GiftWrapping extends ConvexHull {
 
             do {
 
-                if(debugStepThrough) {
+                if (debugStepThrough) {
                     debugStep.lock();
 
                     try {
@@ -213,11 +221,13 @@ public class GiftWrapping extends ConvexHull {
                             angleBetween.setCenter(pivPointIndex);
                             angleBetween.setPrevious(lastPivPointIndex);
 
+                            pivPoint.text = "Parallel";
                             // Get next
                             refPointIndex = ((AngleBetween.CCWReference) angleBetween.find()).getIndex();
                             refPoint = points.get(refPointIndex);
                             //refPoint.setColor(Color.RED);
 
+                            console.log("SearchThreadCount: " + searchCount);
                             refPoint.text = refPoint.text + "FOUND";
                             pointCloud.draw();
 
@@ -262,18 +272,19 @@ public class GiftWrapping extends ConvexHull {
                 // Start from q next time
                 pivPointIndex = refPointIndex;
 
-                if(debugStepThrough){
+                if (debugStepThrough) {
                     debugStep.unlock();
-
                 }
             }
             while (points.get(pivPointIndex).getColor() == Point2D.UNVISITED);
 
-            int currThreadCount = active.decrementAndGet();
+            int currThreadCount = 0;
 
-            if (currThreadCount == 0) {
-                synchronized (GiftWrapping.this) {
-                    GiftWrapping.this.notify();
+            synchronized (threadCount) {
+                currThreadCount = threadCount.get() - 1;
+                threadCount.update(currThreadCount);
+                if (currThreadCount == 0) {
+                    threadCount.notify();
                 }
             }
 
