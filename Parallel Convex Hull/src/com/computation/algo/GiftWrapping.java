@@ -227,6 +227,10 @@ public class GiftWrapping extends ConvexHull {
                 // Start from q next time
                 pivPointIndex = refPointIndex;
 
+                if(debug){
+                    console.log("Performing Algorithm");
+                }
+
             } while (points.get(pivPointIndex).getColor() == Point2D.UNVISITED);
 
             if (active.decrementAndGet() == 0) {
