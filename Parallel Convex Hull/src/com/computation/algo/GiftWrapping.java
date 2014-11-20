@@ -121,7 +121,7 @@ public class GiftWrapping extends ConvexHull {
             }
         }
 
-        synchronized (this){
+        synchronized (this) {
             try {
                 wait();
             } catch (InterruptedException e) {
@@ -157,83 +157,89 @@ public class GiftWrapping extends ConvexHull {
 
             do {
 
-                performLinear = true;
-                pivPoint = points.get(pivPointIndex);
+                synchronized (GiftWrapping.this) {
 
-                /**
-                 * Mark the point as visited; if we see this again in
-                 * another thread, that thread knows they are done
-                 */
-                pivPoint.setColor(Point2D.VISITED);
-
-                //search for q such that it is ccw for all other i
-                refPointIndex = (pivPointIndex + 1) % pointCount;
-
-                if (!firstSearch && searchCount > 1) {
-
-                    Lock lock = angleBetween.getLock();
-
-                    if(lock.tryLock()) {
-
-                        try {
-                            if (debug) {
-                                console.log("Performing concurrent search");
-                            }
-
-                            angleBetween.setAvailableThreads(searchCount);
-                            angleBetween.setCenter(pivPointIndex);
-                            angleBetween.setPrevious(lastPivPointIndex);
-
-                            // Get next
-                            refPointIndex = ((AngleBetween.CCWReference) angleBetween.find()).getIndex();
-                            refPoint = points.get(refPointIndex);
-
-                            // Skip linear
-                            performLinear = false;
-
-                        } finally {
-                            lock.unlock();
-                        }
-                    }
-                }
-
-                if(performLinear){
-
-                    if (debug) {
-                        console.log("Performing linear search");
-                    }
-
+                    performLinear = true;
                     pivPoint = points.get(pivPointIndex);
-                    refPoint = points.get(refPointIndex);
 
-                    for (int currPointIndex = 0; currPointIndex < pointCount; currPointIndex++) {
-                        Point2D currPoint = points.get(currPointIndex);
-                        if (Utils.ccw(pivPoint, currPoint,refPoint) == 2) {
-                            refPoint = currPoint;
-                            refPointIndex = currPointIndex;
+                    /**
+                     * Mark the point as visited; if we see this again in
+                     * another thread, that thread knows they are done
+                     */
+                    pivPoint.setColor(Point2D.VISITED);
+
+                    //search for q such that it is ccw for all other i
+                    refPointIndex = (pivPointIndex + 1) % pointCount;
+
+                    if (!firstSearch && searchCount > 1) {
+
+                        Lock lock = angleBetween.getLock();
+
+                        if (lock.tryLock()) {
+
+                            try {
+                                if (debug) {
+                                    console.log("Performing concurrent search");
+                                }
+
+                                angleBetween.setAvailableThreads(searchCount);
+                                angleBetween.setCenter(pivPointIndex);
+                                angleBetween.setPrevious(lastPivPointIndex);
+
+                                // Get next
+                                refPointIndex = ((AngleBetween.CCWReference) angleBetween.find()).getIndex();
+                                refPoint = points.get(refPointIndex);
+                                refPoint.text = "Parallel";
+
+                                // Skip linear
+                                performLinear = false;
+
+                            } finally {
+                                lock.unlock();
+                            }
                         }
                     }
 
-                    firstSearch = false;
+                    if (performLinear) {
+
+                        if (debug) {
+                            console.log("Performing linear search");
+                        }
+
+                        pivPoint = points.get(pivPointIndex);
+                        refPoint = points.get(refPointIndex);
+
+                        for (int currPointIndex = 0; currPointIndex < pointCount; currPointIndex++) {
+                            Point2D currPoint = points.get(currPointIndex);
+                            if (Utils.ccw(pivPoint, currPoint, refPoint) == 2) {
+                                refPoint = currPoint;
+                                refPointIndex = currPointIndex;
+                                refPoint.text = "Linear";
+                            }
+                        }
+
+                        firstSearch = false;
+                    }
+
+
+                    // Add edge
+                    pointCloud.addEdge(new Edge(pivPoint, refPoint, color));
+
+                    // Wait a while so you can see it
+                    delay();
+
+                    // Last pivot
+                    lastPivPointIndex = pivPointIndex;
+
+                    // Start from q next time
+                    pivPointIndex = refPointIndex;
+
                 }
-
-
-                // Add edge
-                pointCloud.addEdge(new Edge(pivPoint, refPoint, color));
-
-                // Wait a while so you can see it
-                delay();
-
-                // Last pivot
-                lastPivPointIndex = pivPointIndex;
-
-                // Start from q next time
-                pivPointIndex = refPointIndex;
-
-            } while (points.get(pivPointIndex).getColor() == Point2D.UNVISITED);
+            }
+            while (points.get(pivPointIndex).getColor() == Point2D.UNVISITED);
 
             if (active.decrementAndGet() == 0) {
-                synchronized (GiftWrapping.this){
+                synchronized (GiftWrapping.this) {
                     GiftWrapping.this.notify();
                 }
             }
