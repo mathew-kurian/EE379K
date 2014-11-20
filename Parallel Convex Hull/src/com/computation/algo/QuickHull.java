@@ -101,7 +101,9 @@ public class QuickHull extends ConvexHull {
             this.b = b;
             this.points = points;
 
-            pointCloud.setField("Subsets", subsetStartCount.get());
+            if(debug) {
+                pointCloud.setField("Subsets", subsetStartCount.get());
+            }
         }
 
         @Override

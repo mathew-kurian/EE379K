@@ -1,5 +1,6 @@
 package com.computation;
 
+import com.computation.algo.GiftWrapping;
 import com.computation.algo.GrahamScan;
 import com.computation.algo.QuickHull;
 import com.computation.common.ConvexHull;
@@ -28,8 +29,11 @@ public class Main {
 
         //Kapil's Concurrent Gift Wrapping Implemntation (max at 4 availableThreads)
 
-        ConvexHull convexHull = new QuickHull(1000, 1000, 1000, 8, true, 0);
+        ConvexHull convexHull = new GrahamScan(10000000, 1000, 1000, 16, false, 0);
         convexHull.show();
+
+//        ConvexHull convexHull2 = new QuickHull(10000000, 1000, 1000, 16, false, 0);
+//        convexHull2.show();
 
         //ConvexHull convexHull = new GrahamScan(100, 800, 800, 1, true);
         //convexHull.show();
