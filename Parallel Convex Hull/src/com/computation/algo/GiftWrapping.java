@@ -29,6 +29,7 @@ public class GiftWrapping extends ConvexHull {
     private Reference<Integer> threadCount;
 
     private final Object lock = new Object();
+
     public GiftWrapping(int points, int width, int height, int threads) {
         super(points, width, height, threads);
     }
@@ -53,7 +54,7 @@ public class GiftWrapping extends ConvexHull {
         // Set search count
         this.searchCount = 0;
 
-        if(debugStepThrough) {
+        if (debugStepThrough) {
             this.debugStep = new ReentrantLock();
             this.debugStepCondition = debugStep.newCondition();
         }
@@ -286,14 +287,10 @@ public class GiftWrapping extends ConvexHull {
             }
 
             // Update availableThreads count
-
-            if(debug) {
-                pointCloud.setField("Wrap Threads", currThreadCount);
-                pointCloud.setField("Search Threads", searchCount + 1);
-            }
+            pointCloud.setField("Wrap Threads", currThreadCount);
+            pointCloud.setField("Search Threads", searchCount + 1);
 
             searchCount++;
-
         }
     }
 }
