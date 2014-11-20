@@ -55,7 +55,7 @@ public class Utils {
     public static double angleBetween(Point2D center, Point2D current, Point2D previous) {
         Double degrees = Math.toDegrees(Math.atan2(current.x - center.x, current.y - center.y) -
                 Math.atan2(previous.x - center.x, previous.y - center.y));
-        System.out.println(Math.abs(degrees));
+        //System.out.println(Math.abs(degrees));
         if (Math.abs(degrees) > 180) {
             return 360 - Math.abs(degrees);
         } else {
