@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.locks.Lock;
 
 /**
  * Created by kgowru on 11/12/14.
@@ -104,10 +105,7 @@ public class GiftWrapping extends ConvexHull {
                 point.setColor(Point2D.VISITED);
                 executorService.execute(new Subset(pointIndex, palette[paletteIndex++], threadCount));
             } else {
-                /**
-                 * @Kapil. We reduce the extra availableThreads here. Use the extra
-                 * availableThreads to optimize the searching
-                 */
+
                 int currThreadCount = threadCount.decrementAndGet();
 
                 if (debug) {
@@ -166,9 +164,11 @@ public class GiftWrapping extends ConvexHull {
                 //search for q such that it is ccw for all other i
                 q = (p + 1) % pointCount;
 
-                if (searchCount > 0) {
+                if (searchCount > 1) {
 
-                    if(ccw.getLock().tryLock()) {
+                    Lock lock = ccw.getLock();
+
+                    if(lock.tryLock()) {
 
                         try {
                             if (debug) {
@@ -186,7 +186,7 @@ public class GiftWrapping extends ConvexHull {
                             performLinear = false;
 
                         } finally {
-                            ccw.getLock().unlock();
+                            lock.unlock();
                         }
                     }
                 }

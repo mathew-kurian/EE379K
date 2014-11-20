@@ -21,7 +21,7 @@ public class CCW extends Search<Point2D> {
     @Override
     protected Reference<Point2D> getReferenceInstance() {
         CCWReference cf = new CCWReference(null);
-        cf.setIndex(Integer.MAX_VALUE);
+        cf.setIndex(Integer.MIN_VALUE);
         return cf;
     }
 
@@ -36,20 +36,18 @@ public class CCW extends Search<Point2D> {
     @Override
     protected void onSearch(int start, int end, Reference ref) {
         CCWReference exRef = (CCWReference) ref;
+        int q = Integer.MIN_VALUE;
 
-        for (int i = start; i < end; i++) {
-
-            // Some other thread result
-            // solution
-            if (exRef.getIndex() != Integer.MAX_VALUE) {
+        for (int i = end - 1; i >= start; i--) {
+            if (Utils.ccw(data.get(pivot), data.get(i), data.get(next)) == 2) {
+                q = i;
                 break;
             }
+        }
 
-            if (Utils.ccw(data.get(pivot), data.get(i), data.get(next)) == 2) {
-                synchronized (exRef) {
-                    exRef.setIndex(i);
-                    break;
-                }
+        synchronized (exRef){
+            if(q > exRef.getIndex()){
+                exRef.setIndex(q);
             }
         }
     }
