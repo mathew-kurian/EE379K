@@ -1,5 +1,8 @@
 package com.computation.common;
 
+import com.sun.tools.internal.jxc.api.JXC;
+import com.sun.tools.javac.comp.Flow;
+
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
@@ -8,6 +11,7 @@ import java.awt.event.ActionListener;
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 import java.util.List;
+import java.util.concurrent.RunnableFuture;
 
 public class Point2DCloud {
 
@@ -19,9 +23,12 @@ public class Point2DCloud {
     private List<Point2D> point2Ds;
     private Set<Edge> polygon;
     private HashMap<String, Integer> fieldsMap;
+    private HashMap<String, JTextField> textFieldsMap;
+    private HashMap<String, JComboBox> dropFieldsMap;
     private HashMap<String, JButton> buttonsMap;
     private DefaultTableModel model;
     private JPanel buttons;
+    private JPanel customFields;
     private boolean drawEnabled;
 
     public Point2DCloud(final int count, final int width, final int height, boolean drawEnabled) {
@@ -40,6 +47,7 @@ public class Point2DCloud {
                     };
 
                     buttons = new JPanel();
+                    customFields = new JPanel();
                     panel = new PointPanel();
                     frame = new JFrame();
                     fieldsMap = new HashMap<String, Integer>();
@@ -49,6 +57,10 @@ public class Point2DCloud {
 
                     buttonsMap = new HashMap<String, JButton>();
                     buttons.setLayout(new FlowLayout(FlowLayout.CENTER));
+
+                    textFieldsMap = new HashMap<String, JTextField>();
+                    dropFieldsMap = new HashMap<String, JComboBox>();
+                    customFields.setLayout(new FlowLayout(FlowLayout.CENTER));
 
                     model.addColumn("Property");
                     model.addColumn("Value");
@@ -65,8 +77,11 @@ public class Point2DCloud {
                     frame.getContentPane().setLayout(new BorderLayout());
                     frame.getContentPane().add(panel, BorderLayout.CENTER);
                     frame.getContentPane().add(new JScrollPane(props), BorderLayout.EAST);
+                    frame.getContentPane().add(customFields, BorderLayout.WEST);
+                    //frame.getContentPane().add(dropFields, BorderLayout.WEST);
                     frame.getContentPane().add(buttons, BorderLayout.SOUTH);
                     frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
                     // frame.setResizable(false);
                 }
             });
@@ -108,6 +123,35 @@ public class Point2DCloud {
         });
     }
 
+    public void addTextField(final String name){
+        SwingUtilities.invokeLater(new Runnable(){
+            @Override
+            public void run(){
+                JTextField jTextField = new JTextField(name);
+                JLabel jLabel = new JLabel(name);
+                textFieldsMap.put(name,jTextField);
+                customFields.add(jLabel);
+                customFields.add(jTextField);
+                frame.pack();
+            }
+        });
+    }
+
+    public void addDropField(final String name){
+        SwingUtilities.invokeLater(new Runnable(){
+            @Override
+            public void run(){
+                JComboBox jComboBox = new JComboBox();
+                JLabel jLabel = new JLabel(name);
+                dropFieldsMap.put(name,jComboBox);
+                customFields.add(jLabel);
+                customFields.add(jComboBox);
+                frame.pack();
+            }
+        });
+    }
+
+
     public void enableButton(final String name, final boolean e){
         SwingUtilities.invokeLater(new Runnable() {
             @Override
@@ -136,6 +180,25 @@ public class Point2DCloud {
             }
         });
     }
+
+//    public <T> void setTextField(final String key){
+//        SwingUtilities.invokeLater(new Runnable() {
+//            @Override
+//            public void run() {
+//                int row;
+//                if (textFieldsMap.containsKey(key)) {
+//                    row = textFieldsMap.get(key);
+//                    model.removeRow(row);
+//                } else {
+//                    row = model.getRowCount();
+//                    textFieldsMap.put(key, row);
+//                }
+//                model.insertRow(row, new String[]{key, value});
+//            }
+//        });
+//    }
+
+
 
     public void setName(final String name) {
         SwingUtilities.invokeLater(new Runnable() {
