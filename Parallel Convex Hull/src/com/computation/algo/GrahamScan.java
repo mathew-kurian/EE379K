@@ -26,6 +26,7 @@ public class GrahamScan extends ConvexHull {
         // x-coordinate
         // points[0] is an extreme point of the convex hull
         // (alternatively, could do easily in linear time)
+
         Collections.sort(points, new Comparator<Point2D>() {
             public int compare(Point2D p1, Point2D p2) {
                 if (p2.y == p1.y) {
@@ -113,6 +114,7 @@ public class GrahamScan extends ConvexHull {
         }
 
         while (stack.size() != 1) {
+            delay();
             Point2D a = stack.pop();
             Point2D b = stack.pop();
             pointCloud.addEdge(new Edge(a, b));

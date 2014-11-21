@@ -1,24 +1,45 @@
-package com.computation.common.concurrent;
+package com.computation.common.concurrent.search;
 
 import com.computation.common.Point2D;
+import com.computation.common.Reference;
 import com.computation.common.Utils;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 
 /**
  * Created by mwkurian on 11/19/2014.
  */
-public class PointLeftOf extends Search<Point2D, List<Point2D>> {
+public class ForkedPointLeftOf extends ForkableSearch<Point2D, List<Point2D>> {
 
+    /**
+     *
+     * @param executorService
+     * @param availableThreads
+     * @param data
+     * @param left
+     * @param right
+     * @param a
+     * @param b
+     * @return
+     */
+    public static Reference<Point2D> find(ExecutorService executorService, int availableThreads, List<Point2D> data,
+                                             List<Point2D> left, List<Point2D> right, Point2D a, Point2D b){
+        return new ForkedPointLeftOf(executorService, availableThreads, data, left, right, a, b).find();
+    }
+
+    /**
+     * Implementation
+     */
     protected List<Point2D> left;
     protected List<Point2D> right;
 
     protected Point2D a;
     protected Point2D b;
 
-    public PointLeftOf(ExecutorService executorService, int availableThreads, List<Point2D> data,
-                       List<Point2D> left, List<Point2D> right, Point2D a, Point2D b) {
+    protected ForkedPointLeftOf(ExecutorService executorService, int availableThreads, List<Point2D> data,
+                             List<Point2D> left, List<Point2D> right, Point2D a, Point2D b) {
         super(executorService, availableThreads, data);
         this.left = left;
         this.right = right;

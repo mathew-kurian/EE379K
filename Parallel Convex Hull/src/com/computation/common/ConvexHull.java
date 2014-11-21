@@ -1,9 +1,13 @@
 package com.computation.common;
 
 import java.util.List;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 public abstract class ConvexHull implements Runnable {
 
+    private static final Console console = Console.getInstance(ConvexHull.class);
     protected final Point2DCloud pointCloud;
     protected final int pointCount;
     protected final int threads;
@@ -11,6 +15,8 @@ public abstract class ConvexHull implements Runnable {
     protected boolean debug = true;
     protected boolean debugStepThrough = false;
     protected long debugFrameDelay = 1000;
+    protected Lock debugStep;
+    protected Condition debugStepCondition;
     private boolean active = false;
     private long startTime;
 
@@ -30,6 +36,8 @@ public abstract class ConvexHull implements Runnable {
         this.debugStepThrough = animationDelay == Integer.MAX_VALUE;
         this.debugFrameDelay = debugStepThrough ? 0 : animationDelay;
         this.points = this.pointCloud.getPoints();
+        this.debugStep = new ReentrantLock();
+        this.debugStepCondition = debugStep.newCondition();
     }
 
     public void show() {
@@ -38,6 +46,18 @@ public abstract class ConvexHull implements Runnable {
 
         // Add a button
         pointCloud.addButton("Start", this);
+
+        // Add debug button
+        if (debugStepThrough) {
+            pointCloud.addButton("Step", new Runnable() {
+                @Override
+                public void run() {
+                    debugStep.lock();
+                    debugStepCondition.signal();
+                    debugStep.unlock();
+                }
+            });
+        }
 
         // Set basic information
         pointCloud.setName(algo);
@@ -73,6 +93,24 @@ public abstract class ConvexHull implements Runnable {
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
+        }
+    }
+
+    protected void requestAnimationFrame() {
+        if (debugStepThrough) {
+            debugStep.lock();
+            try {
+                debugStepCondition.await();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    protected void releaseAnimationFrame() {
+        if (debugStepThrough) {
+            console.err("Released lock");
+            debugStep.unlock();
         }
     }
 

@@ -1,56 +1,40 @@
-package com.computation.common.concurrent;
+package com.computation.common.concurrent.search;
 
 import com.computation.common.Console;
+import com.computation.common.Reference;
+import com.computation.common.concurrent.Forkable;
 
 import java.util.Collection;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * Created by mwkurian on 11/19/2014.
  */
 
-public abstract class Search<T, O extends Collection<T>> {
+public abstract class ForkableSearch<T, O extends Collection<T>> extends Forkable<T, O> {
 
-    private final static Console console = Console.getInstance(Search.class);
-    protected final ExecutorService executorService;
+    private final static Console console = Console.getInstance(ForkableSearch.class);
 
-    protected O data;
-    protected int availableThreads;
-    protected Lock lock;
-
-    public Search(ExecutorService executorService, int availableThreads, O data) {
-        this.executorService = executorService;
-        this.data = data;
-        this.availableThreads = availableThreads;
-        this.lock = new ReentrantLock();
+    protected ForkableSearch(ExecutorService executorService, int availableThreads, O data) {
+        super(executorService, availableThreads, data);
     }
 
-    public Lock getLock() {
-        return lock;
-    }
-
-    public void setAvailableThreads(int availableThreads) {
-        this.availableThreads = availableThreads;
-    }
-
-    public final Reference<T> find() {
+    @Override
+    protected final Reference<T> onFind() {
 
         int size = data.size();
-        int offset = size / availableThreads;
+        int offset = size / numThreads;
 
         Reference<T> ref = getReferenceInstance();
-        Reference<Integer> threadCount = new Reference<Integer>(availableThreads);
+        Reference<Integer> threadCount = new Reference<Integer>(numThreads);
 
-        if (availableThreads == 0) {
+        if (numThreads == 0) {
             // Execute directly on main thread
             new Subset(0, size,
                     ref, threadCount).run();
         } else {
             for (int i = 0; i < size; i += offset) {
-                executorService.execute(new Subset(i, Math.min(i + offset, size),
-                        ref, threadCount));
+                executorService.execute(new Subset(i, Math.min(i + offset, size), ref, threadCount));
             }
         }
 
