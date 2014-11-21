@@ -1,8 +1,8 @@
 package com.computation.algo;
 
 import com.computation.common.*;
-import com.computation.common.concurrent.Extrema;
-import com.computation.common.concurrent.PointLeftOf;
+import com.computation.common.concurrent.search.ForkedExtrema;
+import com.computation.common.concurrent.search.ForkedPointLeftOf;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -41,17 +41,13 @@ public class QuickHull extends ConvexHull {
         this.subsetStartCount = new AtomicInteger(0);
         this.subsetFinishCount = new AtomicInteger(0);
 
-        // Find start points
-        Extrema extrema = new Extrema(executorService, threads, points, null, 0);
 
         // Set some fields
         pointCloud.setField("ThreadPool", true);
 
         // Find the endpoints
-        extrema.setDirection(Utils.Direction.NORTH);
-        Point2D p1 = extrema.find().get();
-        extrema.setDirection(Utils.Direction.SOUTH);
-        Point2D p2 = extrema.find().get();
+        Point2D p1 = ForkedExtrema.find(executorService, threads, points, Utils.Direction.NORTH, 0).get();
+        Point2D p2 = ForkedExtrema.find(executorService, threads, points, Utils.Direction.SOUTH, 0).get();
 
         p1.setColor(Point2D.VISITED);
         p2.setColor(Point2D.VISITED);
@@ -65,11 +61,8 @@ public class QuickHull extends ConvexHull {
         List<Point2D> left = new ArrayList<Point2D>();
         List<Point2D> right = new ArrayList<Point2D>();
 
-        // Create multithreaded searcher
-        PointLeftOf pointLeftOf = new PointLeftOf(executorService, threads, points, left, right, p1, p2);
-
-        // Search
-        pointLeftOf.find();
+        // Run
+        ForkedPointLeftOf.find(executorService, threads, points, left, right, p1, p2);
 
         subsetStartCount.incrementAndGet();
         subsetStartCount.incrementAndGet();
@@ -101,7 +94,7 @@ public class QuickHull extends ConvexHull {
             this.b = b;
             this.points = points;
 
-            if(debug) {
+            if (debug) {
                 pointCloud.setField("Subsets", subsetStartCount.get());
             }
         }

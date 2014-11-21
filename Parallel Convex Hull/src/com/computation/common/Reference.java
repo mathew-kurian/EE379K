@@ -1,4 +1,4 @@
-package com.computation.common.concurrent;
+package com.computation.common;
 
 /**
  * Created by mwkurian on 11/19/2014.

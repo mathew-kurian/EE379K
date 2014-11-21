@@ -4,10 +4,15 @@ import com.computation.common.ConvexHull;
 import com.computation.common.Edge;
 import com.computation.common.Point2D;
 import com.computation.common.Utils;
+import com.computation.external.HeavySort;
+import com.computation.common.concurrent.search.ForkedMaxBottomLeft;
 
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Stack;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
 
 @SuppressWarnings("unused")
 public class GrahamScan extends ConvexHull {
@@ -19,6 +24,7 @@ public class GrahamScan extends ConvexHull {
     @Override
     protected void findHull() {
 
+        ExecutorService executorService = Executors.newFixedThreadPool(threads);
         Stack<Point2D> stack = new Stack<Point2D>();
         pointCloud.setField("ThreadPool", true);
 
@@ -26,6 +32,7 @@ public class GrahamScan extends ConvexHull {
         // x-coordinate
         // points[0] is an extreme point of the convex hull
         // (alternatively, could do easily in linear time)
+
         Collections.sort(points, new Comparator<Point2D>() {
             public int compare(Point2D p1, Point2D p2) {
                 if (p2.y == p1.y) {
@@ -36,15 +43,18 @@ public class GrahamScan extends ConvexHull {
             }
         });
 
-        final Point2D firstPoint = points.get(0);
+        ForkedMaxBottomLeft.Reference ref = ForkedMaxBottomLeft.find(executorService, threads, points);
+        final Point2D firstPoint = ref.get();
 
-        stack.push(firstPoint);
+        stack.push(ref.get());
+        points.remove(ref.getIndex());
 
-        points.remove(0);
+        Point2D [] pointArr = points.toArray(new Point2D[0]);
 
         // sort by polar angle with respect to base point points[0],
         // breaking ties by distance to points[0]
         Collections.sort(points, new Comparator<Point2D>() {
+
             public int compare(Point2D q1, Point2D q2) {
 
                 double dx1 = q1.x - firstPoint.x;
@@ -113,6 +123,7 @@ public class GrahamScan extends ConvexHull {
         }
 
         while (stack.size() != 1) {
+            delay();
             Point2D a = stack.pop();
             Point2D b = stack.pop();
             pointCloud.addEdge(new Edge(a, b));

@@ -1,9 +1,9 @@
 package com.computation.algo;
 
 import com.computation.common.*;
-import com.computation.common.concurrent.AngleBetween;
-import com.computation.common.concurrent.Extrema;
-import com.computation.common.concurrent.Reference;
+import com.computation.common.concurrent.Forkable;
+import com.computation.common.concurrent.search.ForkedMaxAngle;
+import com.computation.common.concurrent.search.ForkedExtrema;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -21,12 +21,11 @@ public class GiftWrapping extends ConvexHull {
 
     private static final Console console = Console.getInstance(GiftWrapping.class);
     private ExecutorService executorService;
-    private Extrema extrema;
-    private AngleBetween angleBetween;
     private volatile int searchCount;
     private Lock debugStep;
     private Condition debugStepCondition;
     private Reference<Integer> threadCount;
+    private Lock angleFindLock;
 
     private final Object lock = new Object();
 
@@ -62,45 +61,38 @@ public class GiftWrapping extends ConvexHull {
         // Thread count
         this.threadCount = new Reference<Integer>(threads);
 
-        // Concurrent CCW
-        angleBetween = new AngleBetween(executorService, 0, points);
+        // Angle between
+        this.angleFindLock = new ReentrantLock();
 
         double radOffset = (Math.PI / 2) / (threads - 3);
         int index = 0;
         int rad = 0;
+        Utils.Direction dir = Utils.Direction.NORTH;
         List<Integer> extremas = new ArrayList<Integer>();
-
-        // Concurrent Extrema finder
-        this.extrema = new Extrema(executorService, threads, points,
-                Utils.Direction.NORTH, 0);
 
         for (; index < threads; index++) {
 
-            extremas.add(((Extrema.ExtremaReference) extrema.find()).getIndex());
+            Point2D extrema = ForkedExtrema.find(executorService, threads, points,
+                    dir, rad).get();
 
-            int dir = index % threads;
+            int dirr = index % threads;
 
-            switch (dir) {
+            switch (dirr) {
                 case 1: {
-                    extrema.setDirection(Utils.Direction.SOUTH);
-                    extrema.setRadians(rad);
+                    dir = Utils.Direction.SOUTH;
                     break;
                 }
                 case 2: {
-                    extrema.setDirection(Utils.Direction.EAST);
-                    extrema.setRadians(rad);
+                    dir = Utils.Direction.EAST;
                     break;
                 }
                 case 3: {
-                    extrema.setDirection(Utils.Direction.WEST);
-                    extrema.setRadians(rad);
+                    dir = Utils.Direction.WEST;
                     break;
                 }
                 case 0: {
                     rad += radOffset;
-
-                    extrema.setDirection(Utils.Direction.NORTH);
-                    extrema.setRadians(rad);
+                    dir = Utils.Direction.NORTH;
                     break;
                 }
             }
@@ -213,28 +205,22 @@ public class GiftWrapping extends ConvexHull {
 
                 if (!firstSearch && searchCount > 1) {
 
-                    Lock lock = angleBetween.getLock();
-
-                    if (lock.tryLock()) {
+                    if (angleFindLock.tryLock()) {
 
                         try {
                             if (debug) {
                                 console.log("Performing concurrent search");
                             }
 
-                            angleBetween.setAvailableThreads(searchCount);
-                            angleBetween.setCenter(pivPointIndex);
-                            angleBetween.setPrevious(lastPivPointIndex);
-
                             // Get next
-                            refPointIndex = ((AngleBetween.CCWReference) angleBetween.find()).getIndex();
+                            refPointIndex = ForkedMaxAngle.find(executorService, searchCount, points, pivPointIndex, lastPivPointIndex).getIndex();
                             refPoint = points.get(refPointIndex);
 
                             // Skip linear
                             performLinear = false;
 
                         } finally {
-                            lock.unlock();
+                            angleFindLock.unlock();
                         }
                     }
                 }
@@ -291,7 +277,7 @@ public class GiftWrapping extends ConvexHull {
                 pointCloud.setField("Wrap Threads", currThreadCount);
                 pointCloud.setField("Search Threads", searchCount + 1);
             }
-            
+
             searchCount++;
         }
     }
