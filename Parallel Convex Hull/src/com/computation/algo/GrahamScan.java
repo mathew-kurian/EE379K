@@ -4,15 +4,10 @@ import com.computation.common.ConvexHull;
 import com.computation.common.Edge;
 import com.computation.common.Point2D;
 import com.computation.common.Utils;
-import com.computation.external.HeavySort;
-import com.computation.common.concurrent.search.ForkedMaxBottomLeft;
 
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Stack;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-
 
 @SuppressWarnings("unused")
 public class GrahamScan extends ConvexHull {
@@ -24,7 +19,6 @@ public class GrahamScan extends ConvexHull {
     @Override
     protected void findHull() {
 
-        ExecutorService executorService = Executors.newFixedThreadPool(threads);
         Stack<Point2D> stack = new Stack<Point2D>();
         pointCloud.setField("ThreadPool", true);
 
@@ -43,18 +37,15 @@ public class GrahamScan extends ConvexHull {
             }
         });
 
-        ForkedMaxBottomLeft.Reference ref = ForkedMaxBottomLeft.find(executorService, threads, points);
-        final Point2D firstPoint = ref.get();
+        final Point2D firstPoint = points.get(0);
 
-        stack.push(ref.get());
-        points.remove(ref.getIndex());
+        stack.push(firstPoint);
 
-        Point2D [] pointArr = points.toArray(new Point2D[0]);
+        points.remove(0);
 
         // sort by polar angle with respect to base point points[0],
         // breaking ties by distance to points[0]
         Collections.sort(points, new Comparator<Point2D>() {
-
             public int compare(Point2D q1, Point2D q2) {
 
                 double dx1 = q1.x - firstPoint.x;
@@ -107,6 +98,8 @@ public class GrahamScan extends ConvexHull {
                 break;
             }
         }
+
+        System.out.println(k2);
 
         stack.push(points.get(k2 - 1));    // points[k2-1] is second extreme point
 
