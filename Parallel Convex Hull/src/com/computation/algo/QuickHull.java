@@ -21,16 +21,16 @@ public class QuickHull extends ConvexHull {
 
     private final Object lock = new Object();
 
-    public QuickHull(int points, int width, int height, int threads) {
-        super(points, width, height, threads);
+    public QuickHull(Point2DCloud pointCloud, int threads) {
+        super(pointCloud, threads);
     }
 
-    public QuickHull(int points, int width, int height, int threads, boolean debug) {
-        super(points, width, height, threads, debug);
+    public QuickHull(Point2DCloud pointCloud, int threads, boolean debug) {
+        super(pointCloud, threads, debug);
     }
 
-    public QuickHull(int points, int width, int height, int threads, boolean debug, int animationDelay) {
-        super(points, width, height, threads, debug, animationDelay);
+    public QuickHull(Point2DCloud pointCloud, int threads, boolean debug, int animationDelay) {
+        super(pointCloud, threads, debug, animationDelay);
     }
 
     @Override
@@ -84,7 +84,7 @@ public class QuickHull extends ConvexHull {
             }
         }
 
-        executorService.shutdown();
+        executorService.shutdownNow();
     }
 
     private class Subset implements Runnable {

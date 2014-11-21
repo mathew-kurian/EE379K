@@ -1,13 +1,9 @@
 package com.computation.algo;
 
-import com.computation.common.ConvexHull;
-import com.computation.common.Edge;
-import com.computation.common.Point2D;
-import com.computation.common.Utils;
+import com.computation.common.*;
 import com.computation.common.concurrent.search.ForkedMaxBottomLeft;
 import com.computation.external.HeavySort;
 
-import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Stack;
 import java.util.concurrent.ExecutorService;
@@ -23,9 +19,9 @@ public class GrahamScanParallel extends ConvexHull {
         }
     };
 
-    public GrahamScanParallel(int points, int width, int height, int threads,
+    public GrahamScanParallel(Point2DCloud pointCloud, int threads,
                               boolean debug, int animationDelay) {
-        super(points, width, height, threads, debug, animationDelay);
+        super(pointCloud, threads, debug, animationDelay);
     }
 
     @Override
@@ -123,5 +119,6 @@ public class GrahamScanParallel extends ConvexHull {
 
         pointCloud.addEdge(new Edge(firstPoint, pointArr[pointArr.length - 1]));
 
+        executorService.shutdownNow();
     }
 }

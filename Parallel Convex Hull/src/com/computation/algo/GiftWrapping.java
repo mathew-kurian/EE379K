@@ -27,16 +27,16 @@ public class GiftWrapping extends ConvexHull {
 
     private final Object lock = new Object();
 
-    public GiftWrapping(int points, int width, int height, int threads) {
-        super(points, width, height, threads);
+    public GiftWrapping(Point2DCloud pointCloud, int threads) {
+        super(pointCloud, threads);
     }
 
-    public GiftWrapping(int points, int width, int height, int threads, boolean debug) {
-        super(points, width, height, threads, debug);
+    public GiftWrapping(Point2DCloud pointCloud, int threads, boolean debug) {
+        super(pointCloud, threads, debug);
     }
 
-    public GiftWrapping(int points, int width, int height, int threads, boolean debug, int animationDelay) {
-        super(points, width, height, threads, debug, animationDelay);
+    public GiftWrapping(Point2DCloud pointCloud, int threads, boolean debug, int animationDelay) {
+        super(pointCloud, threads, debug, animationDelay);
     }
 
     @Override
@@ -137,7 +137,7 @@ public class GiftWrapping extends ConvexHull {
             }
         }
 
-        executorService.shutdown();
+        executorService.shutdownNow();
     }
 
     private class Subset implements Runnable {

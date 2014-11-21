@@ -1,9 +1,6 @@
 package com.computation.algo;
 
-import com.computation.common.ConvexHull;
-import com.computation.common.Edge;
-import com.computation.common.Point2D;
-import com.computation.common.Utils;
+import com.computation.common.*;
 
 import java.util.Collections;
 import java.util.Comparator;
@@ -11,9 +8,9 @@ import java.util.Stack;
 
 @SuppressWarnings("unused")
 public class GrahamScan extends ConvexHull {
-    public GrahamScan(int points, int width, int height, int threads,
+    public GrahamScan(Point2DCloud pointCloud, int threads,
                       boolean debug, int animationDelay) {
-        super(points, width, height, threads, debug, animationDelay);
+        super(pointCloud, threads, debug, animationDelay);
     }
 
     @Override
@@ -98,8 +95,6 @@ public class GrahamScan extends ConvexHull {
                 break;
             }
         }
-
-        System.out.println(k2);
 
         stack.push(points.get(k2 - 1));    // points[k2-1] is second extreme point
 

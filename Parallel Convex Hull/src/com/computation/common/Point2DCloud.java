@@ -19,13 +19,12 @@ public class Point2DCloud {
     private List<Point2D> point2Ds;
     private Set<Edge> polygon;
     private HashMap<String, Integer> fieldsMap;
-    private HashMap<String, JTextField> textFieldsMap;
-    private HashMap<String, JComboBox> dropFieldsMap;
     private HashMap<String, JButton> buttonsMap;
+    private HashMap<String, JButton> topButtonsMap;
     private DefaultTableModel model;
     private JPanel buttons;
-    private JPanel customFields;
     private boolean drawEnabled;
+    private JPanel topButtons;
 
     public Point2DCloud(final int count, final int width, final int height, boolean drawEnabled) {
 
@@ -43,7 +42,7 @@ public class Point2DCloud {
                     };
 
                     buttons = new JPanel();
-                    customFields = new JPanel();
+                    topButtons = new JPanel();
                     panel = new PointPanel();
                     frame = new JFrame();
                     fieldsMap = new HashMap<String, Integer>();
@@ -54,9 +53,8 @@ public class Point2DCloud {
                     buttonsMap = new HashMap<String, JButton>();
                     buttons.setLayout(new FlowLayout(FlowLayout.CENTER));
 
-                    textFieldsMap = new HashMap<String, JTextField>();
-                    dropFieldsMap = new HashMap<String, JComboBox>();
-                    customFields.setLayout(new FlowLayout(FlowLayout.CENTER));
+                    topButtonsMap = new HashMap<String, JButton>();
+                    topButtons.setLayout(new FlowLayout(FlowLayout.LEFT));
 
                     model.addColumn("Property");
                     model.addColumn("Value");
@@ -73,12 +71,10 @@ public class Point2DCloud {
                     frame.getContentPane().setLayout(new BorderLayout());
                     frame.getContentPane().add(panel, BorderLayout.CENTER);
                     frame.getContentPane().add(new JScrollPane(props), BorderLayout.EAST);
-                    frame.getContentPane().add(customFields, BorderLayout.WEST);
-                    //frame.getContentPane().add(dropFields, BorderLayout.WEST);
                     frame.getContentPane().add(buttons, BorderLayout.SOUTH);
+                    frame.getContentPane().add(topButtons, BorderLayout.NORTH);
                     frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-
-                    // frame.setResizable(false);
+                    frame.setResizable(false);
                 }
             });
         } catch (InterruptedException e) {
@@ -99,7 +95,7 @@ public class Point2DCloud {
         });
     }
 
-    public void addButton(final String name, final Runnable runnable) {
+    public void addTopButton(final String name, final Runnable runnable) {
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
@@ -111,42 +107,56 @@ public class Point2DCloud {
                     }
                 });
 
+                topButtonsMap.put(name, jButton);
+                topButtons.add(jButton);
+                frame.setResizable(true);
+                frame.pack();
+                frame.setResizable(false);
+            }
+        });
+    }
+
+    public void addButton(final String name, final Runnable runnable) {
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                JButton jButton = null;
+
+                if(buttonsMap.containsKey(name)){
+                    jButton = buttonsMap.get(name);
+                    for(ActionListener ac : jButton.getActionListeners()){
+                        jButton.removeActionListener(ac);
+                    }
+                } else {
+                    jButton = new JButton(name);
+                    buttons.add(jButton);
+                }
+
+                jButton.addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        new Thread(runnable).start();
+                    }
+                });
+
                 buttonsMap.put(name, jButton);
 
-                buttons.add(jButton);
+                frame.setResizable(true);
                 frame.pack();
+                frame.setResizable(false);
             }
         });
     }
 
-    public void addTextField(final String name) {
+    public void toggleButton(final String name, final boolean toggle){
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
-                JTextField jTextField = new JTextField(name);
-                JLabel jLabel = new JLabel(name);
-                textFieldsMap.put(name, jTextField);
-                customFields.add(jLabel);
-                customFields.add(jTextField);
+                buttonsMap.get(name).setName(name + (toggle ? " (on)" : " (off)"));
                 frame.pack();
             }
         });
     }
-
-    public void addDropField(final String name) {
-        SwingUtilities.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                JComboBox jComboBox = new JComboBox();
-                JLabel jLabel = new JLabel(name);
-                dropFieldsMap.put(name, jComboBox);
-                customFields.add(jLabel);
-                customFields.add(jComboBox);
-                frame.pack();
-            }
-        });
-    }
-
 
     public void enableButton(final String name, final boolean e) {
         SwingUtilities.invokeLater(new Runnable() {
@@ -177,24 +187,6 @@ public class Point2DCloud {
         });
     }
 
-//    public <T> void setTextField(final String key){
-//        SwingUtilities.invokeLater(new Runnable() {
-//            @Override
-//            public void run() {
-//                int row;
-//                if (textFieldsMap.containsKey(key)) {
-//                    row = textFieldsMap.get(key);
-//                    model.removeRow(row);
-//                } else {
-//                    row = model.getRowCount();
-//                    textFieldsMap.put(key, row);
-//                }
-//                model.insertRow(row, new String[]{key, value});
-//            }
-//        });
-//    }
-
-
     public void setName(final String name) {
         SwingUtilities.invokeLater(new Runnable() {
             @Override
@@ -210,6 +202,15 @@ public class Point2DCloud {
 
     public List<Point2D> getPoints() {
         return new ArrayList<Point2D>(point2Ds);
+    }
+
+    public void removeAllEdges(){
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                polygon.removeAll(polygon);
+            }
+        });
     }
 
     public void draw() {
