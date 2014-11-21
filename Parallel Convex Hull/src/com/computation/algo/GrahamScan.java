@@ -136,3 +136,4 @@ public class GrahamScan extends ConvexHull {
 		//pointCloud.addEdge(new Edge(a, lastpoint));
 	}
 }
+
