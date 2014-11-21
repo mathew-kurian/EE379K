@@ -39,7 +39,7 @@ public class OptimalThreadCountFinder {
                 JPanel panel = new JPanel(new BorderLayout());
                 panel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
-                jmf = new JFrame("Optimal Search");
+                jmf = new JFrame("Optimal search");
                 jmf.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
                 jmf.getContentPane().setLayout(new BorderLayout());
                 jmf.getContentPane().add(panel);

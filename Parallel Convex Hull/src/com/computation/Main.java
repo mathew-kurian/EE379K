@@ -2,6 +2,7 @@ package com.computation;
 
 import com.computation.algo.GiftWrapping;
 import com.computation.algo.GrahamScan;
+import com.computation.algo.GrahamScanParallel;
 import com.computation.algo.QuickHull;
 import com.computation.common.ConvexHull;
 import com.computation.common.Point2DCloud;
@@ -29,7 +30,7 @@ public class Main {
 
         //Kapil's Concurrent Gift Wrapping Implemntation (max at 4 availableThreads)
 
-        ConvexHull convexHull = new QuickHull(100, 1000, 1000, 16,true);
+        ConvexHull convexHull = new QuickHull(1000, 1000, 1000, 16, true, 100);
         convexHull.show();
 
 //        ConvexHull convexHull2 = new QuickHull(10000000, 1000, 1000, 16, false, 0);
