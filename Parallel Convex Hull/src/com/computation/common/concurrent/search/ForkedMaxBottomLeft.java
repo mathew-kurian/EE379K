@@ -55,7 +55,7 @@ public class ForkedMaxBottomLeft extends ForkableSearch<Point2D, List<Point2D>> 
 
     private int comparePoints(Point2D p1, Point2D p2) {
         if (p2.y == p1.y) {
-            return p2.x - p1.x;
+            return p1.x - p2.x;
         }
 
         return p2.y - p1.y;

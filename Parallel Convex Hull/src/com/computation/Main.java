@@ -30,7 +30,7 @@ public class Main {
 
         //Kapil's Concurrent Gift Wrapping Implemntation (max at 4 availableThreads)
 
-        ConvexHull convexHull = new QuickHull(1000, 1000, 1000, 16, true, 100);
+        ConvexHull convexHull = new GrahamScanParallel(1000, 1000, 1000, 16, true, 100);
         convexHull.show();
 
 //        ConvexHull convexHull2 = new QuickHull(10000000, 1000, 1000, 16, false, 0);

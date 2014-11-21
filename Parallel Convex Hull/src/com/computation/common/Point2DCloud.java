@@ -1,8 +1,5 @@
 package com.computation.common;
 
-import com.sun.tools.internal.jxc.api.JXC;
-import com.sun.tools.javac.comp.Flow;
-
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
@@ -11,7 +8,6 @@ import java.awt.event.ActionListener;
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 import java.util.List;
-import java.util.concurrent.RunnableFuture;
 
 public class Point2DCloud {
 
@@ -123,13 +119,13 @@ public class Point2DCloud {
         });
     }
 
-    public void addTextField(final String name){
-        SwingUtilities.invokeLater(new Runnable(){
+    public void addTextField(final String name) {
+        SwingUtilities.invokeLater(new Runnable() {
             @Override
-            public void run(){
+            public void run() {
                 JTextField jTextField = new JTextField(name);
                 JLabel jLabel = new JLabel(name);
-                textFieldsMap.put(name,jTextField);
+                textFieldsMap.put(name, jTextField);
                 customFields.add(jLabel);
                 customFields.add(jTextField);
                 frame.pack();
@@ -137,13 +133,13 @@ public class Point2DCloud {
         });
     }
 
-    public void addDropField(final String name){
-        SwingUtilities.invokeLater(new Runnable(){
+    public void addDropField(final String name) {
+        SwingUtilities.invokeLater(new Runnable() {
             @Override
-            public void run(){
+            public void run() {
                 JComboBox jComboBox = new JComboBox();
                 JLabel jLabel = new JLabel(name);
-                dropFieldsMap.put(name,jComboBox);
+                dropFieldsMap.put(name, jComboBox);
                 customFields.add(jLabel);
                 customFields.add(jComboBox);
                 frame.pack();
@@ -152,11 +148,11 @@ public class Point2DCloud {
     }
 
 
-    public void enableButton(final String name, final boolean e){
+    public void enableButton(final String name, final boolean e) {
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
-                if(buttonsMap.containsKey(name)) {
+                if (buttonsMap.containsKey(name)) {
                     buttonsMap.get(name).setEnabled(e);
                 }
             }
@@ -197,7 +193,6 @@ public class Point2DCloud {
 //            }
 //        });
 //    }
-
 
 
     public void setName(final String name) {

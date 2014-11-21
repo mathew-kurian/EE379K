@@ -83,8 +83,6 @@ public class GrahamScanParallel extends ConvexHull {
             }
         }
 
-        System.out.println(k2_index);
-
         // points[k2-1] is second extreme point
         stack.push(pointArr[k2_index - 1]);
 
