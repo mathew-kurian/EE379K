@@ -22,8 +22,6 @@ public class GiftWrapping extends ConvexHull {
     private static final Console console = Console.getInstance(GiftWrapping.class);
     private ExecutorService executorService;
     private volatile int searchCount;
-    private Lock debugStep;
-    private Condition debugStepCondition;
     private Reference<Integer> threadCount;
     private Lock angleFindLock;
 
@@ -53,11 +51,6 @@ public class GiftWrapping extends ConvexHull {
         // Set search count
         this.searchCount = 0;
 
-        if (debugStepThrough) {
-            this.debugStep = new ReentrantLock();
-            this.debugStepCondition = debugStep.newCondition();
-        }
-
         // Thread count
         this.threadCount = new Reference<Integer>(threads);
 
@@ -72,8 +65,8 @@ public class GiftWrapping extends ConvexHull {
 
         for (; index < threads; index++) {
 
-            Point2D extrema = ForkedExtrema.find(executorService, threads, points,
-                    dir, rad).get();
+            extremas.add(ForkedExtrema.find(executorService, threads, points,
+                    dir, rad).getIndex());
 
             int dirr = index % threads;
 
@@ -132,17 +125,6 @@ public class GiftWrapping extends ConvexHull {
             }
         }
 
-        if (debugStepThrough) {
-            pointCloud.addButton("Step", new Runnable() {
-                @Override
-                public void run() {
-                    debugStep.lock();
-                    debugStepCondition.signal();
-                    debugStep.unlock();
-                }
-            });
-        }
-
         pointCloud.draw();
 
         synchronized (threadCount) {
@@ -181,15 +163,7 @@ public class GiftWrapping extends ConvexHull {
 
             do {
 
-                if (debugStepThrough) {
-                    debugStep.lock();
-
-                    try {
-                        debugStepCondition.await();
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                }
+                requestAnimationFrame();
 
                 performLinear = true;
                 pivPoint = points.get(pivPointIndex);
@@ -256,9 +230,7 @@ public class GiftWrapping extends ConvexHull {
                 // Start from q next time
                 pivPointIndex = refPointIndex;
 
-                if (debugStepThrough) {
-                    debugStep.unlock();
-                }
+                releaseAnimationFrame();
             }
             while (points.get(pivPointIndex).getColor() == Point2D.UNVISITED);
 

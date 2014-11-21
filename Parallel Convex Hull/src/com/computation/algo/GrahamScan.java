@@ -99,8 +99,6 @@ public class GrahamScan extends ConvexHull {
             }
         }
 
-        System.out.println(k2);
-
         stack.push(points.get(k2 - 1));    // points[k2-1] is second extreme point
 
         // Graham scan; note that points[N-1] is extreme point different from points[0]

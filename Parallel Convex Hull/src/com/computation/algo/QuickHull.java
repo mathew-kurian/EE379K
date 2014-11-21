@@ -41,7 +41,6 @@ public class QuickHull extends ConvexHull {
         this.subsetStartCount = new AtomicInteger(0);
         this.subsetFinishCount = new AtomicInteger(0);
 
-
         // Set some fields
         pointCloud.setField("ThreadPool", true);
 
@@ -67,8 +66,13 @@ public class QuickHull extends ConvexHull {
         subsetStartCount.incrementAndGet();
         subsetStartCount.incrementAndGet();
 
+        requestAnimationFrame();
         executorService.execute(new Subset(left, p1, p2));
+        releaseAnimationFrame();
+
+        requestAnimationFrame();
         executorService.execute(new Subset(right, p2, p1));
+        releaseAnimationFrame();
 
         if (subsetStartCount.get() != subsetFinishCount.get()) {
             synchronized (lock) {
@@ -101,6 +105,7 @@ public class QuickHull extends ConvexHull {
 
         @Override
         public void run() {
+
             Point2D max = null;
             int dist = Integer.MIN_VALUE;
 
@@ -149,8 +154,15 @@ public class QuickHull extends ConvexHull {
             subsetStartCount.incrementAndGet();
 
             try {
+
+                requestAnimationFrame();
                 executorService.execute(new Subset(left, a, max));
+                releaseAnimationFrame();
+
+                requestAnimationFrame();
                 executorService.execute(new Subset(right, max, b));
+                releaseAnimationFrame();
+
             } catch (RejectedExecutionException e) {
                 console.err("Force shutdown detected");
             }
