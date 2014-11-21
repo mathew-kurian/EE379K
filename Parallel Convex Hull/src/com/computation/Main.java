@@ -20,15 +20,6 @@ public class Main {
         OptimalThreadCountFinder.DPI_SCALING =
                 Point2DCloud.DPI_SCALING = 2; /* Set display scaling */
 
-//        OptimalThreadCountFinder optimalThreadCountFinder = new OptimalThreadCountFinder();
-//        optimalThreadCountFinder.find();
-
-        //Mathew's Concurrent Quick Hull Implementation
-//        ConvexHull convexHull = new QuickHull(/* pointCount */ 100, /* width */ 800, /* height */ 600, /* availableThreads */ 10);
-//        convexHull.show(\);
-
-        //Kapil's Concurrent Gift Wrapping Implemntation (max at 4 availableThreads)
-
         final Point2DCloud point2DCloud = new Point2DCloud(1000, 1000, 1000, true);
 
         point2DCloud.addTopButton("GiftWrapping", new Runnable() {
