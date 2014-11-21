@@ -38,6 +38,7 @@ public abstract class ConvexHull implements Runnable {
 
         // Add a button
         pointCloud.addButton("Start", this);
+        //pointCloud.addButton("Populate", this);
 
         // Set basic information
         pointCloud.setName(algo);
@@ -46,6 +47,9 @@ public abstract class ConvexHull implements Runnable {
         pointCloud.setField("Threads", threads);
         pointCloud.setField("Debug", debug);
         pointCloud.setField("Frame Delay (ms)", debugFrameDelay);
+
+        pointCloud.addTextField("Threads");
+        pointCloud.addDropField("Algorithm");
 
         pointCloud.show();
     }
