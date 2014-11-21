@@ -1,206 +1,298 @@
 package com.computation.algo;
 
-import com.computation.common.ConvexHull;
-import com.computation.common.Edge;
-import com.computation.common.Point2D;
-import com.computation.common.Utils;
+import com.computation.common.*;
+import com.computation.common.concurrent.AngleBetween;
+import com.computation.common.concurrent.Extrema;
+import com.computation.common.concurrent.Reference;
 
 import java.awt.*;
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicIntegerArray;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * Created by kgowru on 11/12/14.
  */
 public class GiftWrapping extends ConvexHull {
 
+    private static final Console console = Console.getInstance(GiftWrapping.class);
     private ExecutorService executorService;
-    private AtomicIntegerArray hullArray;
+    private Extrema extrema;
+    private AngleBetween angleBetween;
+    private volatile int searchCount;
+    private Lock debugStep;
+    private Condition debugStepCondition;
+    private Reference<Integer> threadCount;
+
+    private final Object lock = new Object();
 
     public GiftWrapping(int points, int width, int height, int threads) {
         super(points, width, height, threads);
     }
+
     public GiftWrapping(int points, int width, int height, int threads, boolean debug) {
         super(points, width, height, threads, debug);
     }
+
     public GiftWrapping(int points, int width, int height, int threads, boolean debug, int animationDelay) {
         super(points, width, height, threads, debug, animationDelay);
     }
 
     @Override
-    protected void findHull(int threads) {
+    protected void findHull() {
+
+        // Set all the global variables you need
         this.executorService = Executors.newFixedThreadPool(threads);
 
-        // Initialize array
-        int[] next = new int[pointCount];
-        Arrays.fill(next, -1);
-        this.hullArray = new AtomicIntegerArray(next);
-
-        // Searching threads
-        int searchThreads = 0;
-
         // Set thread pool field in JPanel
-        pointCloud.setField("ThreadPool", true);
+        this.pointCloud.setField("ThreadPool", true);
 
-        // Get pointCount
-        List<Point2D> point2Ds = pointCloud.getPoints();
+        // Set search count
+        this.searchCount = 0;
 
-        //Split threads depending on what edge to start on
-        Point2D edgePoint;
-        double degree = 0;
+        if (debugStepThrough) {
+            this.debugStep = new ReentrantLock();
+            this.debugStepCondition = debugStep.newCondition();
+        }
 
-        /** Get this offset by doing it for 5 threads.
-         * Suppose we have 5 threads
-         *  1. We do the normal 4 threads which is NORTH, SOUTH, EAST, WEST
-         *      which results in 4 start points.
-         *  2. We do 90.0 / (threads - 4) = 90 / ( 5 - 4 ) = 90
-         *  3. But degreeOffset needs to 45 not 90, so we add 1
-         *  4. degreeOffset = 90.0 / (threads - 4 + 1) =
-         *                    90.0 / (threads - 4 + 1) =
-         *                    90.0 / (threads - 3) =
-         *                    45.0
-         */
-        double degreeOffset = 90.0 / (threads - 3);
+        // Thread count
+        this.threadCount = new Reference<Integer>(threads);
 
-        /**
-         * Reduce this value each time a thread finishes. Until it
-         * reaches zero
-         */
-        AtomicInteger threadCount = new AtomicInteger(threads);
+        // Concurrent CCW
+        angleBetween = new AngleBetween(executorService, 0, points);
 
-        /**
-         * Get a good looking set of colors
-         */
-        Color[] palette = Utils.getColorPalette(threads);
-        int paletteIndex = 0;
+        double radOffset = (Math.PI / 2) / (threads - 3);
+        int index = 0;
+        int rad = 0;
+        List<Integer> extremas = new ArrayList<Integer>();
 
-        for (int i = 0; i < threads; i++) {
-            int dir = i % 4;
-            int index;
-            Color color = palette[paletteIndex++];
+        // Concurrent Extrema finder
+        this.extrema = new Extrema(executorService, threads, points,
+                Utils.Direction.NORTH, 0);
+
+        for (; index < threads; index++) {
+
+            extremas.add(((Extrema.ExtremaReference) extrema.find()).getIndex());
+
+            int dir = index % threads;
 
             switch (dir) {
-                case 0:
-                    edgePoint = Utils.findMax(point2Ds, Utils.Direction.WEST, degree);
-                    /** not sure why we are looking for it again here. maybe some other way? */
-                    index = point2Ds.indexOf(edgePoint);
+                case 1: {
+                    extrema.setDirection(Utils.Direction.SOUTH);
+                    extrema.setRadians(rad);
                     break;
-                case 1:
-                    edgePoint = Utils.findMax(point2Ds, Utils.Direction.EAST, degree);
-                    index = point2Ds.indexOf(edgePoint);
-                    break;
-                case 2:
-                    edgePoint = Utils.findMax(point2Ds, Utils.Direction.NORTH, degree);
-                    index = point2Ds.indexOf(edgePoint);
-                    break;
-                default:
-                case 3:
-                    edgePoint = Utils.findMax(point2Ds, Utils.Direction.SOUTH, degree);
-                    index = point2Ds.indexOf(edgePoint);
-                    break;
-            }
-
-            if (edgePoint.getColor() != Point2D.VISITED) {
-                edgePoint.setColor(Point2D.VISITED);
-                executorService.execute(new DirectionSet(point2Ds, index, color, threadCount));
-            } else {
-                /**
-                 * @Kapil. We reduce the extra threads here. Use the extra
-                 * threads to optimize the searching
-                 */
-                int currThreadCount = threadCount.decrementAndGet();
-
-                // Increment search threads; use this later
-                searchThreads++;
-
-                // Update threads count
-                pointCloud.setField("Wrap threads", currThreadCount);
-
-                if(currThreadCount == 0){
-                    pointCloud.toast("@Kapil, the threads that started already finished doing the whole thing!");
-                    finish();
                 }
-            }
+                case 2: {
+                    extrema.setDirection(Utils.Direction.EAST);
+                    extrema.setRadians(rad);
+                    break;
+                }
+                case 3: {
+                    extrema.setDirection(Utils.Direction.WEST);
+                    extrema.setRadians(rad);
+                    break;
+                }
+                case 0: {
+                    rad += radOffset;
 
-            if (dir == 3) {
-                // increment degree offset
-                degree += degreeOffset;
+                    extrema.setDirection(Utils.Direction.NORTH);
+                    extrema.setRadians(rad);
+                    break;
+                }
             }
         }
 
-        //displaying results
-//        int a = leftMost;
-//        for (int i = 0 ; i < count; i ++){
-//            pointCloud.addEdge(new Edge(point2Ds.get(a),point2Ds.get(next[a])));
-//            a = next[a];
-//        }
+        int paletteIndex = 0;
+        int maxSubsetCount = extremas.size();
+        Color[] palette = Utils.getColorPalette(maxSubsetCount);
 
+        pointCloud.setField("Wrap Threads", maxSubsetCount);
+        pointCloud.setField("Search Threads", 0);
+
+        for (int pointIndex : extremas) {
+            Point2D point = points.get(pointIndex);
+            if (point.getColor() != Point2D.VISITED) {
+                point.setColor(Point2D.VISITED);
+                executorService.execute(new Subset(pointIndex, palette[paletteIndex++]));
+            } else {
+
+                int currThreadCount = 0;
+
+                synchronized (threadCount) {
+                    currThreadCount = threadCount.get() - 1;
+                    threadCount.update(currThreadCount);
+                }
+
+                if (debug) {
+                    console.log("Adding search thread");
+                }
+
+                // Increase search active
+                searchCount++;
+
+                // Update availableThreads count
+                pointCloud.setField("Wrap Threads", currThreadCount);
+                pointCloud.setField("Search Threads", searchCount);
+            }
+        }
+
+        if (debugStepThrough) {
+            pointCloud.addButton("Step", new Runnable() {
+                @Override
+                public void run() {
+                    debugStep.lock();
+                    debugStepCondition.signal();
+                    debugStep.unlock();
+                }
+            });
+        }
+
+        pointCloud.draw();
+
+        synchronized (threadCount) {
+            if (threadCount.get() > 0) {
+                try {
+                    threadCount.wait();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
+        executorService.shutdown();
     }
 
-    private class DirectionSet implements Runnable {
+    private class Subset implements Runnable {
 
-        private int edge;
-        private List<Point2D> point2Ds;
         private Color color;
-        private AtomicInteger threads;
+        private int edge;
+        private boolean firstSearch;
 
-        public DirectionSet(List<Point2D> point2Ds, int edge, Color color, AtomicInteger threads) {
+        public Subset(int edge, Color color) {
             this.edge = edge;
-            this.point2Ds = point2Ds;
             this.color = color;
-            this.threads = threads;
+            this.firstSearch = true;
         }
 
         @Override
         public void run() {
-            int p, q;
-            p = edge;
+
+            int pivPointIndex = edge;
+            int refPointIndex;
+            int lastPivPointIndex = 0;
+            boolean performLinear;
+            Point2D pivPoint, refPoint = null;
 
             do {
+
+                if (debugStepThrough) {
+                    debugStep.lock();
+
+                    try {
+                        debugStepCondition.await();
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+
+                performLinear = true;
+                pivPoint = points.get(pivPointIndex);
 
                 /**
                  * Mark the point as visited; if we see this again in
                  * another thread, that thread knows they are done
                  */
-                point2Ds.get(p).setColor(Point2D.VISITED);
+                pivPoint.setColor(Point2D.VISITED);
 
-                //search for q such that it is CCW for all other i
-                q = (p + 1) % pointCount;
-                for (int i = 0; i < pointCount; i++) {
-                    if (Utils.CCW(point2Ds.get(p), point2Ds.get(i), point2Ds.get(q)) == 2) {
-                        q = i;
+                //search for q such that it is ccwQuant for all other i
+                refPointIndex = (pivPointIndex + 1) % pointCount;
+
+                if (!firstSearch && searchCount > 1) {
+
+                    Lock lock = angleBetween.getLock();
+
+                    if (lock.tryLock()) {
+
+                        try {
+                            if (debug) {
+                                console.log("Performing concurrent search");
+                            }
+
+                            angleBetween.setAvailableThreads(searchCount);
+                            angleBetween.setCenter(pivPointIndex);
+                            angleBetween.setPrevious(lastPivPointIndex);
+
+                            // Get next
+                            refPointIndex = ((AngleBetween.CCWReference) angleBetween.find()).getIndex();
+                            refPoint = points.get(refPointIndex);
+
+                            // Skip linear
+                            performLinear = false;
+
+                        } finally {
+                            lock.unlock();
+                        }
                     }
                 }
 
-                // Add q as the next point from p
-                hullArray.getAndSet(p, q);
+                if (performLinear) {
+                    if (debug) {
+                        console.log("Performing linear search");
+                    }
+
+                    pivPoint = points.get(pivPointIndex);
+                    refPoint = points.get(refPointIndex);
+
+                    for (int currPointIndex = 0; currPointIndex < pointCount; currPointIndex++) {
+                        Point2D currPoint = points.get(currPointIndex);
+                        if (Utils.ccw(pivPoint, currPoint, refPoint) == 2) {
+                            refPoint = currPoint;
+                            refPointIndex = currPointIndex;
+                        }
+                    }
+
+                    firstSearch = false;
+                }
 
                 // Add edge
-                pointCloud.addEdge(new Edge(point2Ds.get(p), point2Ds.get(q), color));
+                pointCloud.addEdge(new Edge(pivPoint, refPoint, color));
 
                 // Wait a while so you can see it
                 delay();
 
+                // Last pivot
+                lastPivPointIndex = pivPointIndex;
+
                 // Start from q next time
-                p = q;
+                pivPointIndex = refPointIndex;
 
+                if (debugStepThrough) {
+                    debugStep.unlock();
+                }
             }
-            /**
-             * Keep going until you hit a point which has been visited
-             */
-            while (point2Ds.get(p).getColor() == Point2D.UNVISITED);
+            while (points.get(pivPointIndex).getColor() == Point2D.UNVISITED);
 
-            if (threads.decrementAndGet() == 0) {
-                finish();
+            int currThreadCount = 0;
+
+            synchronized (threadCount) {
+                currThreadCount = threadCount.get() - 1;
+                threadCount.update(currThreadCount);
+                if (currThreadCount == 0) {
+                    threadCount.notify();
+                }
             }
+
+            // Update availableThreads count
+            if(debug) {
+                pointCloud.setField("Wrap Threads", currThreadCount);
+                pointCloud.setField("Search Threads", searchCount + 1);
+            }
+            
+            searchCount++;
         }
-
-
     }
-
-
 }

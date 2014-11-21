@@ -28,8 +28,8 @@ public class Search<T extends Comparable<T>> {
 
     public void found(T t) {
         elapsedTime = ((double) (System.nanoTime() - startTime)) / 1000000000.0;
-//        System.out.printf("(size: %d)(threads: %d)(time: %f)(value: %s)\n",
-//                data.size(), threadCount, elapsedTime, t.toString());
+//        System.out.printf("(size: %d)(availableThreads: %d)(time: %f)(value: %s)\n",
+//                data.size(), availableThreads, elapsedTime, t.toString());
 
         // System.out.println("Termination - Found in " + elapsedTime + "s");
     }
