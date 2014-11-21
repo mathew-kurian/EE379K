@@ -5,6 +5,7 @@ import com.computation.common.Edge;
 import com.computation.common.Point2D;
 import com.computation.common.Utils;
 import com.computation.common.concurrent.search.ForkedMaxBottomLeft;
+import com.computation.external.HeavySort;
 
 import java.util.Arrays;
 import java.util.Comparator;
@@ -14,6 +15,13 @@ import java.util.concurrent.Executors;
 
 @SuppressWarnings("unused")
 public class GrahamScanParallel extends ConvexHull {
+
+    private static final HeavySort.ArrayFactory<Point2D> arrayFactory = new HeavySort.ArrayFactory<Point2D>() {
+        @Override
+        public Point2D[] buildArray(int length) {
+            return new Point2D[length];
+        }
+    };
 
     public GrahamScanParallel(int points, int width, int height, int threads,
                               boolean debug, int animationDelay) {
@@ -36,7 +44,7 @@ public class GrahamScanParallel extends ConvexHull {
 
         // sort by polar angle with respect to base point points[0],
         // breaking ties by distance to points[0]
-        Arrays.sort(pointArr, new Comparator<Point2D>() {
+        HeavySort.sort(pointArr, executorService, threads, arrayFactory, new Comparator<Point2D>() {
 
             public int compare(Point2D q1, Point2D q2) {
 
@@ -99,11 +107,18 @@ public class GrahamScanParallel extends ConvexHull {
         }
 
         while (stack.size() != 1) {
+            requestAnimationFrame();
             delay();
+
             Point2D a = stack.pop();
             Point2D b = stack.pop();
+
+            a.setColor(Point2D.VISITED);
+            b.setColor(Point2D.VISITED);
+
             pointCloud.addEdge(new Edge(a, b));
             stack.push(b);
+            releaseAnimationFrame();
         }
 
         pointCloud.addEdge(new Edge(firstPoint, pointArr[pointArr.length - 1]));

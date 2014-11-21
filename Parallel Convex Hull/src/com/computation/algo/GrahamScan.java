@@ -63,7 +63,7 @@ public class GrahamScan extends ConvexHull {
                     if (dx1 >= 0 && dx2 < 0) {
                         return -1;
                     } else if (dx2 >= 0 && dx1 < 0) {
-                        return +1;
+                        return 1;
                     } else {
                         return 0;
                     }
@@ -118,7 +118,7 @@ public class GrahamScan extends ConvexHull {
         while (stack.size() != 1) {
             requestAnimationFrame();
             delay();
-            
+
             Point2D a = stack.pop();
             Point2D b = stack.pop();
 

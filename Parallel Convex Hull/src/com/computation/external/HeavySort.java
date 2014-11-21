@@ -1,4 +1,4 @@
-package com.computation.common.concurrent.external;
+package com.computation.external;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -187,7 +187,7 @@ public class HeavySort {
             if (lo != null) {
                 for (int i = 0; i < currentLocationBySection.length; i++) {
                     currentLocationBySection[i] = Arrays.binarySearch(
-                            data, startingPoints[i], endPoints[i], lo);
+                            data, startingPoints[i], endPoints[i], lo, comparator);
                     if (currentLocationBySection[i] < 0) {
                         currentLocationBySection[i] =
                                 -currentLocationBySection[i] - 1;
@@ -198,7 +198,7 @@ public class HeavySort {
             if (hi != null) {
                 for (int i = 0; i < upperBoundsBySection.length; i++) {
                     upperBoundsBySection[i] = Arrays.binarySearch(
-                            data, startingPoints[i], endPoints[i], hi);
+                            data, startingPoints[i], endPoints[i], hi, comparator);
                     if (upperBoundsBySection[i] < 0) {
                         upperBoundsBySection[i] =
                                 -upperBoundsBySection[i] - 1;
