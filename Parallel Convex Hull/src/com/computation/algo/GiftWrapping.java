@@ -1,15 +1,15 @@
 package com.computation.algo;
 
 import com.computation.common.*;
-import com.computation.common.concurrent.AngleBetween;
-import com.computation.common.concurrent.Extrema;
+import com.computation.common.concurrent.Forkable;
+import com.computation.common.concurrent.search.ForkedMaxAngle;
+import com.computation.common.concurrent.search.ForkedExtrema;
 
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -21,11 +21,13 @@ public class GiftWrapping extends ConvexHull {
 
     private static final Console console = Console.getInstance(GiftWrapping.class);
     private ExecutorService executorService;
-    private Extrema extrema;
-    private AngleBetween angleBetween;
     private volatile int searchCount;
     private Lock debugStep;
     private Condition debugStepCondition;
+    private Reference<Integer> threadCount;
+    private Lock angleFindLock;
+
+    private final Object lock = new Object();
 
     public GiftWrapping(int points, int width, int height, int threads) {
         super(points, width, height, threads);
@@ -51,48 +53,46 @@ public class GiftWrapping extends ConvexHull {
         // Set search count
         this.searchCount = 0;
 
-        this.debugStep = new ReentrantLock();
-        this.debugStepCondition = debugStep.newCondition();
+        if (debugStepThrough) {
+            this.debugStep = new ReentrantLock();
+            this.debugStepCondition = debugStep.newCondition();
+        }
 
-        // Concurrent CCW
-        angleBetween = new AngleBetween(executorService, 0, points);
+        // Thread count
+        this.threadCount = new Reference<Integer>(threads);
+
+        // Angle between
+        this.angleFindLock = new ReentrantLock();
 
         double radOffset = (Math.PI / 2) / (threads - 3);
         int index = 0;
         int rad = 0;
+        Utils.Direction dir = Utils.Direction.NORTH;
         List<Integer> extremas = new ArrayList<Integer>();
-
-        // Concurrent Extrema finder
-        this.extrema = new Extrema(executorService, threads, points,
-                Utils.Direction.NORTH, 0);
 
         for (; index < threads; index++) {
 
-            extremas.add(((Extrema.ExtremaReference) extrema.find()).getIndex());
+            Point2D extrema = ForkedExtrema.find(executorService, threads, points,
+                    dir, rad).get();
 
-            int dir = index % threads;
+            int dirr = index % threads;
 
-            switch (dir) {
+            switch (dirr) {
                 case 1: {
-                    extrema.setDirection(Utils.Direction.SOUTH);
-                    extrema.setRadians(rad);
+                    dir = Utils.Direction.SOUTH;
                     break;
                 }
                 case 2: {
-                    extrema.setDirection(Utils.Direction.EAST);
-                    extrema.setRadians(rad);
+                    dir = Utils.Direction.EAST;
                     break;
                 }
                 case 3: {
-                    extrema.setDirection(Utils.Direction.WEST);
-                    extrema.setRadians(rad);
+                    dir = Utils.Direction.WEST;
                     break;
                 }
                 case 0: {
                     rad += radOffset;
-
-                    extrema.setDirection(Utils.Direction.NORTH);
-                    extrema.setRadians(rad);
+                    dir = Utils.Direction.NORTH;
                     break;
                 }
             }
@@ -101,7 +101,6 @@ public class GiftWrapping extends ConvexHull {
         int paletteIndex = 0;
         int maxSubsetCount = extremas.size();
         Color[] palette = Utils.getColorPalette(maxSubsetCount);
-        AtomicInteger threadCount = new AtomicInteger(maxSubsetCount);
 
         pointCloud.setField("Wrap Threads", maxSubsetCount);
         pointCloud.setField("Search Threads", 0);
@@ -110,10 +109,15 @@ public class GiftWrapping extends ConvexHull {
             Point2D point = points.get(pointIndex);
             if (point.getColor() != Point2D.VISITED) {
                 point.setColor(Point2D.VISITED);
-                executorService.execute(new Subset(pointIndex, palette[paletteIndex++], threadCount));
+                executorService.execute(new Subset(pointIndex, palette[paletteIndex++]));
             } else {
 
-                int currThreadCount = threadCount.decrementAndGet();
+                int currThreadCount = 0;
+
+                synchronized (threadCount) {
+                    currThreadCount = threadCount.get() - 1;
+                    threadCount.update(currThreadCount);
+                }
 
                 if (debug) {
                     console.log("Adding search thread");
@@ -128,7 +132,7 @@ public class GiftWrapping extends ConvexHull {
             }
         }
 
-        if(debugStepThrough) {
+        if (debugStepThrough) {
             pointCloud.addButton("Step", new Runnable() {
                 @Override
                 public void run() {
@@ -141,11 +145,13 @@ public class GiftWrapping extends ConvexHull {
 
         pointCloud.draw();
 
-        synchronized (this) {
-            try {
-                wait();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+        synchronized (threadCount) {
+            if (threadCount.get() > 0) {
+                try {
+                    threadCount.wait();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
             }
         }
 
@@ -155,15 +161,13 @@ public class GiftWrapping extends ConvexHull {
     private class Subset implements Runnable {
 
         private Color color;
-        private AtomicInteger active;
         private int edge;
-        private boolean firstSearch = true;
+        private boolean firstSearch;
 
-        public Subset(int edge, Color color, AtomicInteger active) {
+        public Subset(int edge, Color color) {
             this.edge = edge;
             this.color = color;
-            this.active = active;
-           // this.firstSearch = true;
+            this.firstSearch = true;
         }
 
         @Override
@@ -177,7 +181,7 @@ public class GiftWrapping extends ConvexHull {
 
             do {
 
-                if(debugStepThrough) {
+                if (debugStepThrough) {
                     debugStep.lock();
 
                     try {
@@ -196,36 +200,27 @@ public class GiftWrapping extends ConvexHull {
                  */
                 pivPoint.setColor(Point2D.VISITED);
 
-                //search for q such that it is ccw for all other i
+                //search for q such that it is ccwQuant for all other i
                 refPointIndex = (pivPointIndex + 1) % pointCount;
 
                 if (!firstSearch && searchCount > 1) {
 
-                    Lock lock = angleBetween.getLock();
-
-                    if (lock.tryLock()) {
+                    if (angleFindLock.tryLock()) {
 
                         try {
                             if (debug) {
                                 console.log("Performing concurrent search");
                             }
-                            angleBetween.setAvailableThreads(searchCount);
-                            angleBetween.setCenter(pivPointIndex);
-                            angleBetween.setPrevious(lastPivPointIndex);
 
                             // Get next
-                            refPointIndex = ((AngleBetween.CCWReference) angleBetween.find()).getIndex();
+                            refPointIndex = ForkedMaxAngle.find(executorService, searchCount, points, pivPointIndex, lastPivPointIndex).getIndex();
                             refPoint = points.get(refPointIndex);
-                            //refPoint.setColor(Color.RED);
-
-                            refPoint.text = refPoint.text + "FOUND";
-                            pointCloud.draw();
 
                             // Skip linear
                             performLinear = false;
 
                         } finally {
-                            lock.unlock();
+                            angleFindLock.unlock();
                         }
                     }
                 }
@@ -249,7 +244,6 @@ public class GiftWrapping extends ConvexHull {
                     firstSearch = false;
                 }
 
-
                 // Add edge
                 pointCloud.addEdge(new Edge(pivPoint, refPoint, color));
 
@@ -262,27 +256,29 @@ public class GiftWrapping extends ConvexHull {
                 // Start from q next time
                 pivPointIndex = refPointIndex;
 
-                if(debugStepThrough){
+                if (debugStepThrough) {
                     debugStep.unlock();
-
                 }
             }
             while (points.get(pivPointIndex).getColor() == Point2D.UNVISITED);
 
-            int currThreadCount = active.decrementAndGet();
+            int currThreadCount = 0;
 
-            if (currThreadCount == 0) {
-                synchronized (GiftWrapping.this) {
-                    GiftWrapping.this.notify();
+            synchronized (threadCount) {
+                currThreadCount = threadCount.get() - 1;
+                threadCount.update(currThreadCount);
+                if (currThreadCount == 0) {
+                    threadCount.notify();
                 }
             }
 
             // Update availableThreads count
-            pointCloud.setField("Wrap Threads", currThreadCount);
-            pointCloud.setField("Search Threads", searchCount + 1);
+            if(debug) {
+                pointCloud.setField("Wrap Threads", currThreadCount);
+                pointCloud.setField("Search Threads", searchCount + 1);
+            }
 
             searchCount++;
-
         }
     }
 }
