@@ -68,7 +68,7 @@ public class GiftWrapping extends ConvexHull {
             extremas.add(ForkedExtrema.find(executorService, threads, points,
                     dir, rad).getIndex());
 
-            int dirr = index % threads;
+            int dirr = ++index % 4;
 
             switch (dirr) {
                 case 1: {
