@@ -63,7 +63,7 @@ public class GiftWrapping extends ConvexHull {
         Utils.Direction dir = Utils.Direction.NORTH;
         List<Integer> extremas = new ArrayList<Integer>();
 
-        for (; index < threads; index++) {
+        for (; index < threads;) {
 
             extremas.add(ForkedExtrema.find(executorService, threads, points,
                     dir, rad).getIndex());
