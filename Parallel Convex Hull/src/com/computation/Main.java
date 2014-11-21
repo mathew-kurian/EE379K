@@ -10,7 +10,11 @@ import com.computation.experimental.OptimalThreadCountFinder;
 import javax.swing.*;
 import java.lang.reflect.InvocationTargetException;
 
+
 public class Main {
+
+    public static final int NUMPOINTS = 1000000;
+    public static final boolean DEBUG = false;
 
     public static void main(String[] args) throws ClassNotFoundException, UnsupportedLookAndFeelException,
             InstantiationException, IllegalAccessException, InvocationTargetException, InterruptedException {
@@ -20,7 +24,7 @@ public class Main {
         OptimalThreadCountFinder.DPI_SCALING =
                 Point2DCloud.DPI_SCALING = 2; /* Set display scaling */
 
-        final Point2DCloud point2DCloud = new Point2DCloud(1000, 1000, 1000, true);
+        final Point2DCloud point2DCloud = new Point2DCloud(NUMPOINTS, 1000, 1000, DEBUG);
 
         point2DCloud.addTopButton("GiftWrapping", new Runnable() {
             @Override

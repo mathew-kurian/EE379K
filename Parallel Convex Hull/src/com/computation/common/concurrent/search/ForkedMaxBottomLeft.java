@@ -83,11 +83,10 @@ public class ForkedMaxBottomLeft extends ForkableSearch<Point2D, List<Point2D>> 
             Point2D last = ref.get();
             if (last == null) {
                 ref.update(min);
-            } else {
-                if (comparePoints(last, min) > 0) {
+                ((Reference) ref).setIndex(minIndex);
+            } else if (comparePoints(last, min) > 0) {
                     ref.update(min);
                     ((Reference) ref).setIndex(minIndex);
-                }
             }
         }
     }
