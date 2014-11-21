@@ -34,35 +34,51 @@ public class Main {
         point2DCloud.addTopButton("GiftWrapping", new Runnable() {
             @Override
             public void run() {
-                new GiftWrapping(point2DCloud, getThreadCount(), true, 100);
+                int animTime = getAnimationTime();
+                new GiftWrapping(point2DCloud, getThreadCount(), animTime != 0, animTime);
             }
         });
 
         point2DCloud.addTopButton("GrahamScanParallel", new Runnable() {
             @Override
             public void run() {
-                new GrahamScanParallel(point2DCloud, getThreadCount(), true, 100);
+                int animTime = getAnimationTime();
+                new GrahamScanParallel(point2DCloud, getThreadCount(), animTime != 0, animTime);
             }
         });
 
         point2DCloud.addTopButton("QuickHull", new Runnable() {
             @Override
             public void run() {
-                new QuickHull(point2DCloud, getThreadCount(), true, 100);
+                int animTime = getAnimationTime();
+                new QuickHull(point2DCloud, getThreadCount(), animTime != 0, animTime);
             }
         });
 
         point2DCloud.addTopButton("GrahamScan", new Runnable() {
             @Override
             public void run() {
-                new GrahamScan(point2DCloud, getThreadCount(), true, 100);
+                int animTime = getAnimationTime();
+                new GrahamScan(point2DCloud, getThreadCount(), animTime != 0, animTime);
             }
         });
 
         point2DCloud.show();
     }
 
-    public static int getThreadCount(){
-        return Integer.parseInt(JOptionPane.showInputDialog(null, "Number of threads"));
+    public static int getThreadCount() {
+        try {
+            return Integer.parseInt(JOptionPane.showInputDialog(null, "Number of threads (default: 4)"));
+        } catch (Exception e) {
+            return 4;
+        }
+    }
+
+    public static int getAnimationTime() {
+        try {
+            return Integer.parseInt(JOptionPane.showInputDialog(null, "Animation time (default: 100)"));
+        } catch (Exception e) {
+            return 100;
+        }
     }
 }
